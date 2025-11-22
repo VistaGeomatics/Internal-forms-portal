@@ -2,187 +2,144 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>VistaGeomatics – HR Portal</title>
+  <title>VistaGeomatics – HR</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Montserrat:wght@700&display=swap" rel="stylesheet">
 
   <style>
-    :root {
-      --vista-blue: #1f9cf0;
-      --vista-blue-dark: #005a9c;
-      --text-main: #ffffff;
-    }
-
-    * { box-sizing: border-box; }
-
     body {
       margin: 0;
       min-height: 100vh;
       font-family: "Inter", sans-serif;
-      color: var(--text-main);
-      background: #020509;
+      color: #ffffff;
+      background-color: #020509;
       background-image: url("HR.png");
-      background-size: cover;
-      background-position: center;
+      background-size: contain;
+      background-position: center top;
       background-repeat: no-repeat;
     }
 
     .overlay {
       position: fixed;
       inset: 0;
-      background: radial-gradient(circle at top, rgba(0,0,0,0.35), rgba(0,0,0,0.92));
+      background: radial-gradient(circle at top, rgba(0,0,0,0.55), rgba(0,0,0,0.92));
       display: flex;
       align-items: flex-start;
       justify-content: center;
-      padding: 24px;
+      padding: 32px;
     }
 
     .card {
-      margin-top: 40px;
-      max-width: 900px;
       width: 100%;
-      background: rgba(5, 10, 18, 0.9);
-      border-radius: 24px;
-      padding: 28px 26px 22px;
-      box-shadow: 0 24px 60px rgba(0,0,0,0.8);
-      border: 1px solid rgba(255,255,255,0.08);
+      max-width: 900px;
+      padding: 28px;
+      border-radius: 20px;
+      background: rgba(5,10,18,0.92);
+      border: 1px solid rgba(255,255,255,0.1);
+      box-shadow: 0 24px 60px rgba(0,0,0,0.9);
       backdrop-filter: blur(12px);
     }
 
-    .header {
-      display: flex;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 12px;
-      align-items: baseline;
-      margin-bottom: 18px;
-    }
-
-    .title-block { max-width: 70%; }
-
-    .logo-text {
-      font-family: "Montserrat", sans-serif;
-      letter-spacing: 0.18em;
-      text-transform: uppercase;
-      font-size: 0.9rem;
-      margin-bottom: 4px;
-      color: rgba(255,255,255,0.86);
-    }
-    .logo-text span:first-child { font-weight: 700; }
-    .logo-text span:last-child  { font-weight: 400; }
-
     .title {
+      font-size: 1.6rem;
       font-family: "Montserrat", sans-serif;
-      font-size: 1.4rem;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      margin-bottom: 6px;
     }
 
     .subtitle {
-      margin-top: 4px;
-      font-size: 0.85rem;
-      color: rgba(255,255,255,0.78);
+      font-size: 0.9rem;
+      opacity: 0.8;
+      margin-bottom: 14px;
+    }
+
+    .divider {
+      width: 120px;
+      height: 2px;
+      border-radius: 999px;
+      margin-bottom: 18px;
+      background: linear-gradient(120deg, #1f9cf0, #005a9c, #1f9cf0);
+    }
+
+    .section-title {
+      margin: 20px 0 10px;
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      font-weight: 600;
     }
 
     .back-link {
       font-size: 0.8rem;
-      color: rgba(255,255,255,0.7);
-      text-decoration: none;
-      border-radius: 999px;
       padding: 6px 14px;
-      border: 1px solid rgba(255,255,255,0.25);
-      background: rgba(0,0,0,0.35);
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-    }
-    .back-link:hover { background: rgba(255,255,255,0.08); }
-
-    .divider {
-      width: 130px;
-      height: 2px;
-      margin: 8px 0 14px;
       border-radius: 999px;
-      background: linear-gradient(120deg, #1f9cf0, #43b0ff, #1f9cf0);
-      box-shadow: 0 0 10px rgba(31,156,240,0.8);
+      border: 1px solid rgba(255,255,255,0.3);
+      text-decoration: none;
+      text-transform: uppercase;
+      color: #fff;
     }
 
-    .section-title {
-      font-size: 0.9rem;
+    .button-column {
+      width: 100%;
+      max-width: 420px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .nav-button {
+      padding: 14px;
+      border-radius: 999px;
+      background-image: linear-gradient(120deg, #1f9cf0, #005a9c, #1f9cf0);
+      background-size: 200% 200%;
+      color: #fff;
       font-weight: 600;
       text-transform: uppercase;
-      letter-spacing: 0.14em;
-      margin-bottom: 10px;
-      color: rgba(255,255,255,0.9);
-    }
-
-    .link-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-      gap: 10px;
-    }
-
-    .link-card {
-      padding: 12px 14px;
-      border-radius: 12px;
-      background: rgba(15, 23, 42, 0.9);
-      border: 1px solid rgba(148, 163, 184, 0.35);
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      letter-spacing: 0.18em;
       text-align: center;
-      transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease, background 0.15s ease;
-      font-weight: 600;
-      font-size: 0.9rem;
-    }
-
-    .link-card:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 16px 40px rgba(0,0,0,0.9);
-      border-color: rgba(56, 189, 248, 0.9);
-      background: radial-gradient(circle at top left, rgba(56,189,248,0.16), rgba(15,23,42,0.96));
-    }
-
-    a {
-      color: inherit;
       text-decoration: none;
+      box-shadow: 0 14px 35px rgba(0,0,0,0.85);
+      transition: 0.25s ease;
     }
 
-    @media (max-width: 640px) {
-      .card { padding: 22px 18px 18px; }
-      .title-block { max-width: 100%; }
+    .nav-button:hover {
+      transform: translateY(-2px);
+      background-position: 100% 0;
     }
   </style>
 </head>
+
 <body>
 <div class="overlay">
   <div class="card">
-    <header class="header">
-      <div class="title-block">
-        <div class="logo-text"><span>VISTA</span><span>GEOMATICS</span></div>
+
+    <div style="display:flex; justify-content:space-between; align-items:center;">
+      <div>
         <div class="title">HR</div>
-        <div class="subtitle">Links to HR systems and time-off calendar.</div>
+        <div class="subtitle">Employee systems and information.</div>
         <div class="divider"></div>
       </div>
-      <a href="index.html" class="back-link">Back to Portal</a>
-    </header>
+      <a class="back-link" href="index.html">Back</a>
+    </div>
 
-    <section>
-      <div class="section-title">HR Systems</div>
-      <div class="link-grid">
-        <a class="link-card" href="https://efederation.wip.ceridian.com/adfs/ls/?wtrealm=https%3A%2F%2Fiam.dayforce.com%2F&wa=wsignin1.0&wreply=https%3A%2F%2Fiam.dayforce.com%2Fsignin-wsfed&wctx=CfDJ8LmBaoXHCkhGgjx5WosaTVofk4-COeY2xc9ch7nKU38JVPp5_OEXvgPgW9e9vr-jbBkEm9O7BWzPzZCybLgzW44flZEvzfdVcQQQnvTjsZeYzInUs9ZquSN5VUs0uI8NE0uPK18zAtnaQNmuHBaO9MGa19Cpo5WD_tKUxVoFEtqJ5-YN2-s6syisSNv6wh6BBHPPDcdadRQ-eowU1zuS7n8" target="_blank" rel="noopener">
-          Dayforce Login
-        </a>
+    <div class="section-title">HR Links</div>
 
-        <a class="link-card" href="https://clients.powerpay.ca/selfservice/login" target="_blank" rel="noopener">
-          PowerPay Employee Self-Service Login
-        </a>
+    <div class="button-column">
+      <a class="nav-button" href="https://efederation.wip.ceridian.com/adfs/ls/?wtrealm=https%3A%2F%2Fiam.dayforce.com%2F&wa=wsignin1.0&wreply=https%3A%2F%2Fiam.dayforce.com%2Fsignin-wsfed" target="_blank">
+        Dayforce Login
+      </a>
 
-        <a class="link-card" href="https://calendar.google.com/calendar/embed?src=0q7apur0ejg3roqt1ujf680lfk%40group.calendar.google.com&ctz=America%2FEdmonton" target="_blank" rel="noopener">
-          Time Off Calendar
-        </a>
-      </div>
-    </section>
+      <a class="nav-button" href="https://clients.powerpay.ca/selfservice/login" target="_blank">
+        PowerPay Self-Service Login
+      </a>
+
+      <a class="nav-button" href="https://calendar.google.com/calendar/embed?src=0q7apur0ejg3roqt1ujf680lfk%40group.calendar.google.com&ctz=America%2FEdmonton" target="_blank">
+        Time Off Calendar
+      </a>
+    </div>
+
   </div>
 </div>
 </body>
