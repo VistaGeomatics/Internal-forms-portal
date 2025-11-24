@@ -5,6 +5,7 @@
   <title>VistaGeomatics – Safety</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
+  <!-- Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
 
   <style>
@@ -14,7 +15,9 @@
       --text-main: #ffffff;
     }
 
-    * { box-sizing: border-box; }
+    * {
+      box-sizing: border-box;
+    }
 
     body {
       margin: 0;
@@ -31,6 +34,7 @@
     .overlay {
       position: fixed;
       inset: 0;
+      /* Dark but still lets the wallpaper show through */
       background: radial-gradient(circle at top, rgba(0,0,0,0.45), rgba(0,0,0,0.92));
       display: flex;
       align-items: flex-start;
@@ -59,7 +63,9 @@
       margin-bottom: 18px;
     }
 
-    .title-block { max-width: 70%; }
+    .title-block {
+      max-width: 70%;
+    }
 
     .title {
       font-family: "Montserrat", sans-serif;
@@ -94,7 +100,10 @@
       letter-spacing: 0.14em;
       text-transform: uppercase;
     }
-    .back-link:hover { background: rgba(255,255,255,0.08); }
+
+    .back-link:hover {
+      background: rgba(255,255,255,0.08);
+    }
 
     .section {
       margin-top: 18px;
@@ -128,7 +137,11 @@
       font-size: 0.85rem;
       text-transform: uppercase;
       letter-spacing: 0.06em;
-      transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+      transition:
+        transform 0.15s ease,
+        box-shadow 0.15s ease,
+        border-color 0.15s ease,
+        background 0.15s ease;
     }
 
     .link-card:hover {
@@ -138,7 +151,10 @@
       background: radial-gradient(circle at top left, rgba(56,189,248,0.16), rgba(15,23,42,0.96));
     }
 
-    a { color: inherit; text-decoration: none; }
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
 
     .footer-brand {
       margin-top: 20px;
@@ -149,12 +165,22 @@
       text-transform: uppercase;
       color: rgba(255,255,255,0.6);
     }
-    .footer-brand .vista { font-weight: 700; }
-    .footer-brand .geomatics { font-weight: 400; }
+
+    .footer-brand .vista {
+      font-weight: 700;
+    }
+
+    .footer-brand .geomatics {
+      font-weight: 400;
+    }
 
     @media (max-width: 640px) {
-      .card { padding: 22px 18px 18px; }
-      .title-block { max-width: 100%; }
+      .card {
+        padding: 22px 18px 18px;
+      }
+      .title-block {
+        max-width: 100%;
+      }
     }
   </style>
 </head>
@@ -170,11 +196,12 @@
       <a href="index.html" class="back-link">Back</a>
     </header>
 
+    <!-- Forms section -->
     <section class="section">
       <div class="section-title">Forms</div>
       <div class="link-grid">
-        <a class="link-card" href="https://drive.google.com/file/d/1uP2qoCWykpPZJdFh_5oyM6BDb9FVRoHj/view?usp=sharing" target="_blank" rel="noopener">
-          FORMAL HAZARD ASSESSMENT (FORM)
+        <a class="link-card" href="https://vistageomatics.github.io/Hazard-Assessment-/" target="_blank" rel="noopener">
+          HAZARD ASSESSMENT (FORM)
         </a>
 
         <a class="link-card" href="https://vistageomatics.github.io/Vehicle-Inspection/" target="_blank" rel="noopener">
@@ -195,11 +222,16 @@
       </div>
     </section>
 
+    <!-- Manuals & Legislation section -->
     <section class="section">
       <div class="section-title">Manuals &amp; Legislation</div>
       <div class="link-grid">
         <a class="link-card" href="https://drive.google.com/file/d/1FVwWzRnemArvV8bAvSESBGenr5qei72x/view?usp=sharing" target="_blank" rel="noopener">
           HSE MANUAL
+        </a>
+
+        <a class="link-card" href="https://drive.google.com/file/d/1uP2qoCWykpPZJdFh_5oyM6BDb9FVRoHj/view?usp=sharing" target="_blank" rel="noopener">
+          FORMAL HAZARD ASSESSMENT
         </a>
 
         <a class="link-card" href="https://drive.google.com/file/d/1dO-brbhUFxlUU_SKURS-4WIY9rSmV7Up/view?usp=sharing" target="_blank" rel="noopener">
@@ -220,6 +252,7 @@
       </div>
     </section>
 
+    <!-- Footer brand -->
     <div class="footer-brand">
       <span class="vista">VISTA</span><span class="geomatics">GEOMATICS</span>
     </div>
