@@ -22,7 +22,6 @@
       --vista-blue-dark:#005a9c;
 
       --shadow:0 30px 70px rgba(0,0,0,0.80);
-      --shadow2:0 18px 45px rgba(0,0,0,0.70);
     }
 
     *{ box-sizing:border-box; }
@@ -33,7 +32,7 @@
       font-family:"Inter", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
       color:var(--text);
       background-color:var(--bg0);
-      background-image:url("Wallpaper Launch page.png");
+      background-image:url("Wallpaper Launch page.png"); /* optional */
       background-size:contain;
       background-position:center top;
       background-repeat:no-repeat;
@@ -96,14 +95,48 @@
       z-index:0;
     }
 
+    /* Bars layer sits BEHIND the title text */
+    .wipe{
+      position:absolute;
+      inset:0;
+      display:grid;
+      grid-template-columns:repeat(12, 1fr);
+      gap:10px;
+      padding:0 28px;
+      z-index:1;
+      pointer-events:none;
+      opacity:1;
+    }
+    .wipe .bar{
+      height:100%;
+      background:rgba(255,255,255,0.06);
+      border-left:1px solid rgba(255,255,255,0.06);
+      border-right:1px solid rgba(255,255,255,0.03);
+      transform:translateY(0);
+      will-change:transform;
+      position:relative;
+      overflow:hidden;
+    }
+    .wipe .bar::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:linear-gradient(180deg,
+        rgba(31,156,240,0.10),
+        rgba(0,90,156,0.08),
+        rgba(0,0,0,0.60)
+      );
+      opacity:0.9;
+    }
+
     .intro-inner{
       position:relative;
+      z-index:5; /* TITLE ABOVE BARS */
       text-align:center;
       padding:24px;
       opacity:0;
       transform:translateY(8px);
       animation:introIn .70s ease forwards;
-      z-index:2;
     }
     @keyframes introIn{
       to { opacity:1; transform:translateY(0); }
@@ -121,6 +154,9 @@
       display:inline-flex;
       gap:0;
       white-space:nowrap;
+      text-shadow:
+        0 2px 18px rgba(0,0,0,0.85),
+        0 0 28px rgba(31,156,240,0.16);
     }
     .brand-word .vista{ font-weight:700; }
     .brand-word .geomatics{ font-weight:400; }
@@ -157,39 +193,6 @@
       100%{ transform:translateX(460%); }
     }
 
-    .wipe{
-      position:absolute;
-      inset:0;
-      display:grid;
-      grid-template-columns:repeat(12, 1fr);
-      gap:10px;
-      padding:0 28px;
-      z-index:1;
-      pointer-events:none;
-      opacity:1;
-    }
-    .wipe .bar{
-      height:100%;
-      background:rgba(255,255,255,0.06);
-      border-left:1px solid rgba(255,255,255,0.06);
-      border-right:1px solid rgba(255,255,255,0.03);
-      transform:translateY(0);
-      will-change:transform;
-      position:relative;
-      overflow:hidden;
-    }
-    .wipe .bar::after{
-      content:"";
-      position:absolute;
-      inset:0;
-      background:linear-gradient(180deg,
-        rgba(31,156,240,0.10),
-        rgba(0,90,156,0.08),
-        rgba(0,0,0,0.60)
-      );
-      opacity:0.9;
-    }
-
     .intro.wiping .intro-inner{
       animation:none;
       opacity:1;
@@ -218,7 +221,7 @@
     .wipe .bar:nth-child(11){ animation-delay:0.50s; }
     .wipe .bar:nth-child(12){ animation-delay:0.55s; }
 
-    /* ===== Simple portal layout (like original) ===== */
+    /* ===== Simple portal layout ===== */
     .wrap{
       position:relative;
       z-index:1;
@@ -269,25 +272,6 @@
       max-width:560px;
     }
 
-    .chip-row{
-      display:flex;
-      gap:10px;
-      flex-wrap:wrap;
-      justify-content:flex-end;
-      margin-top:2px;
-    }
-    .chip{
-      font-size:0.78rem;
-      color:rgba(255,255,255,0.82);
-      border:1px solid rgba(255,255,255,0.10);
-      background:rgba(255,255,255,0.04);
-      padding:8px 10px;
-      border-radius:999px;
-      letter-spacing:0.10em;
-      text-transform:uppercase;
-      user-select:none;
-    }
-
     .card-body{
       padding:22px 28px 26px;
     }
@@ -299,7 +283,6 @@
     }
     @media (max-width: 760px){
       .btn-grid{ grid-template-columns:repeat(2, minmax(0, 1fr)); }
-      .chip-row{ justify-content:flex-start; }
     }
     @media (max-width: 520px){
       .btn-grid{ grid-template-columns:1fr; }
@@ -397,7 +380,7 @@
     </div>
   </div>
 
-  <!-- Simple portal -->
+  <!-- Portal -->
   <main class="wrap">
     <section class="card" aria-label="Forms Portal">
       <header class="card-head">
@@ -405,15 +388,7 @@
           <div class="brand-mini" aria-label="VISTAGEOMATICS">
             <span class="vista">VISTA</span><span class="geomatics">GEOMATICS</span>
           </div>
-          <div class="tagline">
-            Select a category to continue.
-          </div>
-        </div>
-
-        <div class="chip-row" aria-hidden="true">
-          <div class="chip">Survey</div>
-          <div class="chip">Safety</div>
-          <div class="chip">HR</div>
+          <div class="tagline">Select a category to continue.</div>
         </div>
       </header>
 
@@ -435,14 +410,17 @@
   <button id="goTop" type="button" aria-label="Back to top">↑</button>
 
   <script>
-    // ---- Intro timing with bar wipe ----
+    // ---- Intro timing with bar wipe (LONGER) ----
     (function () {
       const intro = document.getElementById("intro");
       const prefersReduced = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-      const wipeStartMs = prefersReduced ? 260 : 1100;
-      const hideAfterMs = prefersReduced ? 520 : 1750;
-      const safetyMaxMs = prefersReduced ? 900 : 2600;
+      // ✅ Longer opener:
+      // - bars start later
+      // - intro hides later
+      const wipeStartMs = prefersReduced ? 350 : 2400;  // was ~1100
+      const hideAfterMs = prefersReduced ? 750 : 3600;  // was ~1750
+      const safetyMaxMs = prefersReduced ? 1200 : 5200; // safety fallback
 
       function startWipe(){
         if (!intro || intro.classList.contains("wiping")) return;
@@ -453,12 +431,17 @@
         intro.classList.add("hide");
       }
 
+      // Start even before load (for cached assets)
       setTimeout(startWipe, wipeStartMs);
       setTimeout(hideIntro, hideAfterMs);
+
+      // Ensure it runs after load too
       window.addEventListener("load", () => {
-        setTimeout(startWipe, 0);
+        setTimeout(startWipe, wipeStartMs);
         setTimeout(hideIntro, hideAfterMs);
       });
+
+      // Safety fallback
       setTimeout(hideIntro, safetyMaxMs);
     })();
 
@@ -471,7 +454,7 @@
       btn.addEventListener("click", () => window.scrollTo({ top: 0, behavior: "smooth" }));
     })();
 
-    // ---- Cursor laser trail ----
+    // ---- Cursor "laser" trail (tight) ----
     (function () {
       const canvas = document.getElementById("trail");
       if (!canvas) return;
@@ -487,8 +470,8 @@
 
       const ctx = canvas.getContext("2d");
       const points = [];
-      const MAX = 18;
-      const DECAY = 0.86;
+      const MAX = 14;
+      const DECAY = 0.84;
 
       function resize(){
         canvas.width = Math.floor(window.innerWidth * devicePixelRatio);
@@ -509,7 +492,7 @@
         ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
 
         for (const p of points) p.a *= DECAY;
-        while (points.length && points[0].a < 0.05) points.shift();
+        while (points.length && points[0].a < 0.06) points.shift();
 
         if (points.length >= 2) {
           ctx.globalCompositeOperation = "lighter";
@@ -521,8 +504,8 @@
             const p1 = points[i];
             const t = i / (points.length - 1);
 
-            const width = 1.0 + t * 0.9;
-            const alpha = Math.min(0.95, p1.a) * (0.18 + t * 0.65);
+            const width = 0.85 + t * 0.55;
+            const alpha = Math.min(0.95, p1.a) * (0.22 + t * 0.70);
 
             const grad = ctx.createLinearGradient(p0.x, p0.y, p1.x, p1.y);
             grad.addColorStop(0, `rgba(31,156,240,${alpha})`);
@@ -539,13 +522,8 @@
           const head = points[points.length - 1];
           ctx.globalCompositeOperation = "source-over";
           ctx.beginPath();
-          ctx.arc(head.x, head.y, 1.6, 0, Math.PI * 2);
-          ctx.fillStyle = "rgba(255,255,255,0.82)";
-          ctx.fill();
-
-          ctx.beginPath();
-          ctx.arc(head.x, head.y, 7.0, 0, Math.PI * 2);
-          ctx.fillStyle = "rgba(31,156,240,0.10)";
+          ctx.arc(head.x, head.y, 1.15, 0, Math.PI * 2);
+          ctx.fillStyle = "rgba(255,255,255,0.90)";
           ctx.fill();
         }
 
