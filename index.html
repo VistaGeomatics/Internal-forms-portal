@@ -1,143 +1,558 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>VistaGeomatics – Internal Forms Portal</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="UTF-8" />
+  <title>VISTAGEOMATICS – Internal Forms Portal</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Vista Geomatics internal forms portal for Survey, Safety, and HR." />
 
+  <!-- Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
 
   <style>
-    :root {
-      --vista-blue: #1f9cf0;
-      --vista-blue-dark: #005a9c;
-      --text-main: #ffffff;
+    :root{
+      --bg0:#020509;
+      --glass:rgba(10,16,26,0.72);
+      --stroke:rgba(255,255,255,0.10);
+      --stroke2:rgba(255,255,255,0.06);
+      --text:rgba(255,255,255,0.96);
+      --muted:rgba(255,255,255,0.70);
+
+      --vista-blue:#1f9cf0;
+      --vista-blue-dark:#005a9c;
+
+      --shadow:0 30px 70px rgba(0,0,0,0.80);
+      --shadow2:0 18px 45px rgba(0,0,0,0.70);
     }
 
-    * { box-sizing: border-box; }
+    *{ box-sizing:border-box; }
+    html, body{ height:100%; }
 
-    body {
-      margin: 0;
-      min-height: 100vh;
-      font-family: "Inter", sans-serif;
-      color: var(--text-main);
-      background-color: #020509;
-      background-image: url("Wallpaper Launch page.png");
-      background-size: contain;
-      background-position: center top;
-      background-repeat: no-repeat;
+    body{
+      margin:0;
+      font-family:"Inter", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      color:var(--text);
+      background-color:var(--bg0);
+      background-image:url("Wallpaper Launch page.png");
+      background-size:contain;
+      background-position:center top;
+      background-repeat:no-repeat;
+      overflow-x:hidden;
     }
 
-    .overlay {
-      position: fixed;
-      inset: 0;
-      background: radial-gradient(circle at top, rgba(0,0,0,0.45), rgba(0,0,0,0.92));
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 24px;
+    /* Background overlay */
+    .bg-overlay{
+      position:fixed;
+      inset:0;
+      z-index:0;
+      pointer-events:none;
+      background:
+        radial-gradient(1200px 700px at 50% 10%, rgba(31,156,240,0.10), transparent 60%),
+        radial-gradient(900px 600px at 15% 85%, rgba(0,90,156,0.12), transparent 58%),
+        radial-gradient(circle at 50% 0%, rgba(0,0,0,0.35), rgba(0,0,0,0.88)),
+        linear-gradient(to bottom, rgba(0,0,0,0.10), rgba(0,0,0,0.65));
     }
 
-    .card {
-      max-width: 900px;
-      width: 100%;
-      background: rgba(5, 10, 18, 0.92);
-      border-radius: 24px;
-      padding: 32px 26px 26px;
-      border: 1px solid rgba(255,255,255,0.08);
-      box-shadow: 0 24px 60px rgba(0,0,0,0.9);
-      backdrop-filter: blur(12px);
-      text-align: center;
+    /* Cursor laser canvas */
+    canvas.cursor-trail{
+      position:fixed;
+      inset:0;
+      pointer-events:none;
+      z-index:9998;
+    }
+    @media (max-width: 991px){
+      canvas.cursor-trail{ display:none; }
+    }
+    @media (prefers-reduced-motion: reduce){
+      canvas.cursor-trail{ display:none; }
     }
 
-    .logo-text {
-      font-family: "Montserrat", sans-serif;
-      letter-spacing: 0.24em;
-      text-transform: uppercase;
-      font-size: 1.3rem;
-      margin-bottom: 24px;
+    /* ===== Dramatic opener with bar wipe ===== */
+    .intro{
+      position:fixed;
+      inset:0;
+      z-index:9999;
+      background:#000;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      overflow:hidden;
+      transition:opacity .55s ease, visibility .55s ease;
     }
-    .logo-text span:first-child { font-weight: 700; }
-    .logo-text span:last-child  { font-weight: 400; }
-
-    .subtitle {
-      font-size: 0.9rem;
-      color: rgba(255,255,255,0.78);
-      margin-bottom: 24px;
-    }
-
-    .button-row {
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
-      max-width: 360px;
-      margin: 0 auto 18px;
+    .intro.hide{
+      opacity:0;
+      visibility:hidden;
     }
 
-    .nav-button {
-      padding: 14px 28px;
-      border-radius: 999px;
-      border: 1px solid rgba(255,255,255,0.1);
-      background-image: linear-gradient(120deg, #1f9cf0, #005a9c, #1f9cf0);
-      background-size: 200% 200%;
-      color: #fff;
-      font-size: 0.9rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.18em;
-      text-decoration: none;
-      display: block;
-      text-align: center;
-      box-shadow: 0 14px 35px rgba(0,0,0,0.85);
-      transition: transform 0.2s ease, box-shadow 0.2s ease, background-position 0.25s ease;
+    .intro::before{
+      content:"";
+      position:absolute;
+      inset:-30%;
+      background:
+        radial-gradient(600px 240px at 50% 50%, rgba(31,156,240,0.18), transparent 65%),
+        radial-gradient(500px 220px at 55% 55%, rgba(0,90,156,0.18), transparent 68%),
+        radial-gradient(circle at 50% 50%, rgba(255,255,255,0.04), rgba(0,0,0,0.94));
+      transform:scale(1.05);
+      z-index:0;
     }
 
-    .nav-button:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 20px 45px rgba(0,0,0,0.95);
-      background-position: 100% 0;
+    .intro-inner{
+      position:relative;
+      text-align:center;
+      padding:24px;
+      opacity:0;
+      transform:translateY(8px);
+      animation:introIn .70s ease forwards;
+      z-index:2;
+    }
+    @keyframes introIn{
+      to { opacity:1; transform:translateY(0); }
     }
 
-    .footer-brand {
-      margin-top: 10px;
-      font-family: "Montserrat", sans-serif;
-      font-size: 0.75rem;
-      letter-spacing: 0.18em;
-      text-transform: uppercase;
-      color: rgba(255,255,255,0.6);
+    .brand-word{
+      font-family:"Montserrat", sans-serif;
+      text-transform:uppercase;
+      letter-spacing:0.22em;
+      font-size:clamp(2.2rem, 6.0vw, 4.8rem);
+      line-height:1.04;
+      color:#fff;
+      user-select:none;
+      margin:0;
+      display:inline-flex;
+      gap:0;
+      white-space:nowrap;
     }
-    .footer-brand .vista { font-weight: 700; }
-    .footer-brand .geomatics { font-weight: 400; }
+    .brand-word .vista{ font-weight:700; }
+    .brand-word .geomatics{ font-weight:400; }
 
-    @media (max-width: 600px) {
-      .card {
-        padding: 26px 18px 22px;
-      }
+    .intro-sub{
+      margin:18px 0 0;
+      font-size:0.95rem;
+      color:rgba(255,255,255,0.74);
+      letter-spacing:0.12em;
+      text-transform:uppercase;
     }
+
+    .scanline{
+      position:relative;
+      width:min(760px, 82vw);
+      height:2px;
+      margin:20px auto 0;
+      background:rgba(255,255,255,0.08);
+      border-radius:999px;
+      overflow:hidden;
+    }
+    .scanline::after{
+      content:"";
+      position:absolute;
+      left:-30%;
+      top:0;
+      height:100%;
+      width:30%;
+      background:linear-gradient(90deg, transparent, rgba(31,156,240,0.85), rgba(0,90,156,0.85), transparent);
+      animation:scan 1.1s ease-in-out infinite;
+    }
+    @keyframes scan{
+      0%{ transform:translateX(0); }
+      100%{ transform:translateX(460%); }
+    }
+
+    .wipe{
+      position:absolute;
+      inset:0;
+      display:grid;
+      grid-template-columns:repeat(12, 1fr);
+      gap:10px;
+      padding:0 28px;
+      z-index:1;
+      pointer-events:none;
+      opacity:1;
+    }
+    .wipe .bar{
+      height:100%;
+      background:rgba(255,255,255,0.06);
+      border-left:1px solid rgba(255,255,255,0.06);
+      border-right:1px solid rgba(255,255,255,0.03);
+      transform:translateY(0);
+      will-change:transform;
+      position:relative;
+      overflow:hidden;
+    }
+    .wipe .bar::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:linear-gradient(180deg,
+        rgba(31,156,240,0.10),
+        rgba(0,90,156,0.08),
+        rgba(0,0,0,0.60)
+      );
+      opacity:0.9;
+    }
+
+    .intro.wiping .intro-inner{
+      animation:none;
+      opacity:1;
+      transform:translateY(0) scale(1);
+      transition:opacity .45s ease, transform .55s ease;
+      opacity:0;
+      transform:translateY(-6px) scale(0.985);
+    }
+    .intro.wiping .wipe .bar{
+      animation:barWipe 0.9s cubic-bezier(.2,.8,.2,1) forwards;
+    }
+    @keyframes barWipe{
+      0%{ transform:translateY(0); }
+      100%{ transform:translateY(110%); }
+    }
+    .wipe .bar:nth-child(1){ animation-delay:0.00s; }
+    .wipe .bar:nth-child(2){ animation-delay:0.05s; }
+    .wipe .bar:nth-child(3){ animation-delay:0.10s; }
+    .wipe .bar:nth-child(4){ animation-delay:0.15s; }
+    .wipe .bar:nth-child(5){ animation-delay:0.20s; }
+    .wipe .bar:nth-child(6){ animation-delay:0.25s; }
+    .wipe .bar:nth-child(7){ animation-delay:0.30s; }
+    .wipe .bar:nth-child(8){ animation-delay:0.35s; }
+    .wipe .bar:nth-child(9){ animation-delay:0.40s; }
+    .wipe .bar:nth-child(10){ animation-delay:0.45s; }
+    .wipe .bar:nth-child(11){ animation-delay:0.50s; }
+    .wipe .bar:nth-child(12){ animation-delay:0.55s; }
+
+    /* ===== Simple portal layout (like original) ===== */
+    .wrap{
+      position:relative;
+      z-index:1;
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:26px;
+    }
+
+    .card{
+      width:min(860px, 100%);
+      border-radius:28px;
+      border:1px solid var(--stroke);
+      background:linear-gradient(180deg, rgba(10,16,26,0.78), rgba(10,16,26,0.62));
+      backdrop-filter: blur(14px);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+    }
+
+    .card-head{
+      padding:28px 28px 18px;
+      border-bottom:1px solid var(--stroke2);
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:18px;
+    }
+
+    .brand-mini{
+      font-family:"Montserrat", sans-serif;
+      text-transform:uppercase;
+      letter-spacing:0.22em;
+      font-size:1.05rem;
+      line-height:1;
+      display:inline-flex;
+      white-space:nowrap;
+      gap:0;
+    }
+    .brand-mini .vista{ font-weight:700; }
+    .brand-mini .geomatics{ font-weight:400; }
+
+    .tagline{
+      margin-top:10px;
+      color:var(--muted);
+      font-size:0.95rem;
+      line-height:1.35;
+      max-width:560px;
+    }
+
+    .chip-row{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      justify-content:flex-end;
+      margin-top:2px;
+    }
+    .chip{
+      font-size:0.78rem;
+      color:rgba(255,255,255,0.82);
+      border:1px solid rgba(255,255,255,0.10);
+      background:rgba(255,255,255,0.04);
+      padding:8px 10px;
+      border-radius:999px;
+      letter-spacing:0.10em;
+      text-transform:uppercase;
+      user-select:none;
+    }
+
+    .card-body{
+      padding:22px 28px 26px;
+    }
+
+    .btn-grid{
+      display:grid;
+      grid-template-columns:repeat(3, minmax(0, 1fr));
+      gap:14px;
+    }
+    @media (max-width: 760px){
+      .btn-grid{ grid-template-columns:repeat(2, minmax(0, 1fr)); }
+      .chip-row{ justify-content:flex-start; }
+    }
+    @media (max-width: 520px){
+      .btn-grid{ grid-template-columns:1fr; }
+    }
+
+    .btn{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:14px;
+      padding:16px 16px;
+      border-radius:18px;
+      border:1px solid rgba(255,255,255,0.10);
+      background:linear-gradient(120deg, rgba(31,156,240,0.92), rgba(0,90,156,0.92), rgba(31,156,240,0.92));
+      background-size:200% 200%;
+      color:#fff;
+      text-decoration:none;
+      font-weight:700;
+      letter-spacing:0.12em;
+      text-transform:uppercase;
+      box-shadow:0 14px 30px rgba(0,0,0,0.70);
+      transition: transform .18s ease, box-shadow .18s ease, background-position .25s ease, border-color .18s ease;
+      min-height:62px;
+    }
+    .btn:hover{
+      transform:translateY(-2px);
+      box-shadow:0 22px 48px rgba(0,0,0,0.88);
+      background-position:100% 0;
+      border-color:rgba(255,255,255,0.16);
+    }
+    .btn .arrow{
+      opacity:0.95;
+      transform:translateX(0);
+      transition:transform .18s ease;
+      letter-spacing:0;
+    }
+    .btn:hover .arrow{ transform:translateX(2px); }
+
+    .card-foot{
+      padding:14px 28px 18px;
+      border-top:1px solid var(--stroke2);
+      display:flex;
+      gap:12px;
+      align-items:center;
+      justify-content:space-between;
+      flex-wrap:wrap;
+      color:rgba(255,255,255,0.62);
+      font-size:0.86rem;
+    }
+
+    /* Go top */
+    #goTop{
+      position:fixed;
+      right:16px;
+      bottom:16px;
+      width:46px;
+      height:46px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,.10);
+      background:rgba(5,10,18,.60);
+      color:#fff;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      cursor:pointer;
+      z-index:9997;
+      opacity:0;
+      transform:translateY(6px);
+      transition:opacity .2s ease, transform .2s ease, background .2s ease;
+      backdrop-filter: blur(10px);
+    }
+    #goTop.show{ opacity:1; transform:translateY(0); }
+    #goTop:hover{ background:rgba(5,10,18,.78); }
   </style>
 </head>
+
 <body>
-<div class="overlay">
-  <div class="card">
-    <div class="logo-text">
-      <span>VISTA</span><span>GEOMATICS</span>
-    </div>
-    <div class="subtitle">Internal Forms Portal – quick access to Survey, Safety, and HR resources.</div>
+  <div class="bg-overlay" aria-hidden="true"></div>
+  <canvas class="cursor-trail" id="trail" aria-hidden="true"></canvas>
 
-    <div class="button-row">
-      <a class="nav-button" href="survey.html">Survey</a>
-      <a class="nav-button" href="safety.html">Safety</a>
-      <a class="nav-button" href="hr.html">HR</a>
+  <!-- Intro -->
+  <div class="intro" id="intro" aria-label="Intro">
+    <div class="wipe" aria-hidden="true">
+      <div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div>
+      <div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div>
+      <div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div>
     </div>
 
-    <a href="https://vistageomatics.github.io/Hidden-Game/" 
-   class="footer-brand"
-   style="text-decoration:none; cursor:pointer;"
-   aria-label="Secret Game Link">
-  <span class="vista">VISTA</span><span class="geomatics">GEOMATICS</span>
-</a>
-
+    <div class="intro-inner">
+      <h1 class="brand-word" aria-label="VISTAGEOMATICS">
+        <span class="vista">VISTA</span><span class="geomatics">GEOMATICS</span>
+      </h1>
+      <div class="scanline" aria-hidden="true"></div>
+      <p class="intro-sub">Internal Forms Portal</p>
+    </div>
   </div>
-</div>
+
+  <!-- Simple portal -->
+  <main class="wrap">
+    <section class="card" aria-label="Forms Portal">
+      <header class="card-head">
+        <div>
+          <div class="brand-mini" aria-label="VISTAGEOMATICS">
+            <span class="vista">VISTA</span><span class="geomatics">GEOMATICS</span>
+          </div>
+          <div class="tagline">
+            Select a category to continue.
+          </div>
+        </div>
+
+        <div class="chip-row" aria-hidden="true">
+          <div class="chip">Survey</div>
+          <div class="chip">Safety</div>
+          <div class="chip">HR</div>
+        </div>
+      </header>
+
+      <div class="card-body">
+        <div class="btn-grid">
+          <a class="btn" href="survey.html"><span>Survey</span><span class="arrow">→</span></a>
+          <a class="btn" href="safety.html"><span>Safety</span><span class="arrow">→</span></a>
+          <a class="btn" href="hr.html"><span>HR</span><span class="arrow">→</span></a>
+        </div>
+      </div>
+
+      <footer class="card-foot">
+        <div>Internal use only.</div>
+        <div style="opacity:.65; letter-spacing:.10em; text-transform:uppercase; font-size:.82rem;">VISTAGEOMATICS</div>
+      </footer>
+    </section>
+  </main>
+
+  <button id="goTop" type="button" aria-label="Back to top">↑</button>
+
+  <script>
+    // ---- Intro timing with bar wipe ----
+    (function () {
+      const intro = document.getElementById("intro");
+      const prefersReduced = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+      const wipeStartMs = prefersReduced ? 260 : 1100;
+      const hideAfterMs = prefersReduced ? 520 : 1750;
+      const safetyMaxMs = prefersReduced ? 900 : 2600;
+
+      function startWipe(){
+        if (!intro || intro.classList.contains("wiping")) return;
+        intro.classList.add("wiping");
+      }
+      function hideIntro(){
+        if (!intro || intro.classList.contains("hide")) return;
+        intro.classList.add("hide");
+      }
+
+      setTimeout(startWipe, wipeStartMs);
+      setTimeout(hideIntro, hideAfterMs);
+      window.addEventListener("load", () => {
+        setTimeout(startWipe, 0);
+        setTimeout(hideIntro, hideAfterMs);
+      });
+      setTimeout(hideIntro, safetyMaxMs);
+    })();
+
+    // ---- Go top ----
+    (function () {
+      const btn = document.getElementById("goTop");
+      const toggle = () => btn.classList.toggle("show", window.scrollY > 120);
+      window.addEventListener("scroll", toggle, { passive: true });
+      toggle();
+      btn.addEventListener("click", () => window.scrollTo({ top: 0, behavior: "smooth" }));
+    })();
+
+    // ---- Cursor laser trail ----
+    (function () {
+      const canvas = document.getElementById("trail");
+      if (!canvas) return;
+
+      const prefersReduced = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      const isCoarse = window.matchMedia && window.matchMedia("(pointer: coarse)").matches;
+      const isSmall = window.matchMedia && window.matchMedia("(max-width: 991px)").matches;
+
+      if (prefersReduced || isCoarse || isSmall) {
+        canvas.style.display = "none";
+        return;
+      }
+
+      const ctx = canvas.getContext("2d");
+      const points = [];
+      const MAX = 18;
+      const DECAY = 0.86;
+
+      function resize(){
+        canvas.width = Math.floor(window.innerWidth * devicePixelRatio);
+        canvas.height = Math.floor(window.innerHeight * devicePixelRatio);
+        canvas.style.width = window.innerWidth + "px";
+        canvas.style.height = window.innerHeight + "px";
+        ctx.setTransform(devicePixelRatio, 0, 0, devicePixelRatio, 0, 0);
+      }
+      window.addEventListener("resize", resize);
+      resize();
+
+      window.addEventListener("mousemove", (e) => {
+        points.push({ x: e.clientX, y: e.clientY, a: 1 });
+        if (points.length > MAX) points.shift();
+      }, { passive: true });
+
+      function draw(){
+        ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+
+        for (const p of points) p.a *= DECAY;
+        while (points.length && points[0].a < 0.05) points.shift();
+
+        if (points.length >= 2) {
+          ctx.globalCompositeOperation = "lighter";
+          ctx.lineCap = "round";
+          ctx.lineJoin = "round";
+
+          for (let i = 1; i < points.length; i++) {
+            const p0 = points[i - 1];
+            const p1 = points[i];
+            const t = i / (points.length - 1);
+
+            const width = 1.0 + t * 0.9;
+            const alpha = Math.min(0.95, p1.a) * (0.18 + t * 0.65);
+
+            const grad = ctx.createLinearGradient(p0.x, p0.y, p1.x, p1.y);
+            grad.addColorStop(0, `rgba(31,156,240,${alpha})`);
+            grad.addColorStop(1, `rgba(0,90,156,${alpha})`);
+
+            ctx.strokeStyle = grad;
+            ctx.lineWidth = width;
+            ctx.beginPath();
+            ctx.moveTo(p0.x, p0.y);
+            ctx.lineTo(p1.x, p1.y);
+            ctx.stroke();
+          }
+
+          const head = points[points.length - 1];
+          ctx.globalCompositeOperation = "source-over";
+          ctx.beginPath();
+          ctx.arc(head.x, head.y, 1.6, 0, Math.PI * 2);
+          ctx.fillStyle = "rgba(255,255,255,0.82)";
+          ctx.fill();
+
+          ctx.beginPath();
+          ctx.arc(head.x, head.y, 7.0, 0, Math.PI * 2);
+          ctx.fillStyle = "rgba(31,156,240,0.10)";
+          ctx.fill();
+        }
+
+        requestAnimationFrame(draw);
+      }
+      requestAnimationFrame(draw);
+    })();
+  </script>
 </body>
 </html>
