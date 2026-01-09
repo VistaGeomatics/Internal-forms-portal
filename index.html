@@ -58,13 +58,12 @@
       z-index:0;
       pointer-events:none;
       opacity:0;
-      transition:opacity 1.2s ease;
+      transition:opacity 1.0s ease;
       filter: blur(0.2px);
       mix-blend-mode: screen;
     }
-    .topo.show{ opacity:0.40; } /* subtle overall; tune 0.25–0.55 */
+    .topo.show{ opacity:0.40; }
 
-    /* Two layers: contour + light grid */
     .topo::before,
     .topo::after{
       content:"";
@@ -77,14 +76,12 @@
       opacity:1;
     }
 
-    /* Contour lines (SVG tile) */
     .topo::before{
       background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='480' height='480' viewBox='0 0 480 480'%3E%3Cdefs%3E%3CradialGradient id='g' cx='50%25' cy='50%25' r='65%25'%3E%3Cstop offset='0%25' stop-color='%23000000' stop-opacity='0'/%3E%3Cstop offset='100%25' stop-color='%23000000' stop-opacity='1'/%3E%3C/radialGradient%3E%3C/defs%3E%3Cg fill='none'%3E%3Cg stroke='%231f9cf0' stroke-opacity='.10' stroke-width='1.2'%3E%3Cpath d='M40 260 C120 120, 220 340, 440 180'/%3E%3Cpath d='M30 310 C140 160, 240 390, 450 230'/%3E%3Cpath d='M35 210 C140 70, 260 300, 445 140'/%3E%3Cpath d='M60 360 C160 210, 260 420, 420 320'/%3E%3Cpath d='M55 160 C160 20, 270 250, 430 90'/%3E%3Cpath d='M90 120 C180 40, 260 170, 390 70'/%3E%3Cpath d='M110 410 C220 260, 300 450, 430 370'/%3E%3Cpath d='M70 430 C170 300, 260 470, 380 420'/%3E%3C/g%3E%3Cg stroke='%23005a9c' stroke-opacity='.08' stroke-width='1'%3E%3Cpath d='M20 250 C130 90, 240 330, 460 170'/%3E%3Cpath d='M25 335 C140 180, 250 410, 470 255'/%3E%3Cpath d='M25 195 C140 55, 270 285, 470 125'/%3E%3Cpath d='M50 380 C170 240, 285 450, 450 340'/%3E%3Cpath d='M70 145 C170 10, 290 235, 450 75'/%3E%3C/g%3E%3C/g%3E%3Crect width='480' height='480' fill='url(%23g)' opacity='.22'/%3E%3C/svg%3E");
       background-size: 520px 520px;
       animation: topoDrift 18s linear infinite;
     }
 
-    /* Blueprint micro-grid */
     .topo::after{
       background-image:
         linear-gradient(rgba(255,255,255,0.06) 1px, transparent 1px),
@@ -104,7 +101,6 @@
       0%,100%{ transform: rotate(-6deg) scale(1.08) translate3d(0,0,0); }
       50%{ transform: rotate(-6deg) scale(1.08) translate3d(18px,-10px,0); }
     }
-
     @media (prefers-reduced-motion: reduce){
       .topo::before, .topo::after{ animation:none; }
     }
@@ -123,7 +119,7 @@
       canvas.cursor-trail{ display:none; }
     }
 
-    /* ===== Dramatic opener with bar wipe ===== */
+    /* ===== Dramatic opener with independent bars ===== */
     .intro{
       position:fixed;
       inset:0;
@@ -133,7 +129,7 @@
       align-items:center;
       justify-content:center;
       overflow:hidden;
-      transition:opacity .55s ease, visibility .55s ease;
+      transition:opacity .45s ease, visibility .45s ease;
     }
     .intro.hide{
       opacity:0;
@@ -152,7 +148,6 @@
       z-index:0;
     }
 
-    /* Bars behind title */
     .wipe{
       position:absolute;
       inset:0;
@@ -169,31 +164,32 @@
       background:rgba(255,255,255,0.06);
       border-left:1px solid rgba(255,255,255,0.06);
       border-right:1px solid rgba(255,255,255,0.03);
-      transform:translateY(0);
-      will-change:transform;
+      transform:translate3d(0,0,0);
+      will-change:transform, filter;
       position:relative;
       overflow:hidden;
+      filter: saturate(1.05);
     }
     .wipe .bar::after{
       content:"";
       position:absolute;
       inset:0;
       background:linear-gradient(180deg,
-        rgba(31,156,240,0.10),
-        rgba(0,90,156,0.08),
-        rgba(0,0,0,0.60)
+        rgba(31,156,240,0.12),
+        rgba(0,90,156,0.10),
+        rgba(0,0,0,0.62)
       );
       opacity:0.9;
     }
 
     .intro-inner{
       position:relative;
-      z-index:5; /* ensure text is visible over bars */
+      z-index:5;
       text-align:center;
       padding:24px;
       opacity:0;
       transform:translateY(8px);
-      animation:introIn .70s ease forwards;
+      animation:introIn .55s ease forwards;
     }
     @keyframes introIn{
       to { opacity:1; transform:translateY(0); }
@@ -219,7 +215,7 @@
     .brand-word .geomatics{ font-weight:400; }
 
     .intro-sub{
-      margin:18px 0 0;
+      margin:16px 0 0;
       font-size:0.95rem;
       color:rgba(255,255,255,0.74);
       letter-spacing:0.12em;
@@ -230,7 +226,7 @@
       position:relative;
       width:min(760px, 82vw);
       height:2px;
-      margin:20px auto 0;
+      margin:18px auto 0;
       background:rgba(255,255,255,0.08);
       border-radius:999px;
       overflow:hidden;
@@ -243,40 +239,34 @@
       height:100%;
       width:30%;
       background:linear-gradient(90deg, transparent, rgba(31,156,240,0.85), rgba(0,90,156,0.85), transparent);
-      animation:scan 1.1s ease-in-out infinite;
+      animation:scan 1.0s ease-in-out infinite;
     }
     @keyframes scan{
       0%{ transform:translateX(0); }
       100%{ transform:translateX(460%); }
     }
 
+    /* When wiping: text fades quickly, bars exit one-by-one with style */
     .intro.wiping .intro-inner{
       animation:none;
       opacity:1;
       transform:translateY(0) scale(1);
-      transition:opacity .45s ease, transform .55s ease;
+      transition:opacity .28s ease, transform .38s ease;
       opacity:0;
       transform:translateY(-6px) scale(0.985);
     }
+
     .intro.wiping .wipe .bar{
-      animation:barWipe 0.9s cubic-bezier(.2,.8,.2,1) forwards;
+      animation:barExit var(--dur, 780ms) cubic-bezier(.22,.86,.2,1) forwards;
+      animation-delay: var(--d, 0ms);
     }
-    @keyframes barWipe{
-      0%{ transform:translateY(0); }
-      100%{ transform:translateY(110%); }
+
+    /* Each bar picks its own direction and duration via CSS vars */
+    @keyframes barExit{
+      0%{ transform:translate3d(0,0,0); filter:saturate(1.05) blur(0px); }
+      70%{ filter:saturate(1.1) blur(0.2px); }
+      100%{ transform:translate3d(0, var(--y, 115%), 0); filter:saturate(1.0) blur(0.6px); }
     }
-    .wipe .bar:nth-child(1){ animation-delay:0.00s; }
-    .wipe .bar:nth-child(2){ animation-delay:0.05s; }
-    .wipe .bar:nth-child(3){ animation-delay:0.10s; }
-    .wipe .bar:nth-child(4){ animation-delay:0.15s; }
-    .wipe .bar:nth-child(5){ animation-delay:0.20s; }
-    .wipe .bar:nth-child(6){ animation-delay:0.25s; }
-    .wipe .bar:nth-child(7){ animation-delay:0.30s; }
-    .wipe .bar:nth-child(8){ animation-delay:0.35s; }
-    .wipe .bar:nth-child(9){ animation-delay:0.40s; }
-    .wipe .bar:nth-child(10){ animation-delay:0.45s; }
-    .wipe .bar:nth-child(11){ animation-delay:0.50s; }
-    .wipe .bar:nth-child(12){ animation-delay:0.55s; }
 
     /* ===== Simple portal layout ===== */
     .wrap{
@@ -433,7 +423,7 @@
 
   <!-- Intro -->
   <div class="intro" id="intro" aria-label="Intro">
-    <div class="wipe" aria-hidden="true">
+    <div class="wipe" id="wipe" aria-hidden="true">
       <div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div>
       <div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div>
       <div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div>
@@ -484,16 +474,30 @@
   <button id="goTop" type="button" aria-label="Back to top">↑</button>
 
   <script>
-    // ---- Intro timing with bar wipe (LONGER) + Topo Reveal ----
+    // ---- Intro: faster + bars exit independently (one-by-one stagger with variation) ----
     (function () {
       const intro = document.getElementById("intro");
       const topo = document.getElementById("topo");
+      const wipe = document.getElementById("wipe");
       const prefersReduced = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-      // Longer opener (tweak these freely)
-      const wipeStartMs = prefersReduced ? 350 : 2400;
-      const hideAfterMs = prefersReduced ? 750 : 3600;
-      const safetyMaxMs = prefersReduced ? 1200 : 5200;
+      if (wipe) {
+        const bars = Array.from(wipe.querySelectorAll(".bar"));
+        // Staggered, with slight per-bar duration variation and alternating exit direction
+        bars.forEach((bar, i) => {
+          const delay = prefersReduced ? 0 : (i * 70);                 // ms between bars
+          const dur = prefersReduced ? 450 : (720 + (i % 4) * 45);     // ms
+          const dir = (i % 2 === 0) ? 118 : 132;                       // % translateY
+          bar.style.setProperty("--d", delay + "ms");
+          bar.style.setProperty("--dur", dur + "ms");
+          bar.style.setProperty("--y", dir + "%");
+        });
+      }
+
+      // Faster overall timing (tweak here)
+      const wipeStartMs = prefersReduced ? 250 : 900;
+      const hideAfterMs = prefersReduced ? 600 : 1850;
+      const safetyMaxMs = prefersReduced ? 1200 : 2600;
 
       function startWipe(){
         if (!intro || intro.classList.contains("wiping")) return;
@@ -502,7 +506,6 @@
       function hideIntro(){
         if (!intro || intro.classList.contains("hide")) return;
         intro.classList.add("hide");
-        // reveal topo right after intro fades
         if (topo) requestAnimationFrame(() => topo.classList.add("show"));
       }
 
@@ -535,10 +538,9 @@
       const wraps = Array.from(document.querySelectorAll(".mag-wrap"));
       if (!wraps.length) return;
 
-      // Strength controls
-      const maxMove = 10;     // px
-      const pull = 0.22;      // how much it follows cursor
-      const innerScale = 1.02; // subtle "engage"
+      const maxMove = 10;      // px
+      const pull = 0.22;
+      const innerScale = 1.02;
 
       wraps.forEach(wrap => {
         const btn = wrap.querySelector(".btn");
@@ -551,16 +553,13 @@
           const dx = e.clientX - cx;
           const dy = e.clientY - cy;
 
-          // Normalize movement relative to size
           const nx = dx / (r.width / 2);
           const ny = dy / (r.height / 2);
 
           const tx = Math.max(-1, Math.min(1, nx)) * maxMove;
           const ty = Math.max(-1, Math.min(1, ny)) * maxMove;
 
-          // outer wrapper moves a bit
           wrap.style.transform = `translate3d(${tx * pull}px, ${ty * pull}px, 0)`;
-          // button moves a bit more + slight scale
           btn.style.transform = `translate3d(${tx}px, ${ty}px, 0) scale(${innerScale})`;
         }
 
@@ -575,7 +574,7 @@
       });
     })();
 
-    // ---- Cursor laser trail (kept from your style) ----
+    // ---- Cursor laser trail ----
     (function () {
       const canvas = document.getElementById("trail");
       if (!canvas) return;
@@ -608,6 +607,7 @@
         points.push({ x: e.clientX, y: e.clientY, a: 1 });
         if (points.length > MAX) points.shift();
       }, { passive: true });
+
 
       function draw(){
         ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
