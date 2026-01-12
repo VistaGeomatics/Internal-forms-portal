@@ -21,6 +21,9 @@
       --vista-blue-dark:#005a9c;
 
       --shadow:0 30px 70px rgba(0,0,0,0.80);
+      --shadow2:0 18px 45px rgba(0,0,0,0.70);
+
+      --introBg:#000;
     }
 
     *{ box-sizing:border-box; }
@@ -51,18 +54,18 @@
         linear-gradient(to bottom, rgba(0,0,0,0.10), rgba(0,0,0,0.65));
     }
 
-    /* ===== Ambient Topo / Blueprint Reveal ===== */
+    /* ===== Ambient Topo / Blueprint Reveal (more visible) ===== */
     .topo{
       position:fixed;
       inset:-10%;
       z-index:0;
       pointer-events:none;
       opacity:0;
-      transition:opacity 1.0s ease;
-      filter: blur(0.2px);
+      transition:opacity 0.9s ease;
+      filter: blur(0.1px);
       mix-blend-mode: screen;
     }
-    .topo.show{ opacity:0.40; }
+    .topo.show{ opacity:0.60; }
 
     .topo::before,
     .topo::after{
@@ -76,20 +79,22 @@
       opacity:1;
     }
 
+    /* topo contours */
     .topo::before{
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='480' height='480' viewBox='0 0 480 480'%3E%3Cdefs%3E%3CradialGradient id='g' cx='50%25' cy='50%25' r='65%25'%3E%3Cstop offset='0%25' stop-color='%23000000' stop-opacity='0'/%3E%3Cstop offset='100%25' stop-color='%23000000' stop-opacity='1'/%3E%3C/radialGradient%3E%3C/defs%3E%3Cg fill='none'%3E%3Cg stroke='%231f9cf0' stroke-opacity='.10' stroke-width='1.2'%3E%3Cpath d='M40 260 C120 120, 220 340, 440 180'/%3E%3Cpath d='M30 310 C140 160, 240 390, 450 230'/%3E%3Cpath d='M35 210 C140 70, 260 300, 445 140'/%3E%3Cpath d='M60 360 C160 210, 260 420, 420 320'/%3E%3Cpath d='M55 160 C160 20, 270 250, 430 90'/%3E%3Cpath d='M90 120 C180 40, 260 170, 390 70'/%3E%3Cpath d='M110 410 C220 260, 300 450, 430 370'/%3E%3Cpath d='M70 430 C170 300, 260 470, 380 420'/%3E%3C/g%3E%3Cg stroke='%23005a9c' stroke-opacity='.08' stroke-width='1'%3E%3Cpath d='M20 250 C130 90, 240 330, 460 170'/%3E%3Cpath d='M25 335 C140 180, 250 410, 470 255'/%3E%3Cpath d='M25 195 C140 55, 270 285, 470 125'/%3E%3Cpath d='M50 380 C170 240, 285 450, 450 340'/%3E%3Cpath d='M70 145 C170 10, 290 235, 450 75'/%3E%3C/g%3E%3C/g%3E%3Crect width='480' height='480' fill='url(%23g)' opacity='.22'/%3E%3C/svg%3E");
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='480' height='480' viewBox='0 0 480 480'%3E%3Cdefs%3E%3CradialGradient id='g' cx='50%25' cy='50%25' r='65%25'%3E%3Cstop offset='0%25' stop-color='%23000000' stop-opacity='0'/%3E%3Cstop offset='100%25' stop-color='%23000000' stop-opacity='1'/%3E%3C/radialGradient%3E%3C/defs%3E%3Cg fill='none'%3E%3Cg stroke='%231f9cf0' stroke-opacity='.18' stroke-width='1.2'%3E%3Cpath d='M40 260 C120 120, 220 340, 440 180'/%3E%3Cpath d='M30 310 C140 160, 240 390, 450 230'/%3E%3Cpath d='M35 210 C140 70, 260 300, 445 140'/%3E%3Cpath d='M60 360 C160 210, 260 420, 420 320'/%3E%3Cpath d='M55 160 C160 20, 270 250, 430 90'/%3E%3Cpath d='M90 120 C180 40, 260 170, 390 70'/%3E%3Cpath d='M110 410 C220 260, 300 450, 430 370'/%3E%3Cpath d='M70 430 C170 300, 260 470, 380 420'/%3E%3C/g%3E%3Cg stroke='%23005a9c' stroke-opacity='.14' stroke-width='1'%3E%3Cpath d='M20 250 C130 90, 240 330, 460 170'/%3E%3Cpath d='M25 335 C140 180, 250 410, 470 255'/%3E%3Cpath d='M25 195 C140 55, 270 285, 470 125'/%3E%3Cpath d='M50 380 C170 240, 285 450, 450 340'/%3E%3Cpath d='M70 145 C170 10, 290 235, 450 75'/%3E%3C/g%3E%3C/g%3E%3Crect width='480' height='480' fill='url(%23g)' opacity='.16'/%3E%3C/svg%3E");
       background-size: 520px 520px;
-      animation: topoDrift 18s linear infinite;
+      animation: topoDrift 16s linear infinite;
     }
 
+    /* blueprint grid */
     .topo::after{
       background-image:
-        linear-gradient(rgba(255,255,255,0.06) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255,255,255,0.06) 1px, transparent 1px),
-        radial-gradient(circle at 30% 30%, rgba(31,156,240,0.10), transparent 45%),
-        radial-gradient(circle at 70% 70%, rgba(0,90,156,0.10), transparent 45%);
-      background-size: 80px 80px, 80px 80px, 900px 900px, 900px 900px;
-      opacity:0.35;
+        linear-gradient(rgba(255,255,255,0.08) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.08) 1px, transparent 1px),
+        radial-gradient(circle at 30% 30%, rgba(31,156,240,0.14), transparent 45%),
+        radial-gradient(circle at 70% 70%, rgba(0,90,156,0.14), transparent 45%);
+      background-size: 78px 78px, 78px 78px, 900px 900px, 900px 900px;
+      opacity:0.50;
       animation: gridFloat 22s ease-in-out infinite;
     }
 
@@ -124,12 +129,12 @@
       position:fixed;
       inset:0;
       z-index:9999;
-      background:#000;
+      background:var(--introBg);
       display:flex;
       align-items:center;
       justify-content:center;
       overflow:hidden;
-      transition:opacity .45s ease, visibility .45s ease;
+      transition:opacity .42s ease, visibility .42s ease;
     }
     .intro.hide{
       opacity:0;
@@ -168,7 +173,7 @@
       will-change:transform, filter;
       position:relative;
       overflow:hidden;
-      filter: saturate(1.05);
+      filter:saturate(1.05);
     }
     .wipe .bar::after{
       content:"";
@@ -179,7 +184,7 @@
         rgba(0,90,156,0.10),
         rgba(0,0,0,0.62)
       );
-      opacity:0.9;
+      opacity:0.92;
     }
 
     .intro-inner{
@@ -246,7 +251,6 @@
       100%{ transform:translateX(460%); }
     }
 
-    /* When wiping: text fades quickly, bars exit one-by-one with style */
     .intro.wiping .intro-inner{
       animation:none;
       opacity:1;
@@ -260,12 +264,10 @@
       animation:barExit var(--dur, 780ms) cubic-bezier(.22,.86,.2,1) forwards;
       animation-delay: var(--d, 0ms);
     }
-
-    /* Each bar picks its own direction and duration via CSS vars */
     @keyframes barExit{
       0%{ transform:translate3d(0,0,0); filter:saturate(1.05) blur(0px); }
-      70%{ filter:saturate(1.1) blur(0.2px); }
-      100%{ transform:translate3d(0, var(--y, 115%), 0); filter:saturate(1.0) blur(0.6px); }
+      70%{ filter:saturate(1.12) blur(0.2px); }
+      100%{ transform:translate3d(0, var(--y, 125%), 0); filter:saturate(1.0) blur(0.6px); }
     }
 
     /* ===== Simple portal layout ===== */
@@ -483,20 +485,20 @@
 
       if (wipe) {
         const bars = Array.from(wipe.querySelectorAll(".bar"));
-        // Staggered, with slight per-bar duration variation and alternating exit direction
         bars.forEach((bar, i) => {
+          // One-by-one, stylish stagger
           const delay = prefersReduced ? 0 : (i * 70);                 // ms between bars
-          const dur = prefersReduced ? 450 : (720 + (i % 4) * 45);     // ms
-          const dir = (i % 2 === 0) ? 118 : 132;                       // % translateY
+          const dur = prefersReduced ? 450 : (720 + (i % 4) * 45);     // ms variation
+          const dir = (i % 2 === 0) ? 118 : 132;                       // % translateY variation
           bar.style.setProperty("--d", delay + "ms");
           bar.style.setProperty("--dur", dur + "ms");
           bar.style.setProperty("--y", dir + "%");
         });
       }
 
-      // Faster overall timing (tweak here)
-      const wipeStartMs = prefersReduced ? 250 : 900;
-      const hideAfterMs = prefersReduced ? 600 : 1850;
+      // Timing (faster overall). Adjust these two numbers if desired.
+      const wipeStartMs = prefersReduced ? 250 : 820;  // when bars start leaving
+      const hideAfterMs = prefersReduced ? 620 : 1750; // when intro hides
       const safetyMaxMs = prefersReduced ? 1200 : 2600;
 
       function startWipe(){
@@ -513,6 +515,7 @@
       setTimeout(hideIntro, hideAfterMs);
 
       window.addEventListener("load", () => {
+        // Ensure it runs even if cache loads fast/slow
         setTimeout(startWipe, wipeStartMs);
         setTimeout(hideIntro, hideAfterMs);
       });
@@ -574,7 +577,7 @@
       });
     })();
 
-    // ---- Cursor laser trail ----
+    // ---- Cursor laser trail (tight "laser") ----
     (function () {
       const canvas = document.getElementById("trail");
       if (!canvas) return;
@@ -590,7 +593,7 @@
 
       const ctx = canvas.getContext("2d");
       const points = [];
-      const MAX = 18;
+      const MAX = 20;
       const DECAY = 0.86;
 
       function resize(){
@@ -608,7 +611,6 @@
         if (points.length > MAX) points.shift();
       }, { passive: true });
 
-
       function draw(){
         ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
 
@@ -625,8 +627,8 @@
             const p1 = points[i];
             const t = i / (points.length - 1);
 
-            const width = 1.0 + t * 0.9;
-            const alpha = Math.min(0.95, p1.a) * (0.18 + t * 0.65);
+            const width = 0.9 + t * 0.8; // tight laser
+            const alpha = Math.min(0.95, p1.a) * (0.18 + t * 0.70);
 
             const grad = ctx.createLinearGradient(p0.x, p0.y, p1.x, p1.y);
             grad.addColorStop(0, `rgba(31,156,240,${alpha})`);
@@ -640,16 +642,18 @@
             ctx.stroke();
           }
 
+          // tiny "laser tip" (no big circle)
           const head = points[points.length - 1];
           ctx.globalCompositeOperation = "source-over";
           ctx.beginPath();
-          ctx.arc(head.x, head.y, 1.6, 0, Math.PI * 2);
-          ctx.fillStyle = "rgba(255,255,255,0.82)";
+          ctx.arc(head.x, head.y, 1.3, 0, Math.PI * 2);
+          ctx.fillStyle = "rgba(255,255,255,0.88)";
           ctx.fill();
 
+          // subtle glow only
           ctx.beginPath();
-          ctx.arc(head.x, head.y, 7.0, 0, Math.PI * 2);
-          ctx.fillStyle = "rgba(31,156,240,0.10)";
+          ctx.arc(head.x, head.y, 5.5, 0, Math.PI * 2);
+          ctx.fillStyle = "rgba(31,156,240,0.08)";
           ctx.fill();
         }
 
