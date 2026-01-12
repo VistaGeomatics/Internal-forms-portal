@@ -1,280 +1,652 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>VISTAGEOMATICS – HR Portal</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="UTF-8" />
+  <title>VISTAGEOMATICS – HR</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Vista Geomatics internal HR forms portal." />
 
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
 
-<style>
-:root{
-  --bg:#020509;
-  --glass:rgba(10,16,26,.75);
-  --stroke:rgba(255,255,255,.10);
-  --blue:#1f9cf0;
-  --blue-dark:#005a9c;
-  --text:#fff;
-}
+  <style>
+    :root{
+      --bg0:#020509;
+      --glass:rgba(10,16,26,0.72);
+      --stroke:rgba(255,255,255,0.10);
+      --stroke2:rgba(255,255,255,0.06);
+      --text:rgba(255,255,255,0.96);
+      --muted:rgba(255,255,255,0.70);
+      --vista-blue:#1f9cf0;
+      --vista-blue-dark:#005a9c;
+      --shadow:0 30px 70px rgba(0,0,0,0.80);
+      --shadow2:0 18px 45px rgba(0,0,0,0.70);
+    }
 
-/* ---------- Base ---------- */
-*{box-sizing:border-box}
-html,body{height:100%}
-body{
-  margin:0;
-  font-family:Inter,system-ui,sans-serif;
-  color:var(--text);
-  background:#000;
-  overflow-x:hidden;
-}
+    *{ box-sizing:border-box; }
+    html, body{ height:100%; }
 
-/* ---------- Video Background ---------- */
-.bg-video-wrap{
-  position:fixed;
-  inset:0;
-  z-index:-3;
-  overflow:hidden;
-}
-.bg-video-wrap video{
-  width:100%;
-  height:100%;
-  object-fit:cover;
-  filter:brightness(.65) contrast(1.1);
-}
+    body{
+      margin:0;
+      font-family:"Inter", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      color:var(--text);
+      background:var(--bg0);
+      overflow-x:hidden;
+    }
 
-/* fallback image */
-.bg-fallback{
-  position:absolute;
-  inset:0;
-  background:url("HR.png") center top / contain no-repeat;
-  opacity:.25;
-}
+    /* ===== Layer stack =====
+      0: video
+      1: wallpaper (faint brand texture + fallback)
+      2: dark vignette
+      3: topo lines (visible but not overpowering)
+      4: content
+      9998: laser
+      9999: intro
+    */
 
-/* ---------- Topographic Overlay ---------- */
-.topo{
-  position:fixed;
-  inset:0;
-  z-index:-2;
-  pointer-events:none;
-  background:
-    repeating-radial-gradient(circle at 50% 50%,
-      rgba(31,156,240,.35) 0px,
-      rgba(31,156,240,.35) 1px,
-      transparent 1px,
-      transparent 24px);
-  animation: topoMove 28s linear infinite;
-  mix-blend-mode:screen;
-}
-@keyframes topoMove{
-  from{background-position:0 0}
-  to{background-position:600px 400px}
-}
+    .bg-video-wrap{
+      position:fixed;
+      inset:0;
+      z-index:0;
+      overflow:hidden;
+      background:#000;
+    }
+    .bg-video{
+      position:absolute;
+      inset:0;
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      pointer-events:none;
+      filter: brightness(0.70) contrast(1.06) saturate(0.92);
+      transform: translateZ(0);
+    }
 
-/* ---------- Intro Bars ---------- */
-.intro{
-  position:fixed;
-  inset:0;
-  background:#000;
-  z-index:9999;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  overflow:hidden;
-}
-.intro.hide{opacity:0;visibility:hidden;transition:.5s ease}
+    /* Wallpaper stays (requested) — also serves as fallback if video fails */
+    .wallpaper{
+      position:fixed;
+      inset:0;
+      z-index:1;
+      pointer-events:none;
+      background-image:url("Wallpaper Launch page.png");
+      background-size:contain;
+      background-position:center top;
+      background-repeat:no-repeat;
+      opacity:0.18;
+      filter: contrast(1.02) saturate(0.95);
+    }
+    /* If you prefer HR.png specifically for HR page, swap above URL to "HR.png" */
 
-.bars{
-  position:absolute;
-  inset:0;
-  display:grid;
-  grid-template-columns:repeat(12,1fr);
-}
-.bar{
-  background:linear-gradient(to bottom,
-    rgba(31,156,240,.35),
-    rgba(0,0,0,.95));
-  transform:translateY(0);
-  animation:barOut 1.4s cubic-bezier(.4,.9,.2,1) forwards;
-}
-.bar:nth-child(n){animation-delay:calc(var(--i)*.08s)}
+    .vignette{
+      position:fixed;
+      inset:0;
+      z-index:2;
+      pointer-events:none;
+      background:
+        radial-gradient(1200px 700px at 50% 8%, rgba(31,156,240,0.10), transparent 60%),
+        radial-gradient(900px 600px at 15% 85%, rgba(0,90,156,0.12), transparent 58%),
+        radial-gradient(circle at 50% 0%, rgba(0,0,0,0.25), rgba(0,0,0,0.86)),
+        linear-gradient(to bottom, rgba(0,0,0,0.10), rgba(0,0,0,0.55));
+    }
 
-@keyframes barOut{
-  to{transform:translateY(110%)}
-}
+    /* Topo / blueprint overlay (more visible, but still lets video show through) */
+    .topo{
+      position:fixed;
+      inset:-20%;
+      z-index:3;
+      pointer-events:none;
+      opacity:0.40;
+      mix-blend-mode:screen;
+      filter: blur(0.15px);
+      background:
+        repeating-radial-gradient(circle at 18% 30%,
+          rgba(31,156,240,0.50) 0px,
+          rgba(31,156,240,0.50) 1px,
+          transparent 1px,
+          transparent 20px),
+        repeating-radial-gradient(circle at 72% 62%,
+          rgba(0,90,156,0.45) 0px,
+          rgba(0,90,156,0.45) 1px,
+          transparent 1px,
+          transparent 26px),
+        repeating-linear-gradient(0deg,
+          rgba(255,255,255,0.05) 0px,
+          rgba(255,255,255,0.05) 1px,
+          transparent 1px,
+          transparent 44px);
+      animation: topoDrift 22s linear infinite;
+    }
+    @keyframes topoDrift{
+      from { transform: translate3d(0,0,0); }
+      to   { transform: translate3d(420px,260px,0); }
+    }
 
-.intro-title{
-  font-family:Montserrat,sans-serif;
-  font-size:clamp(2.2rem,6vw,4.6rem);
-  letter-spacing:.25em;
-  text-transform:uppercase;
-  z-index:2;
-}
-.intro-title .vista{font-weight:700}
-.intro-title .geomatics{font-weight:400}
+    /* Cursor laser */
+    canvas.cursor-trail{
+      position:fixed;
+      inset:0;
+      pointer-events:none;
+      z-index:9998;
+    }
+    @media (max-width: 991px){
+      canvas.cursor-trail{ display:none; }
+    }
+    @media (prefers-reduced-motion: reduce){
+      canvas.cursor-trail{ display:none; }
+      .topo{ animation:none; }
+    }
 
-/* ---------- Layout ---------- */
-.wrap{
-  min-height:100vh;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  padding:28px;
-}
+    /* ===== Dramatic opener (bars + title) ===== */
+    .intro{
+      position:fixed;
+      inset:0;
+      z-index:9999;
+      background:#000;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      overflow:hidden;
+      transition:opacity .45s ease, visibility .45s ease;
+    }
+    .intro.hide{
+      opacity:0;
+      visibility:hidden;
+    }
 
-.card{
-  width:min(780px,100%);
-  background:var(--glass);
-  backdrop-filter:blur(16px);
-  border:1px solid var(--stroke);
-  border-radius:26px;
-  box-shadow:0 30px 70px rgba(0,0,0,.85);
-  overflow:hidden;
-}
+    .bars{
+      position:absolute;
+      inset:0;
+      display:grid;
+      grid-template-columns:repeat(12, 1fr);
+      gap:10px;
+      padding:0 28px;
+      z-index:1;
+      pointer-events:none;
+    }
+    .bar{
+      height:100%;
+      background:rgba(255,255,255,0.06);
+      border-left:1px solid rgba(255,255,255,0.06);
+      border-right:1px solid rgba(255,255,255,0.03);
+      position:relative;
+      overflow:hidden;
+      transform:translateY(0);
+      will-change:transform;
+    }
+    .bar::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:linear-gradient(180deg,
+        rgba(31,156,240,0.14),
+        rgba(0,90,156,0.10),
+        rgba(0,0,0,0.72)
+      );
+      opacity:0.95;
+    }
 
-.card-head{
-  padding:28px;
-  border-bottom:1px solid var(--stroke);
-}
-.brand{
-  font-family:Montserrat,sans-serif;
-  letter-spacing:.22em;
-  text-transform:uppercase;
-}
-.brand .vista{font-weight:700}
-.brand .geomatics{font-weight:400}
-.sub{
-  margin-top:10px;
-  opacity:.75;
-}
+    .intro-title{
+      position:relative;
+      z-index:3; /* ABOVE bars */
+      text-align:center;
+      padding:22px 24px;
+      border-radius:18px;
+      background:rgba(0,0,0,0.18);
+      backdrop-filter: blur(6px);
+      border:1px solid rgba(255,255,255,0.08);
+      box-shadow:0 18px 50px rgba(0,0,0,0.65);
+      opacity:0;
+      transform:translateY(10px);
+      animation:introIn .7s ease forwards;
+    }
+    @keyframes introIn{
+      to{ opacity:1; transform:translateY(0); }
+    }
 
-.card-body{
-  padding:26px;
-}
-.grid{
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
-  gap:16px;
-}
+    .brand-word{
+      font-family:"Montserrat", sans-serif;
+      text-transform:uppercase;
+      letter-spacing:0.22em;
+      font-size:clamp(2.1rem, 5.6vw, 4.4rem);
+      line-height:1.05;
+      color:#fff;
+      user-select:none;
+      margin:0;
+      display:inline-flex;
+      gap:0;
+      white-space:nowrap;
+    }
+    .brand-word .vista{ font-weight:700; }
+    .brand-word .geomatics{ font-weight:400; }
 
-/* ---------- Buttons ---------- */
-.btn{
-  position:relative;
-  padding:18px;
-  border-radius:18px;
-  background:linear-gradient(120deg,var(--blue),var(--blue-dark));
-  color:#fff;
-  text-decoration:none;
-  font-weight:700;
-  letter-spacing:.12em;
-  text-transform:uppercase;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  box-shadow:0 16px 40px rgba(0,0,0,.75);
-  transition:.2s ease;
-}
-.btn:hover{
-  transform:translateY(-2px);
-  box-shadow:0 24px 60px rgba(0,0,0,.9);
-}
+    .intro-sub{
+      margin:14px 0 0;
+      font-size:0.95rem;
+      color:rgba(255,255,255,0.74);
+      letter-spacing:0.12em;
+      text-transform:uppercase;
+    }
 
-/* ---------- Laser Cursor ---------- */
-canvas#laser{
-  position:fixed;
-  inset:0;
-  pointer-events:none;
-  z-index:9998;
-}
-@media (max-width:900px){
-  canvas#laser{display:none}
-}
-</style>
+    .scanline{
+      position:relative;
+      width:min(760px, 82vw);
+      height:2px;
+      margin:18px auto 0;
+      background:rgba(255,255,255,0.08);
+      border-radius:999px;
+      overflow:hidden;
+    }
+    .scanline::after{
+      content:"";
+      position:absolute;
+      left:-30%;
+      top:0;
+      height:100%;
+      width:30%;
+      background:linear-gradient(90deg, transparent, rgba(31,156,240,0.85), rgba(0,90,156,0.85), transparent);
+      animation:scan 1.0s ease-in-out infinite;
+    }
+    @keyframes scan{
+      0%{ transform:translateX(0); }
+      100%{ transform:translateX(460%); }
+    }
+
+    /* When wiping, bars leave one-by-one (more stylish) */
+    .intro.wiping .intro-title{
+      transition:opacity .30s ease, transform .40s ease;
+      opacity:0;
+      transform:translateY(-8px) scale(0.985);
+    }
+    .intro.wiping .bar{
+      animation:barWipe 0.95s cubic-bezier(.2,.8,.2,1) forwards;
+      animation-delay: var(--d);
+    }
+    @keyframes barWipe{
+      0%{ transform:translateY(0); }
+      100%{ transform:translateY(112%); }
+    }
+
+    /* ===== Content ===== */
+    .wrap{
+      position:relative;
+      z-index:4;
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:26px;
+    }
+
+    .card{
+      width:min(860px, 100%);
+      border-radius:28px;
+      border:1px solid var(--stroke);
+      background:linear-gradient(180deg, rgba(10,16,26,0.78), rgba(10,16,26,0.62));
+      backdrop-filter: blur(14px);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+    }
+
+    .card-head{
+      padding:26px 28px 18px;
+      border-bottom:1px solid var(--stroke2);
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:18px;
+    }
+
+    .brand-mini{
+      font-family:"Montserrat", sans-serif;
+      text-transform:uppercase;
+      letter-spacing:0.22em;
+      font-size:1.05rem;
+      line-height:1;
+      display:inline-flex;
+      white-space:nowrap;
+      gap:0;
+    }
+    .brand-mini .vista{ font-weight:700; }
+    .brand-mini .geomatics{ font-weight:400; }
+
+    .tagline{
+      margin-top:10px;
+      color:var(--muted);
+      font-size:0.95rem;
+      line-height:1.35;
+      max-width:560px;
+    }
+
+    .card-body{
+      padding:22px 28px 26px;
+    }
+
+    .btn-grid{
+      display:grid;
+      grid-template-columns:repeat(2, minmax(0, 1fr));
+      gap:14px;
+    }
+    @media (max-width: 640px){
+      .btn-grid{ grid-template-columns:1fr; }
+    }
+
+    .btn{
+      position:relative;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:14px;
+      padding:16px 16px;
+      border-radius:18px;
+      border:1px solid rgba(255,255,255,0.10);
+      background:linear-gradient(120deg, rgba(31,156,240,0.92), rgba(0,90,156,0.92), rgba(31,156,240,0.92));
+      background-size:200% 200%;
+      color:#fff;
+      text-decoration:none;
+      font-weight:700;
+      letter-spacing:0.12em;
+      text-transform:uppercase;
+      box-shadow:0 14px 30px rgba(0,0,0,0.70);
+      transition: transform .18s ease, box-shadow .18s ease, background-position .25s ease, border-color .18s ease;
+      min-height:62px;
+      transform:translate3d(0,0,0); /* for magnetic effect */
+      will-change: transform;
+    }
+    .btn:hover{
+      box-shadow:0 22px 48px rgba(0,0,0,0.88);
+      background-position:100% 0;
+      border-color:rgba(255,255,255,0.16);
+    }
+    .btn .arrow{
+      opacity:0.95;
+      transform:translateX(0);
+      transition:transform .18s ease;
+      letter-spacing:0;
+    }
+    .btn:hover .arrow{ transform:translateX(2px); }
+
+    .card-foot{
+      padding:14px 28px 18px;
+      border-top:1px solid var(--stroke2);
+      display:flex;
+      gap:12px;
+      align-items:center;
+      justify-content:space-between;
+      flex-wrap:wrap;
+      color:rgba(255,255,255,0.62);
+      font-size:0.86rem;
+    }
+
+    /* Go top */
+    #goTop{
+      position:fixed;
+      right:16px;
+      bottom:16px;
+      width:46px;
+      height:46px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,.10);
+      background:rgba(5,10,18,.60);
+      color:#fff;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      cursor:pointer;
+      z-index:9997;
+      opacity:0;
+      transform:translateY(6px);
+      transition:opacity .2s ease, transform .2s ease, background .2s ease;
+      backdrop-filter: blur(10px);
+    }
+    #goTop.show{ opacity:1; transform:translateY(0); }
+    #goTop:hover{ background:rgba(5,10,18,.78); }
+  </style>
 </head>
 
 <body>
-
-<!-- Background -->
-<div class="bg-video-wrap">
-  <video autoplay muted loop playsinline>
-    <source src="hr-bg.mp4" type="video/mp4">
-  </video>
-  <div class="bg-fallback"></div>
-</div>
-
-<div class="topo"></div>
-<canvas id="laser"></canvas>
-
-<!-- Intro -->
-<div class="intro" id="intro">
-  <div class="bars">
-    <div class="bar" style="--i:1"></div><div class="bar" style="--i:2"></div>
-    <div class="bar" style="--i:3"></div><div class="bar" style="--i:4"></div>
-    <div class="bar" style="--i:5"></div><div class="bar" style="--i:6"></div>
-    <div class="bar" style="--i:7"></div><div class="bar" style="--i:8"></div>
-    <div class="bar" style="--i:9"></div><div class="bar" style="--i:10"></div>
-    <div class="bar" style="--i:11"></div><div class="bar" style="--i:12"></div>
+  <!-- Background video (HR) -->
+  <div class="bg-video-wrap" aria-hidden="true">
+    <video class="bg-video" id="bgVideo" autoplay muted loop playsinline preload="metadata">
+      <source src="./hr-bg.mp4" type="video/mp4">
+    </video>
   </div>
-  <div class="intro-title">
-    <span class="vista">VISTA</span><span class="geomatics">GEOMATICS</span>
-  </div>
-</div>
 
-<!-- HR Content -->
-<main class="wrap">
-  <section class="card">
-    <header class="card-head">
-      <div class="brand">
-        <span class="vista">VISTA</span><span class="geomatics">GEOMATICS</span>
-      </div>
-      <div class="sub">Human Resources</div>
-    </header>
+  <!-- Wallpaper + overlays -->
+  <div class="wallpaper" id="wallpaper" aria-hidden="true"></div>
+  <div class="vignette" aria-hidden="true"></div>
+  <div class="topo" id="topo" aria-hidden="true"></div>
 
-    <div class="card-body">
-      <div class="grid">
-        <a class="btn" href="#">Employee Info →</a>
-        <a class="btn" href="#">Training Records →</a>
-        <a class="btn" href="#">Benefits →</a>
-        <a class="btn" href="#">Policies →</a>
-      </div>
+  <!-- Laser cursor -->
+  <canvas class="cursor-trail" id="trail" aria-hidden="true"></canvas>
+
+  <!-- Intro -->
+  <div class="intro" id="intro" aria-label="Intro">
+    <div class="bars" aria-hidden="true">
+      <div class="bar" style="--d:0.00s"></div><div class="bar" style="--d:0.06s"></div><div class="bar" style="--d:0.13s"></div><div class="bar" style="--d:0.03s"></div>
+      <div class="bar" style="--d:0.18s"></div><div class="bar" style="--d:0.09s"></div><div class="bar" style="--d:0.25s"></div><div class="bar" style="--d:0.12s"></div>
+      <div class="bar" style="--d:0.31s"></div><div class="bar" style="--d:0.20s"></div><div class="bar" style="--d:0.37s"></div><div class="bar" style="--d:0.28s"></div>
     </div>
-  </section>
-</main>
 
-<script>
-/* intro timing */
-setTimeout(()=>document.getElementById("intro").classList.add("hide"),1700);
+    <div class="intro-title">
+      <h1 class="brand-word" aria-label="VISTAGEOMATICS">
+        <span class="vista">VISTA</span><span class="geomatics">GEOMATICS</span>
+      </h1>
+      <div class="scanline" aria-hidden="true"></div>
+      <p class="intro-sub">HR Portal</p>
+    </div>
+  </div>
 
-/* laser cursor */
-const c=document.getElementById("laser");
-const ctx=c.getContext("2d");
-let pts=[];
-function resize(){
-  c.width=innerWidth*devicePixelRatio;
-  c.height=innerHeight*devicePixelRatio;
-  ctx.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0);
-}
-resize(); addEventListener("resize",resize);
+  <!-- Simple HR portal -->
+  <main class="wrap">
+    <section class="card" aria-label="HR Portal">
+      <header class="card-head">
+        <div>
+          <div class="brand-mini" aria-label="VISTAGEOMATICS">
+            <span class="vista">VISTA</span><span class="geomatics">GEOMATICS</span>
+          </div>
+          <div class="tagline">
+            Select an HR form to continue.
+          </div>
+        </div>
+      </header>
 
-addEventListener("mousemove",e=>{
-  pts.push({x:e.clientX,y:e.clientY,a:1});
-  if(pts.length>20) pts.shift();
-});
+      <div class="card-body">
+        <div class="btn-grid">
+          <a class="btn magnet" href="#"><span>Employee Info</span><span class="arrow">→</span></a>
+          <a class="btn magnet" href="#"><span>Training Records</span><span class="arrow">→</span></a>
+          <a class="btn magnet" href="#"><span>Benefits</span><span class="arrow">→</span></a>
+          <a class="btn magnet" href="#"><span>Policies</span><span class="arrow">→</span></a>
+        </div>
+      </div>
 
-(function draw(){
-  ctx.clearRect(0,0,innerWidth,innerHeight);
-  for(let i=1;i<pts.length;i++){
-    const p0=pts[i-1],p1=pts[i];
-    ctx.strokeStyle=`rgba(31,156,240,${p1.a})`;
-    ctx.lineWidth=1.5;
-    ctx.beginPath();
-    ctx.moveTo(p0.x,p0.y);
-    ctx.lineTo(p1.x,p1.y);
-    ctx.stroke();
-    p1.a*=.88;
-  }
-  requestAnimationFrame(draw);
-})();
-</script>
+      <footer class="card-foot">
+        <div><a href="index.html" style="color:rgba(255,255,255,0.75); text-decoration:none;">← Home</a></div>
+        <div style="opacity:.65; letter-spacing:.10em; text-transform:uppercase; font-size:.82rem;">VISTAGEOMATICS</div>
+      </footer>
+    </section>
+  </main>
 
+  <button id="goTop" type="button" aria-label="Back to top">↑</button>
+
+  <script>
+    // ---- Make sure video actually sits behind overlays; if it fails, strengthen wallpaper fallback ----
+    (function(){
+      const v = document.getElementById("bgVideo");
+      const wp = document.getElementById("wallpaper");
+      if (!v) return;
+
+      const boostFallback = () => { if (wp) wp.style.opacity = "0.28"; };
+      v.addEventListener("error", boostFallback);
+      v.addEventListener("stalled", boostFallback);
+
+      // If video starts, keep wallpaper subtle (still visible as requested)
+      v.addEventListener("playing", () => { if (wp) wp.style.opacity = "0.16"; });
+
+      // Autoplay can be blocked in rare cases even if muted (some enterprise policies)
+      // Try to play once on first interaction.
+      const kick = () => { v.play().catch(()=>{}); window.removeEventListener("pointerdown", kick); };
+      window.addEventListener("pointerdown", kick, { once:true });
+    })();
+
+    // ---- Intro timing with one-by-one bar wipe (slightly longer, but still snappy) ----
+    (function () {
+      const intro = document.getElementById("intro");
+      const prefersReduced = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+      const wipeStartMs = prefersReduced ? 220 : 900;   // when bars start exiting
+      const hideAfterMs = prefersReduced ? 520 : 1550;  // when intro fades out
+      const safetyMaxMs = prefersReduced ? 900 : 2300;
+
+      function startWipe(){
+        if (!intro || intro.classList.contains("wiping")) return;
+        intro.classList.add("wiping");
+      }
+      function hideIntro(){
+        if (!intro || intro.classList.contains("hide")) return;
+        intro.classList.add("hide");
+      }
+
+      setTimeout(startWipe, wipeStartMs);
+      setTimeout(hideIntro, hideAfterMs);
+      window.addEventListener("load", () => {
+        // Ensure it doesn't wait too long if cached
+        setTimeout(startWipe, 0);
+        setTimeout(hideIntro, hideAfterMs);
+      });
+      setTimeout(hideIntro, safetyMaxMs);
+    })();
+
+    // ---- Go top ----
+    (function () {
+      const btn = document.getElementById("goTop");
+      const toggle = () => btn.classList.toggle("show", window.scrollY > 120);
+      window.addEventListener("scroll", toggle, { passive: true });
+      toggle();
+      btn.addEventListener("click", () => window.scrollTo({ top: 0, behavior: "smooth" }));
+    })();
+
+    // ---- Magnetic buttons (micro-physics) ----
+    (function(){
+      const prefersReduced = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      const coarse = window.matchMedia && window.matchMedia("(pointer: coarse)").matches;
+      if (prefersReduced || coarse) return;
+
+      const magnets = Array.from(document.querySelectorAll(".magnet"));
+      if (!magnets.length) return;
+
+      const strength = 10;     // px
+      const radius = 120;      // px influence
+
+      function onMove(e){
+        for (const el of magnets){
+          const r = el.getBoundingClientRect();
+          const cx = r.left + r.width/2;
+          const cy = r.top + r.height/2;
+          const dx = e.clientX - cx;
+          const dy = e.clientY - cy;
+          const dist = Math.hypot(dx, dy);
+
+          if (dist < radius){
+            const pull = (1 - dist/radius);
+            const tx = (dx / (dist || 1)) * strength * pull;
+            const ty = (dy / (dist || 1)) * strength * pull;
+            el.style.transform = `translate3d(${tx.toFixed(2)}px, ${ty.toFixed(2)}px, 0)`;
+          } else {
+            el.style.transform = "translate3d(0,0,0)";
+          }
+        }
+      }
+
+      function reset(){
+        for (const el of magnets) el.style.transform = "translate3d(0,0,0)";
+      }
+
+      window.addEventListener("mousemove", onMove, { passive:true });
+      window.addEventListener("mouseleave", reset);
+      window.addEventListener("blur", reset);
+    })();
+
+    // ---- Cursor laser trail ----
+    (function () {
+      const canvas = document.getElementById("trail");
+      if (!canvas) return;
+
+      const prefersReduced = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      const isCoarse = window.matchMedia && window.matchMedia("(pointer: coarse)").matches;
+      const isSmall = window.matchMedia && window.matchMedia("(max-width: 991px)").matches;
+
+      if (prefersReduced || isCoarse || isSmall) {
+        canvas.style.display = "none";
+        return;
+      }
+
+      const ctx = canvas.getContext("2d");
+      const points = [];
+      const MAX = 22;
+      const DECAY = 0.86;
+
+      function resize(){
+        canvas.width = Math.floor(window.innerWidth * devicePixelRatio);
+        canvas.height = Math.floor(window.innerHeight * devicePixelRatio);
+        canvas.style.width = window.innerWidth + "px";
+        canvas.style.height = window.innerHeight + "px";
+        ctx.setTransform(devicePixelRatio, 0, 0, devicePixelRatio, 0, 0);
+      }
+      window.addEventListener("resize", resize);
+      resize();
+
+      window.addEventListener("mousemove", (e) => {
+        points.push({ x: e.clientX, y: e.clientY, a: 1 });
+        if (points.length > MAX) points.shift();
+      }, { passive: true });
+
+      function draw(){
+        ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+
+        for (const p of points) p.a *= DECAY;
+        while (points.length && points[0].a < 0.05) points.shift();
+
+        if (points.length >= 2) {
+          ctx.globalCompositeOperation = "lighter";
+          ctx.lineCap = "round";
+          ctx.lineJoin = "round";
+
+          for (let i = 1; i < points.length; i++) {
+            const p0 = points[i - 1];
+            const p1 = points[i];
+            const t = i / (points.length - 1);
+
+            const width = 1.05 + t * 0.95;
+            const alpha = Math.min(0.95, p1.a) * (0.18 + t * 0.68);
+
+            const grad = ctx.createLinearGradient(p0.x, p0.y, p1.x, p1.y);
+            grad.addColorStop(0, `rgba(31,156,240,${alpha})`);
+            grad.addColorStop(1, `rgba(0,90,156,${alpha})`);
+
+            ctx.strokeStyle = grad;
+            ctx.lineWidth = width;
+            ctx.beginPath();
+            ctx.moveTo(p0.x, p0.y);
+            ctx.lineTo(p1.x, p1.y);
+            ctx.stroke();
+          }
+
+          const head = points[points.length - 1];
+          ctx.globalCompositeOperation = "source-over";
+          ctx.beginPath();
+          ctx.arc(head.x, head.y, 1.6, 0, Math.PI * 2);
+          ctx.fillStyle = "rgba(255,255,255,0.84)";
+          ctx.fill();
+
+          ctx.beginPath();
+          ctx.arc(head.x, head.y, 7.2, 0, Math.PI * 2);
+          ctx.fillStyle = "rgba(31,156,240,0.10)";
+          ctx.fill();
+        }
+
+        requestAnimationFrame(draw);
+      }
+      requestAnimationFrame(draw);
+    })();
+  </script>
 </body>
 </html>
