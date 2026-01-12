@@ -1,773 +1,280 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>VistaGeomatics – HR</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description" content="Vista Geomatics internal HR portal." />
+<meta charset="UTF-8">
+<title>VISTAGEOMATICS – HR Portal</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <!-- Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
 
-  <style>
-    :root{
-      --vista-blue:#1f9cf0;
-      --vista-blue-dark:#005a9c;
+<style>
+:root{
+  --bg:#020509;
+  --glass:rgba(10,16,26,.75);
+  --stroke:rgba(255,255,255,.10);
+  --blue:#1f9cf0;
+  --blue-dark:#005a9c;
+  --text:#fff;
+}
 
-      --bg0:#020509;
-      --card:rgba(5,10,18,0.92);
-      --stroke:rgba(255,255,255,0.10);
-      --stroke2:rgba(255,255,255,0.06);
+/* ---------- Base ---------- */
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;
+  font-family:Inter,system-ui,sans-serif;
+  color:var(--text);
+  background:#000;
+  overflow-x:hidden;
+}
 
-      --text:rgba(255,255,255,0.96);
-      --muted:rgba(255,255,255,0.74);
+/* ---------- Video Background ---------- */
+.bg-video-wrap{
+  position:fixed;
+  inset:0;
+  z-index:-3;
+  overflow:hidden;
+}
+.bg-video-wrap video{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  filter:brightness(.65) contrast(1.1);
+}
 
-      --shadow:0 24px 60px rgba(0,0,0,0.90);
-    }
+/* fallback image */
+.bg-fallback{
+  position:absolute;
+  inset:0;
+  background:url("HR.png") center top / contain no-repeat;
+  opacity:.25;
+}
 
-    *{ box-sizing:border-box; }
-    html, body{ height:100%; }
+/* ---------- Topographic Overlay ---------- */
+.topo{
+  position:fixed;
+  inset:0;
+  z-index:-2;
+  pointer-events:none;
+  background:
+    repeating-radial-gradient(circle at 50% 50%,
+      rgba(31,156,240,.35) 0px,
+      rgba(31,156,240,.35) 1px,
+      transparent 1px,
+      transparent 24px);
+  animation: topoMove 28s linear infinite;
+  mix-blend-mode:screen;
+}
+@keyframes topoMove{
+  from{background-position:0 0}
+  to{background-position:600px 400px}
+}
 
-    body{
-      margin:0;
-      min-height:100vh;
-      font-family:"Inter", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-      color:var(--text);
-      background-color:var(--bg0);
+/* ---------- Intro Bars ---------- */
+.intro{
+  position:fixed;
+  inset:0;
+  background:#000;
+  z-index:9999;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  overflow:hidden;
+}
+.intro.hide{opacity:0;visibility:hidden;transition:.5s ease}
 
-      /* Your existing HR background image */
-      background-image:url("HR.png");
-      background-size:contain;
-      background-position:center top;
-      background-repeat:no-repeat;
+.bars{
+  position:absolute;
+  inset:0;
+  display:grid;
+  grid-template-columns:repeat(12,1fr);
+}
+.bar{
+  background:linear-gradient(to bottom,
+    rgba(31,156,240,.35),
+    rgba(0,0,0,.95));
+  transform:translateY(0);
+  animation:barOut 1.4s cubic-bezier(.4,.9,.2,1) forwards;
+}
+.bar:nth-child(n){animation-delay:calc(var(--i)*.08s)}
 
-      overflow-x:hidden;
-    }
+@keyframes barOut{
+  to{transform:translateY(110%)}
+}
 
-    /* ===== Ambient topo + blueprint grid ===== */
-    .bg-fx{
-      position:fixed;
-      inset:0;
-      z-index:0;
-      pointer-events:none;
-    }
+.intro-title{
+  font-family:Montserrat,sans-serif;
+  font-size:clamp(2.2rem,6vw,4.6rem);
+  letter-spacing:.25em;
+  text-transform:uppercase;
+  z-index:2;
+}
+.intro-title .vista{font-weight:700}
+.intro-title .geomatics{font-weight:400}
 
-    .bg-fx::before{
-      content:"";
-      position:absolute;
-      inset:0;
-      background:
-        radial-gradient(1200px 700px at 50% 8%, rgba(31,156,240,0.12), transparent 62%),
-        radial-gradient(900px 620px at 20% 85%, rgba(0,90,156,0.14), transparent 58%),
-        radial-gradient(circle at 50% 0%, rgba(0,0,0,0.35), rgba(0,0,0,0.92)),
-        linear-gradient(to bottom, rgba(0,0,0,0.10), rgba(0,0,0,0.55));
-      opacity:1;
-    }
+/* ---------- Layout ---------- */
+.wrap{
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:28px;
+}
 
-    .grid{
-      position:absolute;
-      inset:-2px;
-      opacity:0.18;
-      background:
-        repeating-linear-gradient(
-          to right,
-          rgba(31,156,240,0.00) 0,
-          rgba(31,156,240,0.00) 22px,
-          rgba(31,156,240,0.12) 23px,
-          rgba(31,156,240,0.00) 24px
-        ),
-        repeating-linear-gradient(
-          to bottom,
-          rgba(31,156,240,0.00) 0,
-          rgba(31,156,240,0.00) 22px,
-          rgba(31,156,240,0.10) 23px,
-          rgba(31,156,240,0.00) 24px
-        );
-      mix-blend-mode:screen;
-      filter:blur(0.1px);
-      animation:gridDrift 14s linear infinite;
-    }
-    @keyframes gridDrift{
-      0%{ transform:translate3d(0,0,0); }
-      100%{ transform:translate3d(-48px, 36px, 0); }
-    }
+.card{
+  width:min(780px,100%);
+  background:var(--glass);
+  backdrop-filter:blur(16px);
+  border:1px solid var(--stroke);
+  border-radius:26px;
+  box-shadow:0 30px 70px rgba(0,0,0,.85);
+  overflow:hidden;
+}
 
-    .topo{
-      position:absolute;
-      inset:-10%;
-      opacity:0.26;
-      background:
-        radial-gradient(closest-side at 22% 32%, rgba(31,156,240,0.20), transparent 62%),
-        radial-gradient(closest-side at 78% 36%, rgba(0,90,156,0.18), transparent 64%),
-        radial-gradient(closest-side at 48% 78%, rgba(31,156,240,0.14), transparent 66%),
+.card-head{
+  padding:28px;
+  border-bottom:1px solid var(--stroke);
+}
+.brand{
+  font-family:Montserrat,sans-serif;
+  letter-spacing:.22em;
+  text-transform:uppercase;
+}
+.brand .vista{font-weight:700}
+.brand .geomatics{font-weight:400}
+.sub{
+  margin-top:10px;
+  opacity:.75;
+}
 
-        repeating-radial-gradient(circle at 28% 35%,
-          rgba(255,255,255,0.06) 0px,
-          rgba(255,255,255,0.06) 1px,
-          rgba(255,255,255,0.00) 10px,
-          rgba(255,255,255,0.00) 18px
-        ),
-        repeating-radial-gradient(circle at 70% 40%,
-          rgba(255,255,255,0.05) 0px,
-          rgba(255,255,255,0.05) 1px,
-          rgba(255,255,255,0.00) 12px,
-          rgba(255,255,255,0.00) 22px
-        ),
-        repeating-radial-gradient(circle at 52% 78%,
-          rgba(255,255,255,0.045) 0px,
-          rgba(255,255,255,0.045) 1px,
-          rgba(255,255,255,0.00) 14px,
-          rgba(255,255,255,0.00) 26px
-        );
-      mix-blend-mode:screen;
-      filter:blur(0.2px);
-      animation:topoFloat 9s ease-in-out infinite alternate;
-    }
-    @keyframes topoFloat{
-      from{ transform:translate3d(-6px, -4px, 0) scale(1.02); }
-      to{ transform:translate3d(10px, 8px, 0) scale(1.04); }
-    }
+.card-body{
+  padding:26px;
+}
+.grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+  gap:16px;
+}
 
-    @media (prefers-reduced-motion: reduce){
-      .grid, .topo{ animation:none; }
-    }
+/* ---------- Buttons ---------- */
+.btn{
+  position:relative;
+  padding:18px;
+  border-radius:18px;
+  background:linear-gradient(120deg,var(--blue),var(--blue-dark));
+  color:#fff;
+  text-decoration:none;
+  font-weight:700;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  box-shadow:0 16px 40px rgba(0,0,0,.75);
+  transition:.2s ease;
+}
+.btn:hover{
+  transform:translateY(-2px);
+  box-shadow:0 24px 60px rgba(0,0,0,.9);
+}
 
-    /* ===== Laser cursor canvas ===== */
-    canvas.cursor-trail{
-      position:fixed;
-      inset:0;
-      pointer-events:none;
-      z-index:9998;
-    }
-    @media (max-width: 991px){
-      canvas.cursor-trail{ display:none; }
-    }
-    @media (prefers-reduced-motion: reduce){
-      canvas.cursor-trail{ display:none; }
-    }
-
-    /* ===== Intro bars opener (like home page) ===== */
-    .intro{
-      position:fixed;
-      inset:0;
-      z-index:9999;
-      background:#000;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      overflow:hidden;
-      transition:opacity .35s ease, visibility .35s ease;
-    }
-    .intro.hide{
-      opacity:0;
-      visibility:hidden;
-    }
-    .intro::before{
-      content:"";
-      position:absolute;
-      inset:-30%;
-      background:
-        radial-gradient(600px 240px at 50% 50%, rgba(31,156,240,0.18), transparent 65%),
-        radial-gradient(500px 220px at 55% 55%, rgba(0,90,156,0.18), transparent 68%),
-        radial-gradient(circle at 50% 50%, rgba(255,255,255,0.04), rgba(0,0,0,0.94));
-      transform:scale(1.05);
-      z-index:0;
-    }
-
-    .intro-inner{
-      position:relative;
-      text-align:center;
-      padding:24px;
-      z-index:2;
-      opacity:0;
-      transform:translateY(8px);
-      animation:introIn .55s ease forwards;
-    }
-    @keyframes introIn{ to{ opacity:1; transform:translateY(0); } }
-
-    .brand-word{
-      font-family:"Montserrat", sans-serif;
-      text-transform:uppercase;
-      letter-spacing:0.22em;
-      font-size:clamp(2.0rem, 5.6vw, 4.6rem);
-      line-height:1.04;
-      color:#fff;
-      user-select:none;
-      margin:0;
-      display:inline-flex;
-      gap:0;
-      white-space:nowrap;
-    }
-    .brand-word .vista{ font-weight:700; }
-    .brand-word .geomatics{ font-weight:400; }
-
-    .intro-sub{
-      margin:16px 0 0;
-      font-size:0.92rem;
-      color:rgba(255,255,255,0.74);
-      letter-spacing:0.14em;
-      text-transform:uppercase;
-    }
-
-    .scanline{
-      position:relative;
-      width:min(760px, 82vw);
-      height:2px;
-      margin:18px auto 0;
-      background:rgba(255,255,255,0.10);
-      border-radius:999px;
-      overflow:hidden;
-    }
-    .scanline::after{
-      content:"";
-      position:absolute;
-      left:-30%;
-      top:0;
-      height:100%;
-      width:28%;
-      background:linear-gradient(90deg, transparent, rgba(31,156,240,0.90), rgba(0,90,156,0.90), transparent);
-      animation:scan 0.95s ease-in-out infinite;
-    }
-    @keyframes scan{
-      0%{ transform:translateX(0); }
-      100%{ transform:translateX(470%); }
-    }
-
-    .wipe{
-      position:absolute;
-      inset:0;
-      display:grid;
-      grid-template-columns:repeat(12, 1fr);
-      gap:10px;
-      padding:0 28px;
-      z-index:1;
-      pointer-events:none;
-    }
-    .wipe .bar{
-      height:100%;
-      background:rgba(255,255,255,0.06);
-      border-left:1px solid rgba(255,255,255,0.06);
-      border-right:1px solid rgba(255,255,255,0.03);
-      will-change:transform;
-      position:relative;
-      overflow:hidden;
-      transform:translateY(0);
-    }
-    .wipe .bar::after{
-      content:"";
-      position:absolute;
-      inset:0;
-      background:linear-gradient(180deg,
-        rgba(31,156,240,0.12),
-        rgba(0,90,156,0.10),
-        rgba(0,0,0,0.65)
-      );
-      opacity:0.95;
-    }
-
-    /* stylish, independent, one-at-a-time */
-    .intro.wiping .intro-inner{
-      transition:opacity .30s ease, transform .35s ease;
-      opacity:0;
-      transform:translateY(-6px) scale(0.985);
-    }
-    .intro.wiping .wipe .bar{
-      animation:barWipe 0.9s cubic-bezier(.2,.8,.2,1) forwards;
-    }
-    @keyframes barWipe{
-      0%{ transform:translateY(0); }
-      100%{ transform:translateY(112%); }
-    }
-    .wipe .bar:nth-child(1){  animation-delay:0.00s; }
-    .wipe .bar:nth-child(2){  animation-delay:0.06s; }
-    .wipe .bar:nth-child(3){  animation-delay:0.12s; }
-    .wipe .bar:nth-child(4){  animation-delay:0.18s; }
-    .wipe .bar:nth-child(5){  animation-delay:0.24s; }
-    .wipe .bar:nth-child(6){  animation-delay:0.30s; }
-    .wipe .bar:nth-child(7){  animation-delay:0.36s; }
-    .wipe .bar:nth-child(8){  animation-delay:0.42s; }
-    .wipe .bar:nth-child(9){  animation-delay:0.48s; }
-    .wipe .bar:nth-child(10){ animation-delay:0.54s; }
-    .wipe .bar:nth-child(11){ animation-delay:0.60s; }
-    .wipe .bar:nth-child(12){ animation-delay:0.66s; }
-
-    /* ===== Layout ===== */
-    .overlay{
-      position:fixed;
-      inset:0;
-      z-index:1;
-      display:flex;
-      align-items:flex-start;
-      justify-content:center;
-      padding:24px;
-      overflow:auto;
-    }
-
-    .card{
-      margin-top:40px;
-      max-width:1080px;
-      width:100%;
-      background:linear-gradient(180deg, rgba(5,10,18,0.92), rgba(5,10,18,0.86));
-      border-radius:24px;
-      padding:28px 26px 22px;
-      box-shadow:var(--shadow);
-      border:1px solid rgba(255,255,255,0.08);
-      backdrop-filter: blur(12px);
-      overflow:hidden;
-      position:relative;
-    }
-
-    .card::before{
-      content:"";
-      position:absolute;
-      inset:-1px;
-      background:
-        radial-gradient(700px 220px at 20% 0%, rgba(31,156,240,0.10), transparent 60%),
-        radial-gradient(700px 240px at 85% 10%, rgba(0,90,156,0.10), transparent 62%);
-      pointer-events:none;
-      opacity:1;
-    }
-
-    .header{
-      position:relative;
-      display:flex;
-      justify-content:space-between;
-      flex-wrap:wrap;
-      gap:12px;
-      align-items:baseline;
-      margin-bottom:18px;
-      z-index:2;
-    }
-
-    .title-block{ max-width:72%; position:relative; }
-
-    .title{
-      font-family:"Montserrat", sans-serif;
-      font-size:1.4rem;
-      letter-spacing:0.18em;
-      text-transform:uppercase;
-      margin-bottom:4px;
-      position:relative;
-      display:inline-block;
-    }
-
-    .subtitle{
-      font-size:0.9rem;
-      color:rgba(255,255,255,0.78);
-      margin-bottom:10px;
-    }
-
-    /* Animated topographic line divider */
-    .topo-line{
-      width:min(520px, 92%);
-      height:18px;
-      display:block;
-      position:relative;
-      opacity:0.95;
-    }
-    .topo-line svg{
-      width:100%;
-      height:100%;
-      display:block;
-      overflow:visible;
-      filter:drop-shadow(0 0 10px rgba(31,156,240,0.55));
-    }
-    .topo-line .p1{
-      stroke:rgba(31,156,240,0.95);
-      stroke-width:2;
-      fill:none;
-      stroke-linecap:round;
-      stroke-linejoin:round;
-      stroke-dasharray: 140 420;
-      animation:dashMove 2.6s linear infinite;
-    }
-    .topo-line .p2{
-      stroke:rgba(0,90,156,0.85);
-      stroke-width:2;
-      fill:none;
-      stroke-linecap:round;
-      stroke-linejoin:round;
-      stroke-dasharray: 90 420;
-      animation:dashMove2 3.2s linear infinite;
-      opacity:0.75;
-    }
-    .topo-line .glow{
-      stroke:rgba(255,255,255,0.55);
-      stroke-width:1;
-      fill:none;
-      stroke-linecap:round;
-      stroke-linejoin:round;
-      stroke-dasharray: 30 420;
-      animation:dashMove3 2.0s linear infinite;
-      opacity:0.55;
-    }
-    @keyframes dashMove{  from{ stroke-dashoffset:0; } to{ stroke-dashoffset:-560; } }
-    @keyframes dashMove2{ from{ stroke-dashoffset:0; } to{ stroke-dashoffset:-560; } }
-    @keyframes dashMove3{ from{ stroke-dashoffset:0; } to{ stroke-dashoffset:-560; } }
-
-    @media (prefers-reduced-motion: reduce){
-      .topo-line .p1, .topo-line .p2, .topo-line .glow{ animation:none; }
-    }
-
-    .back-link{
-      font-size:0.8rem;
-      color:rgba(255,255,255,0.70);
-      text-decoration:none;
-      border-radius:999px;
-      padding:6px 14px;
-      border:1px solid rgba(255,255,255,0.25);
-      background:rgba(0,0,0,0.35);
-      letter-spacing:0.14em;
-      text-transform:uppercase;
-      transition:transform .18s ease, background .18s ease, border-color .18s ease;
-      z-index:2;
-    }
-    .back-link:hover{
-      background:rgba(255,255,255,0.08);
-      transform:translateY(-1px);
-      border-color:rgba(31,156,240,0.45);
-    }
-
-    .section{
-      position:relative;
-      margin-top:18px;
-      z-index:2;
-    }
-
-    .section-title{
-      font-size:0.85rem;
-      font-weight:600;
-      text-transform:uppercase;
-      letter-spacing:0.16em;
-      margin-bottom:10px;
-      color:rgba(255,255,255,0.90);
-    }
-
-    .link-grid{
-      display:grid;
-      grid-template-columns:repeat(auto-fit, minmax(240px, 1fr));
-      gap:10px;
-    }
-
-    /* ===== Magnetic link cards ===== */
-    .link-card{
-      padding:12px 14px;
-      border-radius:14px;
-      background:rgba(15,23,42,0.92);
-      border:1px solid rgba(148,163,184,0.45);
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      text-align:center;
-      font-weight:600;
-      font-size:0.85rem;
-      text-transform:uppercase;
-      letter-spacing:0.06em;
-      transition:
-        transform 0.12s ease,
-        box-shadow 0.15s ease,
-        border-color 0.15s ease,
-        background 0.15s ease,
-        filter 0.15s ease;
-      transform:translate3d(0,0,0);
-      will-change:transform;
-      position:relative;
-      overflow:hidden;
-    }
-
-    .link-card::after{
-      content:"";
-      position:absolute;
-      inset:-40%;
-      background:radial-gradient(circle at var(--mx, 50%) var(--my, 50%),
-        rgba(31,156,240,0.22),
-        rgba(0,90,156,0.12),
-        transparent 60%);
-      opacity:0;
-      transition:opacity .16s ease;
-      pointer-events:none;
-    }
-
-    .link-card:hover{
-      box-shadow:0 18px 40px rgba(0,0,0,0.95);
-      border-color:rgba(56,189,248,0.90);
-      background:radial-gradient(circle at top left, rgba(56,189,248,0.16), rgba(15,23,42,0.96));
-      filter:saturate(1.06);
-    }
-    .link-card:hover::after{ opacity:1; }
-
-    a{ color:inherit; text-decoration:none; }
-
-    .footer-brand{
-      position:relative;
-      margin-top:20px;
-      text-align:center;
-      font-family:"Montserrat", sans-serif;
-      font-size:0.75rem;
-      letter-spacing:0.18em;
-      text-transform:uppercase;
-      color:rgba(255,255,255,0.60);
-      z-index:2;
-    }
-    .footer-brand .vista{ font-weight:700; }
-    .footer-brand .geomatics{ font-weight:400; }
-
-    @media (max-width: 640px){
-      .card{ padding:22px 18px 18px; }
-      .title-block{ max-width:100%; }
-    }
-  </style>
+/* ---------- Laser Cursor ---------- */
+canvas#laser{
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  z-index:9998;
+}
+@media (max-width:900px){
+  canvas#laser{display:none}
+}
+</style>
 </head>
 
 <body>
-  <!-- Ambient effects -->
-  <div class="bg-fx" aria-hidden="true">
-    <div class="grid"></div>
-    <div class="topo"></div>
+
+<!-- Background -->
+<div class="bg-video-wrap">
+  <video autoplay muted loop playsinline>
+    <source src="hr-bg.mp4" type="video/mp4">
+  </video>
+  <div class="bg-fallback"></div>
+</div>
+
+<div class="topo"></div>
+<canvas id="laser"></canvas>
+
+<!-- Intro -->
+<div class="intro" id="intro">
+  <div class="bars">
+    <div class="bar" style="--i:1"></div><div class="bar" style="--i:2"></div>
+    <div class="bar" style="--i:3"></div><div class="bar" style="--i:4"></div>
+    <div class="bar" style="--i:5"></div><div class="bar" style="--i:6"></div>
+    <div class="bar" style="--i:7"></div><div class="bar" style="--i:8"></div>
+    <div class="bar" style="--i:9"></div><div class="bar" style="--i:10"></div>
+    <div class="bar" style="--i:11"></div><div class="bar" style="--i:12"></div>
   </div>
-
-  <!-- Laser cursor -->
-  <canvas class="cursor-trail" id="trail" aria-hidden="true"></canvas>
-
-  <!-- Intro -->
-  <div class="intro" id="intro" aria-label="Intro">
-    <div class="wipe" aria-hidden="true">
-      <div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div>
-      <div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div>
-      <div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div>
-    </div>
-
-    <div class="intro-inner">
-      <h1 class="brand-word" aria-label="VISTAGEOMATICS">
-        <span class="vista">VISTA</span><span class="geomatics">GEOMATICS</span>
-      </h1>
-      <div class="scanline" aria-hidden="true"></div>
-      <p class="intro-sub">HR Portal</p>
-    </div>
+  <div class="intro-title">
+    <span class="vista">VISTA</span><span class="geomatics">GEOMATICS</span>
   </div>
+</div>
 
-  <!-- Content -->
-  <div class="overlay">
-    <div class="card">
-      <header class="header">
-        <div class="title-block">
-          <div class="title">HR</div>
-          <div class="subtitle">Payroll, timesheets, calendar, and expense tools.</div>
-
-          <!-- moving topographic divider -->
-          <span class="topo-line" aria-hidden="true">
-            <svg viewBox="0 0 520 18" preserveAspectRatio="none">
-              <!-- base path -->
-              <path d="M0,10 C55,3 95,16 140,9 C190,2 240,16 285,9 C330,2 380,16 430,9 C470,4 495,8 520,6" class="p2"></path>
-              <path d="M0,12 C60,5 100,17 150,10 C205,2 255,16 300,10 C345,4 390,16 440,10 C480,5 500,9 520,8" class="p1"></path>
-              <path d="M0,9  C48,2 92,14 138,8  C188,1 242,14 288,8  C336,2 384,14 432,8  C470,3 492,7 520,6" class="glow"></path>
-            </svg>
-          </span>
-        </div>
-
-        <a href="index.html" class="back-link">Back</a>
-      </header>
-
-      <!-- HR Systems -->
-      <section class="section">
-        <div class="section-title">HR Systems</div>
-        <div class="link-grid">
-          <a class="link-card" href="https://efederation.wip.ceridian.com/adfs/ls/?wtrealm=https%3A%2F%2Fiam.dayforce.com%2F&wa=wsignin1.0" target="_blank" rel="noopener">
-            DAYFORCE
-          </a>
-          <a class="link-card" href="https://clients.powerpay.ca/selfservice/login" target="_blank" rel="noopener">
-            POWERPAY
-          </a>
-        </div>
-      </section>
-
-      <!-- Calendar -->
-      <section class="section">
-        <div class="section-title">Calendar</div>
-        <div class="link-grid">
-          <a class="link-card" href="https://calendar.google.com/calendar/embed?src=0q7apur0ejg3roqt1ujf680lfk%40group.calendar.google.com&ctz=America%2FEdmonton" target="_blank" rel="noopener">
-            VISTA SCHEDULE CALENDAR
-          </a>
-        </div>
-      </section>
-
-      <!-- Forms -->
-      <section class="section">
-        <div class="section-title">Forms</div>
-        <div class="link-grid">
-          <a class="link-card" href="https://vistageomatics.github.io/Mileage-Log/" target="_blank" rel="noopener">
-            MILEAGE LOG
-          </a>
-          <a class="link-card" href="https://vistageomatics.github.io/Expense-Report/" target="_blank" rel="noopener">
-            EMPLOYEE OUT OF POCKET EXPENSE REPORT
-          </a>
-        </div>
-      </section>
-
-      <div class="footer-brand">
+<!-- HR Content -->
+<main class="wrap">
+  <section class="card">
+    <header class="card-head">
+      <div class="brand">
         <span class="vista">VISTA</span><span class="geomatics">GEOMATICS</span>
       </div>
+      <div class="sub">Human Resources</div>
+    </header>
+
+    <div class="card-body">
+      <div class="grid">
+        <a class="btn" href="#">Employee Info →</a>
+        <a class="btn" href="#">Training Records →</a>
+        <a class="btn" href="#">Benefits →</a>
+        <a class="btn" href="#">Policies →</a>
+      </div>
     </div>
-  </div>
+  </section>
+</main>
 
-  <script>
-    // ===== Intro timing (faster) + one-at-a-time bar wipe =====
-    (function () {
-      const intro = document.getElementById("intro");
-      const prefersReduced = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+<script>
+/* intro timing */
+setTimeout(()=>document.getElementById("intro").classList.add("hide"),1700);
 
-      // Quick, dramatic
-      const wipeStartMs = prefersReduced ? 180 : 650;
-      const hideAfterMs = prefersReduced ? 380 : 1200;
-      const safetyMaxMs = prefersReduced ? 650 : 1900;
+/* laser cursor */
+const c=document.getElementById("laser");
+const ctx=c.getContext("2d");
+let pts=[];
+function resize(){
+  c.width=innerWidth*devicePixelRatio;
+  c.height=innerHeight*devicePixelRatio;
+  ctx.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0);
+}
+resize(); addEventListener("resize",resize);
 
-      function startWipe(){
-        if (!intro || intro.classList.contains("wiping")) return;
-        intro.classList.add("wiping");
-      }
-      function hideIntro(){
-        if (!intro || intro.classList.contains("hide")) return;
-        intro.classList.add("hide");
-      }
+addEventListener("mousemove",e=>{
+  pts.push({x:e.clientX,y:e.clientY,a:1});
+  if(pts.length>20) pts.shift();
+});
 
-      setTimeout(startWipe, wipeStartMs);
-      setTimeout(hideIntro, hideAfterMs);
+(function draw(){
+  ctx.clearRect(0,0,innerWidth,innerHeight);
+  for(let i=1;i<pts.length;i++){
+    const p0=pts[i-1],p1=pts[i];
+    ctx.strokeStyle=`rgba(31,156,240,${p1.a})`;
+    ctx.lineWidth=1.5;
+    ctx.beginPath();
+    ctx.moveTo(p0.x,p0.y);
+    ctx.lineTo(p1.x,p1.y);
+    ctx.stroke();
+    p1.a*=.88;
+  }
+  requestAnimationFrame(draw);
+})();
+</script>
 
-      window.addEventListener("load", () => {
-        // if cached, make sure it still wipes and exits cleanly
-        setTimeout(startWipe, 0);
-        setTimeout(hideIntro, hideAfterMs);
-      });
-
-      setTimeout(hideIntro, safetyMaxMs);
-    })();
-
-    // ===== Magnetic Buttons (micro-physics) =====
-    (function () {
-      const prefersReduced = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-      const coarse = window.matchMedia && window.matchMedia("(pointer: coarse)").matches;
-      if (prefersReduced || coarse) return;
-
-      const cards = Array.from(document.querySelectorAll(".link-card"));
-      const strength = 0.22;
-      const maxShift = 10;
-      const radius = 140;
-
-      function clamp(v, min, max){ return Math.max(min, Math.min(max, v)); }
-
-      cards.forEach(el => {
-        el.addEventListener("mousemove", (e) => {
-          const r = el.getBoundingClientRect();
-          const cx = r.left + r.width / 2;
-          const cy = r.top + r.height / 2;
-          const dx = e.clientX - cx;
-          const dy = e.clientY - cy;
-          const dist = Math.hypot(dx, dy);
-
-          const mx = ((e.clientX - r.left) / r.width) * 100;
-          const my = ((e.clientY - r.top) / r.height) * 100;
-          el.style.setProperty("--mx", mx + "%");
-          el.style.setProperty("--my", my + "%");
-
-          if (dist > radius) {
-            el.style.transform = "translate3d(0,0,0)";
-            return;
-          }
-
-          const tx = clamp(dx * strength, -maxShift, maxShift);
-          const ty = clamp(dy * strength, -maxShift, maxShift);
-          el.style.transform = `translate3d(${tx}px, ${ty}px, 0)`;
-        });
-
-        el.addEventListener("mouseleave", () => {
-          el.style.transform = "translate3d(0,0,0)";
-        });
-      });
-    })();
-
-    // ===== Cursor laser trail =====
-    (function () {
-      const canvas = document.getElementById("trail");
-      if (!canvas) return;
-
-      const prefersReduced = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-      const isCoarse = window.matchMedia && window.matchMedia("(pointer: coarse)").matches;
-      const isSmall = window.matchMedia && window.matchMedia("(max-width: 991px)").matches;
-
-      if (prefersReduced || isCoarse || isSmall) {
-        canvas.style.display = "none";
-        return;
-      }
-
-      const ctx = canvas.getContext("2d");
-      const points = [];
-      const MAX = 22;
-      const DECAY = 0.86;
-
-      function resize(){
-        const dpr = window.devicePixelRatio || 1;
-        canvas.width = Math.floor(window.innerWidth * dpr);
-        canvas.height = Math.floor(window.innerHeight * dpr);
-        canvas.style.width = window.innerWidth + "px";
-        canvas.style.height = window.innerHeight + "px";
-        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      }
-      window.addEventListener("resize", resize, { passive: true });
-      resize();
-
-      window.addEventListener("mousemove", (e) => {
-        points.push({ x: e.clientX, y: e.clientY, a: 1 });
-        if (points.length > MAX) points.shift();
-      }, { passive: true });
-
-      function draw(){
-        ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
-
-        for (const p of points) p.a *= DECAY;
-        while (points.length && points[0].a < 0.05) points.shift();
-
-        if (points.length >= 2) {
-          ctx.globalCompositeOperation = "lighter";
-          ctx.lineCap = "round";
-          ctx.lineJoin = "round";
-
-          for (let i = 1; i < points.length; i++) {
-            const p0 = points[i - 1];
-            const p1 = points[i];
-            const t = i / (points.length - 1);
-
-            const width = 0.9 + t * 1.0;
-            const alpha = Math.min(0.95, p1.a) * (0.14 + t * 0.70);
-
-            const grad = ctx.createLinearGradient(p0.x, p0.y, p1.x, p1.y);
-            grad.addColorStop(0, `rgba(31,156,240,${alpha})`);
-            grad.addColorStop(1, `rgba(0,90,156,${alpha})`);
-
-            ctx.strokeStyle = grad;
-            ctx.lineWidth = width;
-            ctx.beginPath();
-            ctx.moveTo(p0.x, p0.y);
-            ctx.lineTo(p1.x, p1.y);
-            ctx.stroke();
-          }
-
-          const head = points[points.length - 1];
-          ctx.globalCompositeOperation = "source-over";
-          ctx.beginPath();
-          ctx.arc(head.x, head.y, 1.6, 0, Math.PI * 2);
-          ctx.fillStyle = "rgba(255,255,255,0.85)";
-          ctx.fill();
-
-          ctx.beginPath();
-          ctx.arc(head.x, head.y, 7.0, 0, Math.PI * 2);
-          ctx.fillStyle = "rgba(31,156,240,0.09)";
-          ctx.fill();
-        }
-
-        requestAnimationFrame(draw);
-      }
-      requestAnimationFrame(draw);
-    })();
-  </script>
 </body>
 </html>
