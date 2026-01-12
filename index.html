@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <title>VISTAGEOMATICS – Internal Forms Portal</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="description" content="Vista Geomatics internal forms portal for Survey, Safety, and HR." />
 
   <!-- Fonts -->
@@ -21,8 +21,6 @@
       --vista-blue-dark:#005a9c;
 
       --shadow:0 30px 70px rgba(0,0,0,0.80);
-      --shadow2:0 18px 45px rgba(0,0,0,0.70);
-
       --introBg:#000;
     }
 
@@ -33,178 +31,141 @@
       margin:0;
       font-family:"Inter", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
       color:var(--text);
-      background-color:var(--bg0);
-      background-image:url("Wallpaper Launch page.png");
-      background-size:contain;
-      background-position:center top;
-      background-repeat:no-repeat;
+      background:var(--bg0);
       overflow-x:hidden;
     }
 
-    /* Background overlay */
+    /* ===== Video background ===== */
+    .bg-video{
+      position:fixed;
+      inset:0;
+      z-index:-3;
+      overflow:hidden;
+      background:#000;
+    }
+    .bg-video video{
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      object-position:center;
+      transform:scale(1.02);
+      filter:saturate(1.05) contrast(1.05) brightness(0.92);
+    }
+
+    /* Soft cinematic overlay on top of video */
     .bg-overlay{
       position:fixed;
       inset:0;
-      z-index:0;
+      z-index:-2;
       pointer-events:none;
       background:
-        radial-gradient(1200px 700px at 50% 10%, rgba(31,156,240,0.10), transparent 60%),
-        radial-gradient(900px 600px at 15% 85%, rgba(0,90,156,0.12), transparent 58%),
-        radial-gradient(circle at 50% 0%, rgba(0,0,0,0.35), rgba(0,0,0,0.88)),
-        linear-gradient(to bottom, rgba(0,0,0,0.10), rgba(0,0,0,0.65));
+        radial-gradient(1200px 700px at 50% 10%, rgba(31,156,240,0.14), transparent 62%),
+        radial-gradient(900px 600px at 15% 85%, rgba(0,90,156,0.18), transparent 60%),
+        radial-gradient(circle at 50% 0%, rgba(0,0,0,0.20), rgba(0,0,0,0.86)),
+        linear-gradient(to bottom, rgba(0,0,0,0.12), rgba(0,0,0,0.55));
     }
 
-    /* ===== Ambient Topo / Blueprint Reveal (more visible) ===== */
-    .topo{
-      position:fixed;
-      inset:-10%;
-      z-index:0;
-      pointer-events:none;
-      opacity:0;
-      transition:opacity 0.9s ease;
-      filter: blur(0.1px);
-      mix-blend-mode: screen;
-    }
-    .topo.show{ opacity:0.60; }
-
-    .topo::before,
-    .topo::after{
-      content:"";
-      position:absolute;
-      inset:0;
-      background-repeat:repeat;
-      background-position:center;
-      transform: rotate(-6deg) scale(1.08);
-      will-change: transform, opacity;
-      opacity:1;
-    }
-
-    /* topo contours */
-    .topo::before{
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='480' height='480' viewBox='0 0 480 480'%3E%3Cdefs%3E%3CradialGradient id='g' cx='50%25' cy='50%25' r='65%25'%3E%3Cstop offset='0%25' stop-color='%23000000' stop-opacity='0'/%3E%3Cstop offset='100%25' stop-color='%23000000' stop-opacity='1'/%3E%3C/radialGradient%3E%3C/defs%3E%3Cg fill='none'%3E%3Cg stroke='%231f9cf0' stroke-opacity='.18' stroke-width='1.2'%3E%3Cpath d='M40 260 C120 120, 220 340, 440 180'/%3E%3Cpath d='M30 310 C140 160, 240 390, 450 230'/%3E%3Cpath d='M35 210 C140 70, 260 300, 445 140'/%3E%3Cpath d='M60 360 C160 210, 260 420, 420 320'/%3E%3Cpath d='M55 160 C160 20, 270 250, 430 90'/%3E%3Cpath d='M90 120 C180 40, 260 170, 390 70'/%3E%3Cpath d='M110 410 C220 260, 300 450, 430 370'/%3E%3Cpath d='M70 430 C170 300, 260 470, 380 420'/%3E%3C/g%3E%3Cg stroke='%23005a9c' stroke-opacity='.14' stroke-width='1'%3E%3Cpath d='M20 250 C130 90, 240 330, 460 170'/%3E%3Cpath d='M25 335 C140 180, 250 410, 470 255'/%3E%3Cpath d='M25 195 C140 55, 270 285, 470 125'/%3E%3Cpath d='M50 380 C170 240, 285 450, 450 340'/%3E%3Cpath d='M70 145 C170 10, 290 235, 450 75'/%3E%3C/g%3E%3C/g%3E%3Crect width='480' height='480' fill='url(%23g)' opacity='.16'/%3E%3C/svg%3E");
-      background-size: 520px 520px;
-      animation: topoDrift 16s linear infinite;
-    }
-
-    /* blueprint grid */
-    .topo::after{
-      background-image:
-        linear-gradient(rgba(255,255,255,0.08) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255,255,255,0.08) 1px, transparent 1px),
-        radial-gradient(circle at 30% 30%, rgba(31,156,240,0.14), transparent 45%),
-        radial-gradient(circle at 70% 70%, rgba(0,90,156,0.14), transparent 45%);
-      background-size: 78px 78px, 78px 78px, 900px 900px, 900px 900px;
-      opacity:0.50;
-      animation: gridFloat 22s ease-in-out infinite;
-    }
-
-    @keyframes topoDrift{
-      0%{ background-position: 0 0; }
-      100%{ background-position: 520px 520px; }
-    }
-    @keyframes gridFloat{
-      0%,100%{ transform: rotate(-6deg) scale(1.08) translate3d(0,0,0); }
-      50%{ transform: rotate(-6deg) scale(1.08) translate3d(18px,-10px,0); }
-    }
-    @media (prefers-reduced-motion: reduce){
-      .topo::before, .topo::after{ animation:none; }
-    }
-
-    /* Cursor laser canvas */
+    /* ===== Cursor laser canvas ===== */
     canvas.cursor-trail{
       position:fixed;
       inset:0;
       pointer-events:none;
-      z-index:9998;
+      z-index:50;
     }
-    @media (max-width: 991px){
+    @media (pointer: coarse){
       canvas.cursor-trail{ display:none; }
     }
     @media (prefers-reduced-motion: reduce){
       canvas.cursor-trail{ display:none; }
     }
 
-    /* ===== Dramatic opener with independent bars ===== */
+    /* ===== Dramatic opener ===== */
     .intro{
       position:fixed;
       inset:0;
-      z-index:9999;
+      z-index:100;
       background:var(--introBg);
       display:flex;
       align-items:center;
       justify-content:center;
       overflow:hidden;
-      transition:opacity .42s ease, visibility .42s ease;
+      transition:opacity .45s ease, visibility .45s ease;
+      padding: max(16px, env(safe-area-inset-top)) 16px max(16px, env(safe-area-inset-bottom));
     }
     .intro.hide{
       opacity:0;
       visibility:hidden;
     }
 
+    /* background glow behind bars */
     .intro::before{
       content:"";
       position:absolute;
-      inset:-30%;
+      inset:-35%;
       background:
-        radial-gradient(600px 240px at 50% 50%, rgba(31,156,240,0.18), transparent 65%),
-        radial-gradient(500px 220px at 55% 55%, rgba(0,90,156,0.18), transparent 68%),
-        radial-gradient(circle at 50% 50%, rgba(255,255,255,0.04), rgba(0,0,0,0.94));
-      transform:scale(1.05);
+        radial-gradient(600px 260px at 50% 50%, rgba(31,156,240,0.22), transparent 66%),
+        radial-gradient(520px 240px at 55% 52%, rgba(0,90,156,0.22), transparent 68%),
+        radial-gradient(circle at 50% 50%, rgba(255,255,255,0.05), rgba(0,0,0,0.94));
+      transform:scale(1.06);
       z-index:0;
     }
 
+    /* Bars */
     .wipe{
       position:absolute;
       inset:0;
+      z-index:1;
       display:grid;
       grid-template-columns:repeat(12, 1fr);
       gap:10px;
       padding:0 28px;
-      z-index:1;
       pointer-events:none;
       opacity:1;
     }
     .wipe .bar{
       height:100%;
+      border-radius:14px;
       background:rgba(255,255,255,0.06);
-      border-left:1px solid rgba(255,255,255,0.06);
-      border-right:1px solid rgba(255,255,255,0.03);
+      border:1px solid rgba(255,255,255,0.05);
       transform:translate3d(0,0,0);
       will-change:transform, filter;
-      position:relative;
       overflow:hidden;
-      filter:saturate(1.05);
+      position:relative;
+      box-shadow: inset 0 0 0 1px rgba(0,0,0,0.14);
     }
     .wipe .bar::after{
       content:"";
       position:absolute;
-      inset:0;
+      inset:-12%;
       background:linear-gradient(180deg,
-        rgba(31,156,240,0.12),
-        rgba(0,90,156,0.10),
+        rgba(31,156,240,0.18),
+        rgba(0,90,156,0.14),
         rgba(0,0,0,0.62)
       );
-      opacity:0.92;
+      opacity:0.95;
+      transform:translateY(0);
     }
 
+    /* Title over bars */
     .intro-inner{
       position:relative;
-      z-index:5;
+      z-index:3; /* IMPORTANT: above bars */
       text-align:center;
-      padding:24px;
+      padding:24px 18px;
       opacity:0;
-      transform:translateY(8px);
+      transform:translateY(10px) scale(0.995);
       animation:introIn .55s ease forwards;
+      max-width: 92vw;
     }
     @keyframes introIn{
-      to { opacity:1; transform:translateY(0); }
+      to { opacity:1; transform:translateY(0) scale(1); }
     }
 
     .brand-word{
       font-family:"Montserrat", sans-serif;
       text-transform:uppercase;
       letter-spacing:0.22em;
-      font-size:clamp(2.2rem, 6.0vw, 4.8rem);
+      font-size:clamp(2.0rem, 7.2vw, 5.2rem);
       line-height:1.04;
       color:#fff;
       user-select:none;
@@ -214,14 +175,14 @@
       white-space:nowrap;
       text-shadow:
         0 2px 18px rgba(0,0,0,0.85),
-        0 0 28px rgba(31,156,240,0.16);
+        0 0 28px rgba(31,156,240,0.18);
     }
     .brand-word .vista{ font-weight:700; }
     .brand-word .geomatics{ font-weight:400; }
 
     .intro-sub{
       margin:16px 0 0;
-      font-size:0.95rem;
+      font-size:0.92rem;
       color:rgba(255,255,255,0.74);
       letter-spacing:0.12em;
       text-transform:uppercase;
@@ -229,7 +190,7 @@
 
     .scanline{
       position:relative;
-      width:min(760px, 82vw);
+      width:min(760px, 86vw);
       height:2px;
       margin:18px auto 0;
       background:rgba(255,255,255,0.08);
@@ -251,6 +212,7 @@
       100%{ transform:translateX(460%); }
     }
 
+    /* Bars exit */
     .intro.wiping .intro-inner{
       animation:none;
       opacity:1;
@@ -261,38 +223,45 @@
     }
 
     .intro.wiping .wipe .bar{
-      animation:barExit var(--dur, 780ms) cubic-bezier(.22,.86,.2,1) forwards;
+      animation:barExit var(--dur, 820ms) cubic-bezier(.22,.86,.2,1) forwards;
       animation-delay: var(--d, 0ms);
     }
+
     @keyframes barExit{
       0%{ transform:translate3d(0,0,0); filter:saturate(1.05) blur(0px); }
       70%{ filter:saturate(1.12) blur(0.2px); }
-      100%{ transform:translate3d(0, var(--y, 125%), 0); filter:saturate(1.0) blur(0.6px); }
+      100%{ transform:translate3d(0, var(--y, 130%), 0); filter:saturate(1.0) blur(0.6px); }
     }
 
-    /* ===== Simple portal layout ===== */
+    @media (max-width: 520px){
+      .wipe{ padding:0 14px; gap:8px; }
+      .wipe .bar{ border-radius:12px; }
+      .brand-word{ letter-spacing:0.18em; }
+    }
+
+    /* ===== Portal layout ===== */
     .wrap{
       position:relative;
       z-index:1;
-      min-height:100vh;
+      min-height:100svh; /* mobile-safe viewport */
       display:flex;
       align-items:center;
       justify-content:center;
-      padding:26px;
+      padding: max(18px, env(safe-area-inset-top)) 18px max(18px, env(safe-area-inset-bottom));
     }
 
     .card{
       width:min(860px, 100%);
-      border-radius:28px;
+      border-radius:26px;
       border:1px solid var(--stroke);
-      background:linear-gradient(180deg, rgba(10,16,26,0.78), rgba(10,16,26,0.62));
+      background:rgba(10,16,26,0.50); /* semi transparent */
       backdrop-filter: blur(14px);
       box-shadow: var(--shadow);
       overflow:hidden;
     }
 
     .card-head{
-      padding:28px 28px 18px;
+      padding:26px 26px 16px;
       border-bottom:1px solid var(--stroke2);
       display:flex;
       align-items:flex-start;
@@ -322,7 +291,7 @@
     }
 
     .card-body{
-      padding:22px 28px 26px;
+      padding:20px 26px 26px;
     }
 
     .btn-grid{
@@ -337,14 +306,7 @@
       .btn-grid{ grid-template-columns:1fr; }
     }
 
-    /* Magnetic wrapper */
-    .mag-wrap{
-      position:relative;
-      border-radius:18px;
-      will-change: transform;
-      transform: translate3d(0,0,0);
-      transition: transform .22s ease;
-    }
+    .mag-wrap{ display:block; }
 
     .btn{
       display:flex;
@@ -362,15 +324,16 @@
       letter-spacing:0.12em;
       text-transform:uppercase;
       box-shadow:0 14px 30px rgba(0,0,0,0.70);
-      transition: transform .18s ease, box-shadow .18s ease, background-position .25s ease, border-color .18s ease;
+      transition: transform .18s ease, box-shadow .18s ease, background-position .25s ease, border-color .18s ease, filter .18s ease;
       min-height:62px;
-      transform: translate3d(0,0,0);
       will-change: transform;
     }
     .btn:hover{
+      transform:translateY(-2px);
       box-shadow:0 22px 48px rgba(0,0,0,0.88);
       background-position:100% 0;
       border-color:rgba(255,255,255,0.16);
+      filter:saturate(1.06) brightness(1.03);
     }
     .btn .arrow{
       opacity:0.95;
@@ -378,10 +341,10 @@
       transition:transform .18s ease;
       letter-spacing:0;
     }
-    .mag-wrap:hover .arrow{ transform:translateX(2px); }
+    .btn:hover .arrow{ transform:translateX(2px); }
 
     .card-foot{
-      padding:14px 28px 18px;
+      padding:14px 26px 18px;
       border-top:1px solid var(--stroke2);
       display:flex;
       gap:12px;
@@ -392,7 +355,7 @@
       font-size:0.86rem;
     }
 
-    /* Go top */
+    /* Go top (kept, harmless) */
     #goTop{
       position:fixed;
       right:16px;
@@ -407,7 +370,7 @@
       align-items:center;
       justify-content:center;
       cursor:pointer;
-      z-index:9997;
+      z-index:40;
       opacity:0;
       transform:translateY(6px);
       transition:opacity .2s ease, transform .2s ease, background .2s ease;
@@ -419,8 +382,15 @@
 </head>
 
 <body>
+  <!-- Video background -->
+  <div class="bg-video" aria-hidden="true">
+    <video id="bgVid" autoplay muted loop playsinline preload="metadata">
+      <source src="hr-bg.mp4" type="video/mp4">
+    </video>
+  </div>
   <div class="bg-overlay" aria-hidden="true"></div>
-  <div class="topo" id="topo" aria-hidden="true"></div>
+
+  <!-- Cursor laser -->
   <canvas class="cursor-trail" id="trail" aria-hidden="true"></canvas>
 
   <!-- Intro -->
@@ -476,30 +446,39 @@
   <button id="goTop" type="button" aria-label="Back to top">↑</button>
 
   <script>
-    // ---- Intro: faster + bars exit independently (one-by-one stagger with variation) ----
+    // Try to play video (some browsers require interaction; muted+playsinline usually works)
+    (function(){
+      const v = document.getElementById("bgVid");
+      if (!v) return;
+      const tryPlay = () => v.play().catch(()=>{});
+      document.addEventListener("visibilitychange", () => { if (!document.hidden) tryPlay(); });
+      window.addEventListener("load", tryPlay);
+      tryPlay();
+    })();
+
+    // ---- Intro: bars exit independently (one-by-one stagger with variation), mobile-safe sizing ----
     (function () {
       const intro = document.getElementById("intro");
-      const topo = document.getElementById("topo");
       const wipe = document.getElementById("wipe");
       const prefersReduced = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
       if (wipe) {
         const bars = Array.from(wipe.querySelectorAll(".bar"));
         bars.forEach((bar, i) => {
-          // One-by-one, stylish stagger
-          const delay = prefersReduced ? 0 : (i * 70);                 // ms between bars
-          const dur = prefersReduced ? 450 : (720 + (i % 4) * 45);     // ms variation
-          const dir = (i % 2 === 0) ? 118 : 132;                       // % translateY variation
+          // Independent timing and distance for a more stylish exit
+          const delay = prefersReduced ? 0 : (i * 75);                 // ms between bars
+          const dur   = prefersReduced ? 420 : (760 + (i % 4) * 55);    // ms variation
+          const dir   = (i % 2 === 0) ? 118 : 138;                      // % translateY variation
           bar.style.setProperty("--d", delay + "ms");
           bar.style.setProperty("--dur", dur + "ms");
           bar.style.setProperty("--y", dir + "%");
         });
       }
 
-      // Timing (faster overall). Adjust these two numbers if desired.
-      const wipeStartMs = prefersReduced ? 250 : 820;  // when bars start leaving
-      const hideAfterMs = prefersReduced ? 620 : 1750; // when intro hides
-      const safetyMaxMs = prefersReduced ? 1200 : 2600;
+      // Faster overall (but still dramatic)
+      const wipeStartMs = prefersReduced ? 220 : 650;   // when bars start leaving
+      const hideAfterMs = prefersReduced ? 520 : 1450;  // when intro hides
+      const safetyMaxMs = prefersReduced ? 900 : 2300;  // failsafe
 
       function startWipe(){
         if (!intro || intro.classList.contains("wiping")) return;
@@ -508,14 +487,12 @@
       function hideIntro(){
         if (!intro || intro.classList.contains("hide")) return;
         intro.classList.add("hide");
-        if (topo) requestAnimationFrame(() => topo.classList.add("show"));
       }
 
       setTimeout(startWipe, wipeStartMs);
       setTimeout(hideIntro, hideAfterMs);
 
       window.addEventListener("load", () => {
-        // Ensure it runs even if cache loads fast/slow
         setTimeout(startWipe, wipeStartMs);
         setTimeout(hideIntro, hideAfterMs);
       });
@@ -577,6 +554,17 @@
       });
     })();
 
+    // ---- Laser reacts to button hover ----
+    let __laserHoverBoost = 0; // 0..1
+    (function(){
+      const btns = Array.from(document.querySelectorAll(".btn"));
+      if (!btns.length) return;
+      btns.forEach(b => {
+        b.addEventListener("mouseenter", () => { __laserHoverBoost = 1; });
+        b.addEventListener("mouseleave", () => { __laserHoverBoost = 0; });
+      });
+    })();
+
     // ---- Cursor laser trail (tight "laser") ----
     (function () {
       const canvas = document.getElementById("trail");
@@ -596,6 +584,8 @@
       const MAX = 20;
       const DECAY = 0.86;
 
+      let hoverPulse = 0; // smooth boost
+
       function resize(){
         canvas.width = Math.floor(window.innerWidth * devicePixelRatio);
         canvas.height = Math.floor(window.innerHeight * devicePixelRatio);
@@ -614,6 +604,9 @@
       function draw(){
         ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
 
+        // smooth the hover boost so it feels “alive”
+        hoverPulse += (__laserHoverBoost - hoverPulse) * 0.18;
+
         for (const p of points) p.a *= DECAY;
         while (points.length && points[0].a < 0.05) points.shift();
 
@@ -622,13 +615,17 @@
           ctx.lineCap = "round";
           ctx.lineJoin = "round";
 
+          const boostW = 1 + hoverPulse * 0.85;
+          const boostA = 1 + hoverPulse * 0.65;
+
           for (let i = 1; i < points.length; i++) {
             const p0 = points[i - 1];
             const p1 = points[i];
             const t = i / (points.length - 1);
 
-            const width = 0.9 + t * 0.8; // tight laser
-            const alpha = Math.min(0.95, p1.a) * (0.18 + t * 0.70);
+            // tight laser, boosted on hover
+            const width = (0.9 + t * 0.8) * boostW;
+            const alpha = Math.min(0.98, p1.a) * (0.18 + t * 0.70) * boostA;
 
             const grad = ctx.createLinearGradient(p0.x, p0.y, p1.x, p1.y);
             grad.addColorStop(0, `rgba(31,156,240,${alpha})`);
@@ -640,20 +637,23 @@
             ctx.moveTo(p0.x, p0.y);
             ctx.lineTo(p1.x, p1.y);
             ctx.stroke();
+
+            // subtle “core” line for crispness
+            const coreA = Math.min(0.55, alpha * 0.55);
+            ctx.strokeStyle = `rgba(255,255,255,${coreA})`;
+            ctx.lineWidth = Math.max(0.6, width * 0.35);
+            ctx.beginPath();
+            ctx.moveTo(p0.x, p0.y);
+            ctx.lineTo(p1.x, p1.y);
+            ctx.stroke();
           }
 
-          // tiny "laser tip" (no big circle)
+          // Head sparkle
           const head = points[points.length - 1];
           ctx.globalCompositeOperation = "source-over";
           ctx.beginPath();
-          ctx.arc(head.x, head.y, 1.3, 0, Math.PI * 2);
-          ctx.fillStyle = "rgba(255,255,255,0.88)";
-          ctx.fill();
-
-          // subtle glow only
-          ctx.beginPath();
-          ctx.arc(head.x, head.y, 5.5, 0, Math.PI * 2);
-          ctx.fillStyle = "rgba(31,156,240,0.08)";
+          ctx.arc(head.x, head.y, 1.6 + hoverPulse*0.6, 0, Math.PI * 2);
+          ctx.fillStyle = "rgba(255,255,255,0.86)";
           ctx.fill();
         }
 
