@@ -1,194 +1,642 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>VistaGeomatics – Survey</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="UTF-8" />
+  <title>VISTAGEOMATICS – Survey</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="description" content="Vista Geomatics internal Survey portal." />
 
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@400;700&display=swap" rel="stylesheet" />
 
   <style>
-    :root {
-      --vista-blue: #1f9cf0;
-      --vista-blue-dark: #005a9c;
-      --text-main: #ffffff;
+    :root{
+      --bg:#000;
+      --glass: rgba(10,16,26,0.62);
+      --glass2: rgba(10,16,26,0.42);
+      --stroke: rgba(255,255,255,0.12);
+      --stroke2: rgba(255,255,255,0.08);
+      --text: rgba(255,255,255,0.96);
+      --muted: rgba(255,255,255,0.70);
+
+      --vista-blue:#1f9cf0;
+      --vista-blue-dark:#005a9c;
+
+      --shadow: 0 30px 70px rgba(0,0,0,0.78);
+      --shadow2: 0 18px 45px rgba(0,0,0,0.60);
     }
 
-    * { box-sizing: border-box; }
-
-    body {
-      margin: 0;
-      min-height: 100vh;
-      font-family: "Inter", sans-serif;
-      color: var(--text-main);
-      background-color: #020509;
-      background-image: url("Survey.png");
-      background-size: contain;
-      background-position: center top;
-      background-repeat: no-repeat;
+    *{ box-sizing:border-box; }
+    html, body{ height:100%; }
+    body{
+      margin:0;
+      font-family: "Inter", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      color: var(--text);
+      background: var(--bg);
+      overflow-x:hidden;
     }
 
-    .overlay {
-      position: fixed;
-      inset: 0;
-      background: radial-gradient(circle at top, rgba(0,0,0,0.45), rgba(0,0,0,0.92));
-      display: flex;
-      align-items: flex-start;
-      justify-content: center;
+    /* ===== Video background ===== */
+    .bg-video{
+      position:fixed;
+      inset:0;
+      z-index:0;
+      overflow:hidden;
+      background:#000;
+    }
+    .bg-video video{
+      position:absolute;
+      inset:0;
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      transform: translateZ(0);
+      filter: saturate(1.02) contrast(1.02);
+    }
+    .bg-vignette{
+      position:absolute;
+      inset:0;
+      pointer-events:none;
+      background:
+        radial-gradient(900px 600px at 50% 12%, rgba(31,156,240,0.12), transparent 60%),
+        radial-gradient(900px 650px at 20% 85%, rgba(0,90,156,0.10), transparent 58%),
+        radial-gradient(circle at 50% 50%, rgba(0,0,0,0.22), rgba(0,0,0,0.88)),
+        linear-gradient(to bottom, rgba(0,0,0,0.10), rgba(0,0,0,0.65));
+    }
+
+    /* ===== Laser cursor canvas ===== */
+    canvas.cursor-trail{
+      position:fixed;
+      inset:0;
+      pointer-events:none;
+      z-index:9998;
+    }
+    @media (max-width: 991px){ canvas.cursor-trail{ display:none; } }
+    @media (prefers-reduced-motion: reduce){ canvas.cursor-trail{ display:none; } }
+
+    /* ===== Dramatic opener ===== */
+    .intro{
+      position:fixed;
+      inset:0;
+      z-index:9999;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      overflow:hidden;
+      background:#000;
+      transition: opacity .45s ease, visibility .45s ease;
+      padding: env(safe-area-inset-top) 16px env(safe-area-inset-bottom);
+    }
+    .intro.hide{ opacity:0; visibility:hidden; }
+
+    .intro::before{
+      content:"";
+      position:absolute;
+      inset:-30%;
+      background:
+        radial-gradient(600px 240px at 50% 50%, rgba(31,156,240,0.18), transparent 65%),
+        radial-gradient(520px 250px at 55% 55%, rgba(0,90,156,0.18), transparent 68%),
+        radial-gradient(circle at 50% 50%, rgba(255,255,255,0.04), rgba(0,0,0,0.94));
+      transform:scale(1.05);
+      z-index:0;
+    }
+
+    .intro-inner{
+      position:relative;
+      z-index:2;
+      text-align:center;
       padding: 24px;
+      opacity:0;
+      transform: translateY(10px);
+      animation:introIn .65s ease forwards;
     }
+    @keyframes introIn{ to { opacity:1; transform: translateY(0); } }
 
-    .card {
-      margin-top: 40px;
-      max-width: 960px;
-      width: 100%;
-      background: rgba(5, 10, 18, 0.92);
-      border-radius: 24px;
-      padding: 28px 26px 22px;
-      box-shadow: 0 24px 60px rgba(0,0,0,0.9);
-      border: 1px solid rgba(255,255,255,0.08);
-      backdrop-filter: blur(12px);
+    .brand-word{
+      font-family:"Montserrat", sans-serif;
+      text-transform:uppercase;
+      letter-spacing:0.22em;
+      font-size: clamp(2.0rem, 7.0vw, 4.8rem);
+      line-height:1.05;
+      color:#fff;
+      user-select:none;
+      margin:0;
+      display:inline-flex;
+      white-space:nowrap;
+      gap:0;
+      text-shadow: 0 18px 50px rgba(0,0,0,0.65);
     }
+    .brand-word .vista{ font-weight:700; }
+    .brand-word .geomatics{ font-weight:400; }
 
-    .header {
-      display: flex;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 12px;
-      align-items: baseline;
-      margin-bottom: 18px;
-    }
-
-    .title-block {
-      max-width: 70%;
-    }
-
-    .title {
-      font-family: "Montserrat", sans-serif;
-      font-size: 1.4rem;
-      letter-spacing: 0.18em;
+    .intro-sub{
+      margin: 14px 0 0;
+      font-size: 0.92rem;
+      color: rgba(255,255,255,0.74);
+      letter-spacing: 0.12em;
       text-transform: uppercase;
-      margin-bottom: 4px;
     }
 
-    .subtitle {
-      font-size: 0.9rem;
-      color: rgba(255,255,255,0.78);
-      margin-bottom: 8px;
-    }
-
-    .divider {
-      width: 130px;
+    .scanline{
+      position:relative;
+      width: min(780px, 84vw);
       height: 2px;
-      border-radius: 999px;
-      background: linear-gradient(120deg, #1f9cf0, #43b0ff, #1f9cf0);
-      box-shadow: 0 0 10px rgba(31,156,240,0.8);
+      margin: 18px auto 0;
+      background: rgba(255,255,255,0.08);
+      border-radius:999px;
+      overflow:hidden;
     }
-
-    .back-link {
-      font-size: 0.8rem;
-      color: rgba(255,255,255,0.7);
-      text-decoration: none;
-      border-radius: 999px;
-      padding: 6px 14px;
-      border: 1px solid rgba(255,255,255,0.25);
-      background: rgba(0,0,0,0.35);
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
+    .scanline::after{
+      content:"";
+      position:absolute;
+      left:-30%;
+      top:0;
+      height:100%;
+      width:30%;
+      background: linear-gradient(90deg, transparent, rgba(31,156,240,0.85), rgba(0,90,156,0.85), transparent);
+      animation: scan 1.05s ease-in-out infinite;
     }
-    .back-link:hover { background: rgba(255,255,255,0.08); }
+    @keyframes scan{ 0%{ transform:translateX(0); } 100%{ transform:translateX(460%); } }
 
-    .section-title {
-      font-size: 0.85rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.16em;
-      margin-bottom: 10px;
-      color: rgba(255,255,255,0.9);
-    }
-
-    .link-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    /* Bars that fall away one-by-one */
+    .wipe{
+      position:absolute;
+      inset:0;
+      display:grid;
+      grid-template-columns: repeat(12, 1fr);
       gap: 10px;
+      padding: 0 28px;
+      z-index:1;
+      pointer-events:none;
+    }
+    .wipe .bar{
+      height:100%;
+      background: rgba(255,255,255,0.06);
+      border-left: 1px solid rgba(255,255,255,0.06);
+      border-right: 1px solid rgba(255,255,255,0.03);
+      transform: translateY(0);
+      will-change: transform;
+      position:relative;
+      overflow:hidden;
+    }
+    .wipe .bar::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      background: linear-gradient(180deg,
+        rgba(31,156,240,0.12),
+        rgba(0,90,156,0.10),
+        rgba(0,0,0,0.62)
+      );
+      opacity:0.9;
     }
 
-    .link-card {
-      padding: 12px 14px;
-      border-radius: 14px;
-      background: rgba(15, 23, 42, 0.92);
-      border: 1px solid rgba(148, 163, 184, 0.45);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      font-weight: 600;
-      font-size: 0.85rem;
+    .intro.wiping .intro-inner{
+      animation:none;
+      opacity:1;
+      transform: translateY(0) scale(1);
+      transition: opacity .40s ease, transform .55s ease;
+      opacity:0;
+      transform: translateY(-6px) scale(0.985);
+    }
+    .intro.wiping .wipe .bar{
+      animation: barWipe 1.05s cubic-bezier(.2,.8,.2,1) forwards;
+    }
+    @keyframes barWipe{ to { transform: translateY(112%); } }
+
+    /* stagger (independent) */
+    .wipe .bar:nth-child(1){  animation-delay:0.00s; }
+    .wipe .bar:nth-child(2){  animation-delay:0.06s; }
+    .wipe .bar:nth-child(3){  animation-delay:0.12s; }
+    .wipe .bar:nth-child(4){  animation-delay:0.18s; }
+    .wipe .bar:nth-child(5){  animation-delay:0.24s; }
+    .wipe .bar:nth-child(6){  animation-delay:0.30s; }
+    .wipe .bar:nth-child(7){  animation-delay:0.36s; }
+    .wipe .bar:nth-child(8){  animation-delay:0.42s; }
+    .wipe .bar:nth-child(9){  animation-delay:0.48s; }
+    .wipe .bar:nth-child(10){ animation-delay:0.54s; }
+    .wipe .bar:nth-child(11){ animation-delay:0.60s; }
+    .wipe .bar:nth-child(12){ animation-delay:0.66s; }
+
+    /* ===== Layout ===== */
+    .wrap{
+      position:relative;
+      z-index:1;
+      min-height: 100svh; /* mobile safe */
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding: calc(22px + env(safe-area-inset-top)) 18px calc(22px + env(safe-area-inset-bottom));
+    }
+
+    .card{
+      width: min(900px, 100%);
+      border-radius: 26px;
+      border: 1px solid var(--stroke);
+      background: linear-gradient(180deg, var(--glass), var(--glass2));
+      backdrop-filter: blur(14px);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+    }
+
+    .card-head{
+      padding: 26px 26px 18px;
+      border-bottom: 1px solid var(--stroke2);
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap: 16px;
+    }
+
+    .brand-mini{
+      font-family:"Montserrat", sans-serif;
+      text-transform:uppercase;
+      letter-spacing:0.22em;
+      font-size: 1.00rem;
+      line-height:1;
+      display:inline-flex;
+      white-space:nowrap;
+      gap:0;
+    }
+    .brand-mini .vista{ font-weight:700; }
+    .brand-mini .geomatics{ font-weight:400; }
+
+    .tagline{
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 0.95rem;
+      line-height: 1.35;
+      max-width: 560px;
+    }
+
+    .right-meta{
+      text-align:right;
+      color: rgba(255,255,255,0.72);
+      font-size: 0.82rem;
+      letter-spacing: 0.12em;
       text-transform: uppercase;
-      letter-spacing: 0.06em;
-      transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+      user-select:none;
+      white-space:nowrap;
+      padding-top: 2px;
     }
 
-    .link-card:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 18px 40px rgba(0,0,0,0.95);
-      border-color: rgba(56, 189, 248, 0.9);
-      background: radial-gradient(circle at top left, rgba(56,189,248,0.16), rgba(15,23,42,0.96));
+    .card-body{ padding: 20px 26px 26px; }
+
+    .btn-grid{
+      display:grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+    @media (max-width: 640px){
+      .btn-grid{ grid-template-columns: 1fr; }
+      .right-meta{ display:none; }
     }
 
-    a { color: inherit; text-decoration: none; }
-
-    .footer-brand {
-      margin-top: 20px;
-      text-align: center;
-      font-family: "Montserrat", sans-serif;
-      font-size: 0.75rem;
-      letter-spacing: 0.18em;
+    .btn{
+      position:relative;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 14px;
+      padding: 16px 16px;
+      border-radius: 18px;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: linear-gradient(120deg, rgba(31,156,240,0.92), rgba(0,90,156,0.92), rgba(31,156,240,0.92));
+      background-size: 200% 200%;
+      color:#fff;
+      text-decoration:none;
+      font-weight: 800;
+      letter-spacing: 0.12em;
       text-transform: uppercase;
-      color: rgba(255,255,255,0.6);
+      box-shadow: 0 14px 30px rgba(0,0,0,0.66);
+      transition: transform .18s ease, box-shadow .18s ease, background-position .25s ease, border-color .18s ease, filter .18s ease;
+      min-height: 62px;
+      will-change: transform;
+      transform: translate3d(var(--mx, 0px), var(--my, 0px), 0);
     }
-    .footer-brand .vista { font-weight: 700; }
-    .footer-brand .geomatics { font-weight: 400; }
+    .btn:hover{
+      box-shadow: 0 22px 52px rgba(0,0,0,0.82);
+      background-position: 100% 0;
+      border-color: rgba(255,255,255,0.18);
+      filter: brightness(1.04);
+    }
 
-    @media (max-width: 640px) {
-      .card { padding: 22px 18px 18px; }
-      .title-block { max-width: 100%; }
+    .btn .arrow{
+      opacity:0.95;
+      transform: translateX(0);
+      transition: transform .18s ease;
+      letter-spacing:0;
+      font-weight:700;
     }
+    .btn:hover .arrow{ transform: translateX(2px); }
+
+    .btn::after{
+      content:"";
+      position:absolute;
+      inset:-1px;
+      border-radius: 18px;
+      pointer-events:none;
+      opacity:0;
+      transition: opacity .18s ease;
+      box-shadow: 0 0 0 1px rgba(255,255,255,0.08), 0 0 24px rgba(31,156,240,0.22);
+    }
+    .btn:hover::after{ opacity:1; }
+
+    .card-foot{
+      padding: 14px 26px 18px;
+      border-top: 1px solid var(--stroke2);
+      display:flex;
+      gap: 12px;
+      align-items:center;
+      justify-content:space-between;
+      flex-wrap:wrap;
+      color: rgba(255,255,255,0.62);
+      font-size: 0.86rem;
+    }
+
+    /* Back link styled subtly */
+    .back-link{
+      color: rgba(255,255,255,0.78);
+      text-decoration:none;
+      letter-spacing:0.10em;
+      text-transform:uppercase;
+      font-weight:700;
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
+      padding:10px 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.10);
+      background: rgba(255,255,255,0.04);
+      transition: transform .18s ease, background .18s ease, border-color .18s ease;
+    }
+    .back-link:hover{
+      transform: translateY(-1px);
+      background: rgba(255,255,255,0.06);
+      border-color: rgba(255,255,255,0.14);
+    }
+
+    /* Optional: keep everything crisp on iOS */
+    video { -webkit-transform: translateZ(0); }
   </style>
 </head>
+
 <body>
-<div class="overlay">
-  <div class="card">
-    <header class="header">
-      <div class="title-block">
-        <div class="title">Survey</div>
-        <div class="subtitle">Internal survey forms and reference documents.</div>
-        <div class="divider"></div>
-      </div>
-      <a href="index.html" class="back-link">Back</a>
-    </header>
+  <!-- Background -->
+  <div class="bg-video" aria-hidden="true">
+    <video id="bgVid" autoplay muted loop playsinline preload="metadata">
+      <source src="hr-bg.mp4" type="video/mp4" />
+    </video>
+    <div class="bg-vignette"></div>
+  </div>
 
-    <section>
-      <div class="section-title">Forms &amp; References</div>
-      <div class="link-grid">
-        <a class="link-card" href="https://vistageomatics.github.io/evidence-report/" target="_blank" rel="noopener">
-          EVIDENCE REPORT
-        </a>
+  <!-- Laser cursor -->
+  <canvas class="cursor-trail" id="trail" aria-hidden="true"></canvas>
 
-        <a class="link-card" href="https://drive.google.com/file/d/18eJBzR0rHdzwa35nDwQtXxl1Z24zhb67/view?usp=sharing" target="_blank" rel="noopener">
-          ALBERTA ELECTRICAL UTILITY CODE
-        </a>
+  <!-- Intro -->
+  <div class="intro" id="intro" aria-label="Intro">
+    <div class="wipe" aria-hidden="true">
+      <div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div>
+      <div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div>
+      <div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div>
+    </div>
 
-        <a class="link-card" href="https://drive.google.com/file/d/17YKBb5GKTefKanFOsrPcbMUyrr8i9znI/view?usp=sharing" target="_blank" rel="noopener">
-          CALIBRATION OF SURVEY EQUIPMENT
-        </a>
-      </div>
-    </section>
-
-    <div class="footer-brand">
-      <span class="vista">VISTA</span><span class="geomatics">GEOMATICS</span>
+    <div class="intro-inner">
+      <h1 class="brand-word" aria-label="VISTAGEOMATICS">
+        <span class="vista">VISTA</span><span class="geomatics">GEOMATICS</span>
+      </h1>
+      <div class="scanline" aria-hidden="true"></div>
+      <p class="intro-sub">Survey</p>
     </div>
   </div>
-</div>
+
+  <!-- Content -->
+  <main class="wrap">
+    <section class="card" aria-label="Survey Portal">
+      <header class="card-head">
+        <div>
+          <div class="brand-mini" aria-label="VISTAGEOMATICS">
+            <span class="vista">VISTA</span><span class="geomatics">GEOMATICS</span>
+          </div>
+          <div class="tagline">Select a Survey resource to continue.</div>
+        </div>
+
+        <div class="right-meta">Internal Forms Portal</div>
+      </header>
+
+      <div class="card-body">
+        <div class="btn-grid">
+          <!-- Original links preserved -->
+          <a class="btn mag" href="https://vistageomatics.github.io/evidence-report/">
+            <span>EVIDENCE REPORT</span><span class="arrow">→</span>
+          </a>
+
+          <a class="btn mag" href="https://drive.google.com/file/d/18eJBzR0rHdzwa35nDwQtXxl1Z24zhb67/view?usp=sharing">
+            <span>ALBERTA ELECTRICAL UTILITY CODE</span><span class="arrow">→</span>
+          </a>
+
+          <a class="btn mag" href="https://drive.google.com/file/d/17YKBb5GKTefKanFOsrPcbMUyrr8i9znI/view?usp=sharing">
+            <span>CALIBRATION OF SURVEY EQUIPMENT</span><span class="arrow">→</span>
+          </a>
+
+          <a class="btn mag" href="index.html">
+            <span>BACK</span><span class="arrow">←</span>
+          </a>
+        </div>
+      </div>
+
+      <footer class="card-foot">
+        <a class="back-link mag" href="index.html">← Back to Home</a>
+        <div style="opacity:.65; letter-spacing:.10em; text-transform:uppercase; font-size:.82rem;">VISTAGEOMATICS</div>
+      </footer>
+    </section>
+  </main>
+
+  <script>
+    // Ensure background video tries to play (some browsers need a nudge)
+    (function(){
+      const v = document.getElementById("bgVid");
+      if (!v) return;
+      const tryPlay = () => v.play().catch(()=>{ /* ignored */ });
+      document.addEventListener("visibilitychange", () => { if (!document.hidden) tryPlay(); });
+      window.addEventListener("load", tryPlay);
+      setTimeout(tryPlay, 250);
+    })();
+
+    // ---- Intro timing (responsive / not cut off) ----
+    (function () {
+      const intro = document.getElementById("intro");
+      const prefersReduced = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+      // "Dramatic but not slow"
+      const wipeStartMs = prefersReduced ? 200 : 850;   // when bars start falling
+      const hideAfterMs = prefersReduced ? 420 : 1500;  // when intro hides
+      const safetyMaxMs = prefersReduced ? 900 : 2200;  // hard stop
+
+      function startWipe(){
+        if (!intro || intro.classList.contains("wiping")) return;
+        intro.classList.add("wiping");
+      }
+      function hideIntro(){
+        if (!intro || intro.classList.contains("hide")) return;
+        intro.classList.add("hide");
+      }
+
+      setTimeout(startWipe, wipeStartMs);
+      setTimeout(hideIntro, hideAfterMs);
+      window.addEventListener("load", () => {
+        // kick immediately on load
+        setTimeout(startWipe, 0);
+        setTimeout(hideIntro, hideAfterMs);
+      });
+      setTimeout(hideIntro, safetyMaxMs);
+    })();
+
+    // ---- Magnetic buttons (micro-physics) + laser reacts to hover ----
+    (function(){
+      const prefersReduced = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      const isCoarse = window.matchMedia && window.matchMedia("(pointer: coarse)").matches;
+      if (prefersReduced || isCoarse) return;
+
+      const mags = Array.from(document.querySelectorAll(".mag"));
+      const strength = 18;      // max pull px
+      const radius = 120;       // activation radius px
+
+      window.__laserHover = false;
+
+      mags.forEach(el => {
+        let raf = null;
+
+        function setVars(x, y){
+          el.style.setProperty("--mx", x.toFixed(2) + "px");
+          el.style.setProperty("--my", y.toFixed(2) + "px");
+        }
+
+        function onMove(e){
+          if (raf) cancelAnimationFrame(raf);
+          raf = requestAnimationFrame(() => {
+            const r = el.getBoundingClientRect();
+            const cx = r.left + r.width/2;
+            const cy = r.top + r.height/2;
+            const dx = e.clientX - cx;
+            const dy = e.clientY - cy;
+            const dist = Math.hypot(dx, dy);
+
+            if (dist > radius){
+              setVars(0,0);
+              return;
+            }
+
+            const power = (1 - dist / radius);
+            const mx = (dx / (dist || 1)) * strength * power;
+            const my = (dy / (dist || 1)) * strength * power;
+            setVars(mx, my);
+          });
+        }
+
+        function onLeave(){
+          setVars(0,0);
+          window.__laserHover = false;
+        }
+
+        el.addEventListener("mousemove", onMove, { passive: true });
+        el.addEventListener("mouseleave", onLeave);
+        el.addEventListener("mouseenter", () => { window.__laserHover = true; });
+        el.addEventListener("pointerenter", () => { window.__laserHover = true; });
+        el.addEventListener("pointerleave", () => { window.__laserHover = false; });
+      });
+    })();
+
+    // ---- Smooth laser cursor trail (reacts to hover) ----
+    (function () {
+      const canvas = document.getElementById("trail");
+      if (!canvas) return;
+
+      const prefersReduced = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      const isCoarse = window.matchMedia && window.matchMedia("(pointer: coarse)").matches;
+      const isSmall = window.matchMedia && window.matchMedia("(max-width: 991px)").matches;
+
+      if (prefersReduced || isCoarse || isSmall) {
+        canvas.style.display = "none";
+        return;
+      }
+
+      const ctx = canvas.getContext("2d");
+      const points = [];
+      const MAX = 22;
+      const DECAY = 0.86;
+
+      function resize(){
+        const dpr = Math.max(1, window.devicePixelRatio || 1);
+        canvas.width = Math.floor(window.innerWidth * dpr);
+        canvas.height = Math.floor(window.innerHeight * dpr);
+        canvas.style.width = window.innerWidth + "px";
+        canvas.style.height = window.innerHeight + "px";
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      }
+      window.addEventListener("resize", resize, { passive:true });
+      resize();
+
+      window.addEventListener("mousemove", (e) => {
+        points.push({ x: e.clientX, y: e.clientY, a: 1 });
+        if (points.length > MAX) points.shift();
+      }, { passive: true });
+
+      function draw(){
+        ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+
+        for (const p of points) p.a *= DECAY;
+        while (points.length && points[0].a < 0.05) points.shift();
+
+        const hoverBoost = !!window.__laserHover;
+
+        if (points.length >= 2) {
+          ctx.globalCompositeOperation = "lighter";
+          ctx.lineCap = "round";
+          ctx.lineJoin = "round";
+
+          for (let i = 1; i < points.length; i++) {
+            const p0 = points[i - 1];
+            const p1 = points[i];
+            const t = i / (points.length - 1);
+
+            const baseW = hoverBoost ? 1.6 : 1.1;
+            const width = baseW + t * (hoverBoost ? 1.2 : 0.9);
+
+            const baseA = hoverBoost ? 0.28 : 0.20;
+            const alpha = Math.min(0.98, p1.a) * (baseA + t * (hoverBoost ? 0.85 : 0.65));
+
+            const grad = ctx.createLinearGradient(p0.x, p0.y, p1.x, p1.y);
+            grad.addColorStop(0, `rgba(31,156,240,${alpha})`);
+            grad.addColorStop(1, `rgba(0,90,156,${alpha})`);
+
+            ctx.strokeStyle = grad;
+            ctx.lineWidth = width;
+            ctx.beginPath();
+            ctx.moveTo(p0.x, p0.y);
+            ctx.lineTo(p1.x, p1.y);
+            ctx.stroke();
+          }
+
+          // head point
+          const head = points[points.length - 1];
+          ctx.globalCompositeOperation = "source-over";
+
+          ctx.beginPath();
+          ctx.arc(head.x, head.y, hoverBoost ? 2.0 : 1.6, 0, Math.PI * 2);
+          ctx.fillStyle = "rgba(255,255,255,0.86)";
+          ctx.fill();
+
+          ctx.beginPath();
+          ctx.arc(head.x, head.y, hoverBoost ? 12.0 : 7.0, 0, Math.PI * 2);
+          ctx.fillStyle = hoverBoost ? "rgba(31,156,240,0.16)" : "rgba(31,156,240,0.10)";
+          ctx.fill();
+        }
+
+        requestAnimationFrame(draw);
+      }
+      requestAnimationFrame(draw);
+    })();
+  </script>
 </body>
 </html>
