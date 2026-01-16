@@ -3,24 +3,25 @@
 <head>
   <meta charset="UTF-8" />
   <title>VISTAGEOMATICS – Internal Forms Portal</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description" content="Vista Geomatics internal forms portal." />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="description" content="Vista Geomatics internal forms portal for Survey, Safety, and HR." />
 
   <!-- Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@400;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
 
   <style>
     :root{
       --bg0:#020509;
-      --glass:rgba(7,12,20,0.62);
-      --glass2:rgba(7,12,20,0.40);
       --stroke:rgba(255,255,255,0.10);
       --stroke2:rgba(255,255,255,0.06);
       --text:rgba(255,255,255,0.96);
-      --muted:rgba(255,255,255,0.72);
-      --vista:#1f9cf0;
-      --vista2:#005a9c;
+      --muted:rgba(255,255,255,0.70);
+
+      --vista-blue:#1f9cf0;
+      --vista-blue-dark:#005a9c;
+
       --shadow:0 30px 70px rgba(0,0,0,0.80);
+      --introBg:#000;
     }
 
     *{ box-sizing:border-box; }
@@ -34,113 +35,156 @@
       overflow-x:hidden;
     }
 
-    /* ===== Background video ===== */
-    .bg{
+    /* ===== Video background ===== */
+    .bg-video{
       position:fixed;
       inset:0;
-      z-index:0;
+      z-index:-3;
       overflow:hidden;
-      background: radial-gradient(900px 520px at 50% 12%, rgba(31,156,240,0.12), transparent 60%),
-                  radial-gradient(800px 520px at 20% 88%, rgba(0,90,156,0.12), transparent 62%),
-                  linear-gradient(to bottom, rgba(0,0,0,0.40), rgba(0,0,0,0.84));
+      background:#000;
     }
-    .bg video{
-      position:absolute;
-      inset:0;
+    .bg-video video{
       width:100%;
       height:100%;
       object-fit:cover;
-      filter:saturate(1.05) contrast(1.05);
-      opacity:0.85;
+      object-position:center;
       transform:scale(1.02);
-    }
-    .bg::after{
-      content:"";
-      position:absolute;
-      inset:0;
-      pointer-events:none;
-      background:
-        radial-gradient(1000px 600px at 50% 10%, rgba(0,0,0,0.25), rgba(0,0,0,0.78)),
-        linear-gradient(to bottom, rgba(0,0,0,0.05), rgba(0,0,0,0.55));
+      filter:saturate(1.05) contrast(1.05) brightness(0.92);
     }
 
-    /* ===== Laser cursor canvas ===== */
+    /* Soft cinematic overlay on top of video */
+    .bg-overlay{
+      position:fixed;
+      inset:0;
+      z-index:-2;
+      pointer-events:none;
+      background:
+        radial-gradient(1200px 700px at 50% 10%, rgba(31,156,240,0.14), transparent 62%),
+        radial-gradient(900px 600px at 15% 85%, rgba(0,90,156,0.18), transparent 60%),
+        radial-gradient(circle at 50% 0%, rgba(0,0,0,0.20), rgba(0,0,0,0.86)),
+        linear-gradient(to bottom, rgba(0,0,0,0.12), rgba(0,0,0,0.55));
+    }
+
+    /* ===== Cursor laser canvas ===== */
     canvas.cursor-trail{
       position:fixed;
       inset:0;
       pointer-events:none;
-      z-index:9998;
+      z-index:50;
     }
-    @media (max-width: 991px){
+    @media (pointer: coarse){
       canvas.cursor-trail{ display:none; }
     }
     @media (prefers-reduced-motion: reduce){
       canvas.cursor-trail{ display:none; }
     }
 
-    /* ===== Intro (scaled for mobile/desktop) ===== */
+    /* ===== Dramatic opener ===== */
     .intro{
       position:fixed;
       inset:0;
-      z-index:9999;
+      z-index:100;
+      background:var(--introBg);
       display:flex;
       align-items:center;
       justify-content:center;
       overflow:hidden;
-      background:#000;
-      transition:opacity .55s ease, visibility .55s ease;
-      padding:clamp(16px, 4vw, 34px);
+      transition:opacity .45s ease, visibility .45s ease;
+      padding: max(16px, env(safe-area-inset-top)) 16px max(16px, env(safe-area-inset-bottom));
     }
     .intro.hide{
       opacity:0;
       visibility:hidden;
     }
 
+    /* background glow behind bars */
     .intro::before{
       content:"";
       position:absolute;
       inset:-35%;
       background:
-        radial-gradient(650px 280px at 50% 50%, rgba(31,156,240,0.18), transparent 68%),
-        radial-gradient(520px 240px at 55% 55%, rgba(0,90,156,0.18), transparent 70%),
-        radial-gradient(circle at 50% 50%, rgba(255,255,255,0.04), rgba(0,0,0,0.94));
+        radial-gradient(600px 260px at 50% 50%, rgba(31,156,240,0.22), transparent 66%),
+        radial-gradient(520px 240px at 55% 52%, rgba(0,90,156,0.22), transparent 68%),
+        radial-gradient(circle at 50% 50%, rgba(255,255,255,0.05), rgba(0,0,0,0.94));
       transform:scale(1.06);
       z-index:0;
     }
 
+    /* Bars */
+    .wipe{
+      position:absolute;
+      inset:0;
+      z-index:1;
+      display:grid;
+      grid-template-columns:repeat(12, 1fr);
+      gap:10px;
+      padding:0 28px;
+      pointer-events:none;
+      opacity:1;
+    }
+    .wipe .bar{
+      height:100%;
+      border-radius:14px;
+      background:rgba(255,255,255,0.06);
+      border:1px solid rgba(255,255,255,0.05);
+      transform:translate3d(0,0,0);
+      will-change:transform, filter;
+      overflow:hidden;
+      position:relative;
+      box-shadow: inset 0 0 0 1px rgba(0,0,0,0.14);
+    }
+    .wipe .bar::after{
+      content:"";
+      position:absolute;
+      inset:-12%;
+      background:linear-gradient(180deg,
+        rgba(31,156,240,0.18),
+        rgba(0,90,156,0.14),
+        rgba(0,0,0,0.62)
+      );
+      opacity:0.95;
+      transform:translateY(0);
+    }
+
+    /* Title over bars */
     .intro-inner{
       position:relative;
+      z-index:3; /* IMPORTANT: above bars */
       text-align:center;
+      padding:24px 18px;
       opacity:0;
-      transform:translateY(10px);
-      animation:introIn .70s ease forwards;
-      z-index:2;
-      max-width:min(920px, 92vw);
+      transform:translateY(10px) scale(0.995);
+      animation:introIn .55s ease forwards;
+      max-width: 92vw;
     }
-    @keyframes introIn{ to { opacity:1; transform:translateY(0); } }
+    @keyframes introIn{
+      to { opacity:1; transform:translateY(0) scale(1); }
+    }
 
     .brand-word{
       font-family:"Montserrat", sans-serif;
       text-transform:uppercase;
-      letter-spacing:clamp(0.14em, 1.2vw, 0.24em);
-      font-size:clamp(2.0rem, 7.2vw, 5.0rem);
-      line-height:1.05;
-      margin:0;
+      letter-spacing:0.22em;
+      font-size:clamp(2.0rem, 7.2vw, 5.2rem);
+      line-height:1.04;
       color:#fff;
-      display:inline-flex;
-      white-space:nowrap;
-      gap:0;
       user-select:none;
-      text-shadow:0 10px 40px rgba(0,0,0,0.85);
+      margin:0;
+      display:inline-flex;
+      gap:0;
+      white-space:nowrap;
+      text-shadow:
+        0 2px 18px rgba(0,0,0,0.85),
+        0 0 28px rgba(31,156,240,0.18);
     }
     .brand-word .vista{ font-weight:700; }
     .brand-word .geomatics{ font-weight:400; }
 
     .intro-sub{
-      margin:14px 0 0;
-      font-size:clamp(0.80rem, 2.2vw, 0.98rem);
+      margin:16px 0 0;
+      font-size:0.92rem;
       color:rgba(255,255,255,0.74);
-      letter-spacing:0.14em;
+      letter-spacing:0.12em;
       text-transform:uppercase;
     }
 
@@ -156,186 +200,151 @@
     .scanline::after{
       content:"";
       position:absolute;
-      left:-35%;
+      left:-30%;
       top:0;
       height:100%;
-      width:35%;
-      background:linear-gradient(90deg, transparent, rgba(31,156,240,0.90), rgba(0,90,156,0.90), transparent);
-      animation:scan 1.05s ease-in-out infinite;
+      width:30%;
+      background:linear-gradient(90deg, transparent, rgba(31,156,240,0.85), rgba(0,90,156,0.85), transparent);
+      animation:scan 1.0s ease-in-out infinite;
     }
-    @keyframes scan{ 0%{ transform:translateX(0); } 100%{ transform:translateX(470%); } }
-
-    .wipe{
-      position:absolute;
-      inset:0;
-      display:grid;
-      gap:10px;
-      padding:0 clamp(14px, 3vw, 28px);
-      z-index:1;
-      pointer-events:none;
-      opacity:1;
-      align-items:stretch;
-    }
-    .wipe .bar{
-      height:100%;
-      background:rgba(255,255,255,0.055);
-      border-left:1px solid rgba(255,255,255,0.06);
-      border-right:1px solid rgba(255,255,255,0.03);
-      transform:translateY(0);
-      will-change:transform;
-      position:relative;
-      overflow:hidden;
-    }
-    .wipe .bar::after{
-      content:"";
-      position:absolute;
-      inset:0;
-      background:linear-gradient(180deg,
-        rgba(31,156,240,0.12),
-        rgba(0,90,156,0.10),
-        rgba(0,0,0,0.65)
-      );
-      opacity:0.95;
+    @keyframes scan{
+      0%{ transform:translateX(0); }
+      100%{ transform:translateX(460%); }
     }
 
+    /* Bars exit */
     .intro.wiping .intro-inner{
       animation:none;
       opacity:1;
       transform:translateY(0) scale(1);
-      transition:opacity .40s ease, transform .55s ease;
+      transition:opacity .28s ease, transform .38s ease;
       opacity:0;
       transform:translateY(-6px) scale(0.985);
     }
 
-    /* Each bar moves independently (staggered delays set in JS) */
     .intro.wiping .wipe .bar{
-      animation:barWipe 0.95s cubic-bezier(.2,.8,.2,1) forwards;
+      animation:barExit var(--dur, 820ms) cubic-bezier(.22,.86,.2,1) forwards;
+      animation-delay: var(--d, 0ms);
     }
-    @keyframes barWipe{
-      0%{ transform:translateY(0); }
-      100%{ transform:translateY(112%); }
+
+    @keyframes barExit{
+      0%{ transform:translate3d(0,0,0); filter:saturate(1.05) blur(0px); }
+      70%{ filter:saturate(1.12) blur(0.2px); }
+      100%{ transform:translate3d(0, var(--y, 130%), 0); filter:saturate(1.0) blur(0.6px); }
+    }
+
+    @media (max-width: 520px){
+      .wipe{ padding:0 14px; gap:8px; }
+      .wipe .bar{ border-radius:12px; }
+      .brand-word{ letter-spacing:0.18em; }
     }
 
     /* ===== Portal layout ===== */
     .wrap{
       position:relative;
       z-index:1;
-      min-height:100vh;
+      min-height:100svh; /* mobile-safe viewport */
       display:flex;
       align-items:center;
       justify-content:center;
-      padding:clamp(16px, 3.6vw, 34px);
+      padding: max(18px, env(safe-area-inset-top)) 18px max(18px, env(safe-area-inset-bottom));
     }
-
-    .stack{
-      width:min(900px, 100%);
-      display:flex;
-      flex-direction:column;
-      align-items:center;
-      gap:18px;
-    }
-
-    /* Title above card (Hidden Game link) */
-    .portal-title{
-      display:inline-flex;
-      align-items:center;
-      justify-content:center;
-      gap:0;
-
-      font-family:"Montserrat", sans-serif;
-      text-transform:uppercase;
-      letter-spacing:clamp(0.16em, 1.2vw, 0.24em);
-      font-size:clamp(1.65rem, 7vw, 3.35rem);
-      line-height:1.05;
-
-      color:#fff;
-      text-decoration:none;
-      user-select:none;
-
-      text-shadow:
-        0 8px 34px rgba(0,0,0,0.88),
-        0 0 26px rgba(31,156,240,0.18);
-
-      transition:opacity .2s ease, transform .2s ease;
-      padding:6px 10px;
-      border-radius:14px;
-      outline:none;
-    }
-    .portal-title:hover{ opacity:0.88; transform:translateY(-1px); }
-    .portal-title:focus-visible{
-      box-shadow:0 0 0 3px rgba(31,156,240,0.35);
-    }
-    .portal-title .vista{ font-weight:700; }
-    .portal-title .geomatics{ font-weight:400; }
 
     .card{
-      width:100%;
-      border-radius:28px;
+      width:min(860px, 100%);
+      border-radius:26px;
       border:1px solid var(--stroke);
-      background:linear-gradient(180deg, var(--glass), var(--glass2));
+      background:rgba(10,16,26,0.50); /* semi transparent */
       backdrop-filter: blur(14px);
       box-shadow: var(--shadow);
       overflow:hidden;
     }
 
     .card-head{
-      padding:20px 22px 14px;
+      padding:26px 26px 16px;
       border-bottom:1px solid var(--stroke2);
-      text-align:center;
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:18px;
     }
-    .subtitle{
+
+    .brand-mini{
+      font-family:"Montserrat", sans-serif;
+      text-transform:uppercase;
+      letter-spacing:0.22em;
+      font-size:1.05rem;
+      line-height:1;
+      display:inline-flex;
+      white-space:nowrap;
+      gap:0;
+    }
+    .brand-mini .vista{ font-weight:700; }
+    .brand-mini .geomatics{ font-weight:400; }
+
+    .tagline{
+      margin-top:10px;
       color:var(--muted);
       font-size:0.95rem;
       line-height:1.35;
-      margin:0;
+      max-width:560px;
     }
 
-    .card-body{ padding:18px 20px 20px; }
+    .card-body{
+      padding:20px 26px 26px;
+    }
 
     .btn-grid{
       display:grid;
       grid-template-columns:repeat(3, minmax(0, 1fr));
       gap:14px;
     }
-    @media (max-width: 700px){
+    @media (max-width: 760px){
       .btn-grid{ grid-template-columns:repeat(2, minmax(0, 1fr)); }
     }
-    @media (max-width: 460px){
+    @media (max-width: 520px){
       .btn-grid{ grid-template-columns:1fr; }
     }
 
+    .mag-wrap{ display:block; }
+
     .btn{
-      position:relative;
       display:flex;
       align-items:center;
-      justify-content:center;
-      padding:16px 14px;
+      justify-content:space-between;
+      gap:14px;
+      padding:16px 16px;
       border-radius:18px;
-      border:1px solid rgba(255,255,255,0.12);
-      background:linear-gradient(120deg, rgba(31,156,240,0.95), rgba(0,90,156,0.95), rgba(31,156,240,0.95));
+      border:1px solid rgba(255,255,255,0.10);
+      background:linear-gradient(120deg, rgba(31,156,240,0.92), rgba(0,90,156,0.92), rgba(31,156,240,0.92));
       background-size:200% 200%;
       color:#fff;
       text-decoration:none;
       font-weight:700;
-      letter-spacing:0.14em;
+      letter-spacing:0.12em;
       text-transform:uppercase;
       box-shadow:0 14px 30px rgba(0,0,0,0.70);
-      transition: transform .18s ease, box-shadow .18s ease, background-position .25s ease, border-color .18s ease;
+      transition: transform .18s ease, box-shadow .18s ease, background-position .25s ease, border-color .18s ease, filter .18s ease;
       min-height:62px;
-      will-change:transform;
-      outline:none;
+      will-change: transform;
     }
     .btn:hover{
-      box-shadow:0 22px 48px rgba(0,0,0,0.86);
+      transform:translateY(-2px);
+      box-shadow:0 22px 48px rgba(0,0,0,0.88);
       background-position:100% 0;
-      border-color:rgba(255,255,255,0.18);
+      border-color:rgba(255,255,255,0.16);
+      filter:saturate(1.06) brightness(1.03);
     }
-    .btn:focus-visible{
-      box-shadow:0 0 0 3px rgba(31,156,240,0.35), 0 22px 48px rgba(0,0,0,0.86);
+    .btn .arrow{
+      opacity:0.95;
+      transform:translateX(0);
+      transition:transform .18s ease;
+      letter-spacing:0;
     }
+    .btn:hover .arrow{ transform:translateX(2px); }
 
     .card-foot{
-      padding:14px 20px 16px;
+      padding:14px 26px 18px;
       border-top:1px solid var(--stroke2);
       display:flex;
       gap:12px;
@@ -346,26 +355,52 @@
       font-size:0.86rem;
     }
 
-    @media (prefers-reduced-motion: reduce){
-      .portal-title, .btn{ transition:none; }
-      .intro-inner{ animation:none; opacity:1; transform:none; }
-      .scanline::after{ animation:none; }
+    /* Go top (kept, harmless) */
+    #goTop{
+      position:fixed;
+      right:16px;
+      bottom:16px;
+      width:46px;
+      height:46px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,.10);
+      background:rgba(5,10,18,.60);
+      color:#fff;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      cursor:pointer;
+      z-index:40;
+      opacity:0;
+      transform:translateY(6px);
+      transition:opacity .2s ease, transform .2s ease, background .2s ease;
+      backdrop-filter: blur(10px);
     }
+    #goTop.show{ opacity:1; transform:translateY(0); }
+    #goTop:hover{ background:rgba(5,10,18,.78); }
   </style>
 </head>
 
 <body>
-  <div class="bg" aria-hidden="true">
-    <video autoplay muted loop playsinline preload="metadata">
-      <source src="../Grading Test/hr-bg.mp4" type="video/mp4" />
+  <!-- Video background -->
+  <div class="bg-video" aria-hidden="true">
+    <video id="bgVid" autoplay muted loop playsinline preload="metadata">
+      <source src="hr-bg.mp4" type="video/mp4">
     </video>
   </div>
+  <div class="bg-overlay" aria-hidden="true"></div>
 
+  <!-- Cursor laser -->
   <canvas class="cursor-trail" id="trail" aria-hidden="true"></canvas>
 
-  <!-- Intro (bars + title) -->
+  <!-- Intro -->
   <div class="intro" id="intro" aria-label="Intro">
-    <div class="wipe" aria-hidden="true" id="wipe"></div>
+    <div class="wipe" id="wipe" aria-hidden="true">
+      <div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div>
+      <div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div>
+      <div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div>
+    </div>
+
     <div class="intro-inner">
       <h1 class="brand-word" aria-label="VISTAGEOMATICS">
         <span class="vista">VISTA</span><span class="geomatics">GEOMATICS</span>
@@ -377,79 +412,73 @@
 
   <!-- Portal -->
   <main class="wrap">
-    <div class="stack">
-      <!-- Hidden game link title -->
-      <a
-        class="portal-title"
-        id="portalTitle"
-        href="https://vistageomatics.github.io/Hidden-Game/"
-        aria-label="Hidden Game"
-        title=""
-      >
-        <span class="vista">VISTA</span><span class="geomatics">GEOMATICS</span>
-      </a>
+    <section class="card" aria-label="Forms Portal">
+      <header class="card-head">
+        <div>
+          <div class="brand-mini" aria-label="VISTAGEOMATICS">
+            <span class="vista">VISTA</span><span class="geomatics">GEOMATICS</span>
+          </div>
+          <div class="tagline">Select a category to continue.</div>
+        </div>
+      </header>
 
-      <section class="card" aria-label="Forms Portal">
-        <header class="card-head">
-          <div class="subtitle">Select a category to continue.</div>
-        </header>
-
-        <div class="card-body">
-          <div class="btn-grid" id="btnGrid">
-            <a class="btn mag" href="../Grading Test/survey.html">Survey</a>
-            <a class="btn mag" href="../Grading Test/safety.html">Safety</a>
-            <a class="btn mag" href="../Grading Test/hr.html">HR</a>
+      <div class="card-body">
+        <div class="btn-grid">
+          <div class="mag-wrap">
+            <a class="btn" href="survey.html"><span>Survey</span><span class="arrow">→</span></a>
+          </div>
+          <div class="mag-wrap">
+            <a class="btn" href="safety.html"><span>Safety</span><span class="arrow">→</span></a>
+          </div>
+          <div class="mag-wrap">
+            <a class="btn" href="hr.html"><span>HR</span><span class="arrow">→</span></a>
           </div>
         </div>
+      </div>
 
-        <footer class="card-foot">
-          <div>Internal use only.</div>
-          <div style="opacity:.65; letter-spacing:.10em; text-transform:uppercase; font-family:Montserrat, sans-serif;">
-            <span style="font-weight:700;">VISTA</span><span style="font-weight:400;">GEOMATICS</span>
-          </div>
-        </footer>
-      </section>
-    </div>
+      <footer class="card-foot">
+        <div>Internal use only.</div>
+        <div style="opacity:.65; letter-spacing:.10em; text-transform:uppercase; font-size:.82rem;">VISTAGEOMATICS</div>
+      </footer>
+    </section>
   </main>
 
+  <button id="goTop" type="button" aria-label="Back to top">↑</button>
+
   <script>
-    // ===== Build wipe bars dynamically so it scales (mobile + desktop) =====
-    (function () {
-      const wipe = document.getElementById("wipe");
-      if (!wipe) return;
-
-      const prefersReduced = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
-      function rebuildBars(){
-        const w = window.innerWidth;
-        const count = prefersReduced ? 8 : (w < 520 ? 10 : w < 900 ? 12 : 14);
-        wipe.innerHTML = "";
-        wipe.style.gridTemplateColumns = `repeat(${count}, 1fr)`;
-
-        for (let i = 0; i < count; i++) {
-          const bar = document.createElement("div");
-          bar.className = "bar";
-          // stylish independent timing
-          const base = 0.05;
-          const jitter = (i % 2 === 0 ? 0.015 : 0.0) + (i % 3) * 0.006;
-          bar.style.animationDelay = `${(i * base) + jitter}s`;
-          wipe.appendChild(bar);
-        }
-      }
-
-      rebuildBars();
-      window.addEventListener("resize", rebuildBars);
+    // Try to play video (some browsers require interaction; muted+playsinline usually works)
+    (function(){
+      const v = document.getElementById("bgVid");
+      if (!v) return;
+      const tryPlay = () => v.play().catch(()=>{});
+      document.addEventListener("visibilitychange", () => { if (!document.hidden) tryPlay(); });
+      window.addEventListener("load", tryPlay);
+      tryPlay();
     })();
 
-    // ===== Intro timing (fast, but still dramatic) =====
+    // ---- Intro: bars exit independently (one-by-one stagger with variation), mobile-safe sizing ----
     (function () {
       const intro = document.getElementById("intro");
+      const wipe = document.getElementById("wipe");
       const prefersReduced = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-      // Faster overall; wipe starts shortly after title appears.
-      const wipeStartMs = prefersReduced ? 260 : 850;
-      const hideAfterMs = prefersReduced ? 520 : 1450;
-      const safetyMaxMs = prefersReduced ? 900 : 2200;
+      if (wipe) {
+        const bars = Array.from(wipe.querySelectorAll(".bar"));
+        bars.forEach((bar, i) => {
+          // Independent timing and distance for a more stylish exit
+          const delay = prefersReduced ? 0 : (i * 75);                 // ms between bars
+          const dur   = prefersReduced ? 420 : (760 + (i % 4) * 55);    // ms variation
+          const dir   = (i % 2 === 0) ? 118 : 138;                      // % translateY variation
+          bar.style.setProperty("--d", delay + "ms");
+          bar.style.setProperty("--dur", dur + "ms");
+          bar.style.setProperty("--y", dir + "%");
+        });
+      }
+
+      // Faster overall (but still dramatic)
+      const wipeStartMs = prefersReduced ? 220 : 650;   // when bars start leaving
+      const hideAfterMs = prefersReduced ? 520 : 1450;  // when intro hides
+      const safetyMaxMs = prefersReduced ? 900 : 2300;  // failsafe
 
       function startWipe(){
         if (!intro || intro.classList.contains("wiping")) return;
@@ -464,63 +493,79 @@
       setTimeout(hideIntro, hideAfterMs);
 
       window.addEventListener("load", () => {
-        // If assets load quick, still keep opener visible long enough to feel intentional.
-        setTimeout(startWipe, wipeStartMs * 0.7);
+        setTimeout(startWipe, wipeStartMs);
         setTimeout(hideIntro, hideAfterMs);
       });
 
       setTimeout(hideIntro, safetyMaxMs);
     })();
 
-    // ===== Magnetic buttons (micro-physics) =====
+    // ---- Go top ----
+    (function () {
+      const btn = document.getElementById("goTop");
+      const toggle = () => btn.classList.toggle("show", window.scrollY > 120);
+      window.addEventListener("scroll", toggle, { passive: true });
+      toggle();
+      btn.addEventListener("click", () => window.scrollTo({ top: 0, behavior: "smooth" }));
+    })();
+
+    // ---- Magnetic Buttons (Micro-Physics) ----
     (function () {
       const prefersReduced = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
       const isCoarse = window.matchMedia && window.matchMedia("(pointer: coarse)").matches;
       if (prefersReduced || isCoarse) return;
 
-      const buttons = Array.from(document.querySelectorAll(".mag"));
-      if (!buttons.length) return;
+      const wraps = Array.from(document.querySelectorAll(".mag-wrap"));
+      if (!wraps.length) return;
 
-      const strength = 18;        // pull distance (px)
-      const radius = 140;         // influence radius (px)
-      const lerp = 0.12;          // smoothing
+      const maxMove = 10;      // px
+      const pull = 0.22;
+      const innerScale = 1.02;
 
-      const state = new Map();
-      for (const btn of buttons) state.set(btn, { tx:0, ty:0, vx:0, vy:0 });
+      wraps.forEach(wrap => {
+        const btn = wrap.querySelector(".btn");
+        if (!btn) return;
 
-      let mouseX = -9999, mouseY = -9999;
-      window.addEventListener("mousemove", (e) => { mouseX = e.clientX; mouseY = e.clientY; }, { passive:true });
-      window.addEventListener("mouseleave", () => { mouseX = -9999; mouseY = -9999; });
+        function onMove(e){
+          const r = wrap.getBoundingClientRect();
+          const cx = r.left + r.width / 2;
+          const cy = r.top + r.height / 2;
+          const dx = e.clientX - cx;
+          const dy = e.clientY - cy;
 
-      function tick(){
-        for (const btn of buttons){
-          const r = btn.getBoundingClientRect();
-          const cx = r.left + r.width/2;
-          const cy = r.top + r.height/2;
+          const nx = dx / (r.width / 2);
+          const ny = dy / (r.height / 2);
 
-          const dx = mouseX - cx;
-          const dy = mouseY - cy;
-          const dist = Math.hypot(dx, dy);
+          const tx = Math.max(-1, Math.min(1, nx)) * maxMove;
+          const ty = Math.max(-1, Math.min(1, ny)) * maxMove;
 
-          let targetX = 0, targetY = 0;
-          if (dist < radius){
-            const pull = (1 - (dist / radius)) * strength;
-            targetX = (dx / (dist || 1)) * pull;
-            targetY = (dy / (dist || 1)) * pull;
-          }
-
-          const s = state.get(btn);
-          s.tx += (targetX - s.tx) * lerp;
-          s.ty += (targetY - s.ty) * lerp;
-
-          btn.style.transform = `translate3d(${s.tx}px, ${s.ty}px, 0)`;
+          wrap.style.transform = `translate3d(${tx * pull}px, ${ty * pull}px, 0)`;
+          btn.style.transform = `translate3d(${tx}px, ${ty}px, 0) scale(${innerScale})`;
         }
-        requestAnimationFrame(tick);
-      }
-      requestAnimationFrame(tick);
+
+        function reset(){
+          wrap.style.transform = "translate3d(0,0,0)";
+          btn.style.transform = "translate3d(0,0,0) scale(1)";
+        }
+
+        wrap.addEventListener("mousemove", onMove);
+        wrap.addEventListener("mouseleave", reset);
+        wrap.addEventListener("mouseenter", reset);
+      });
     })();
 
-    // ===== Laser cursor trail (brightens on hover over title / buttons) =====
+    // ---- Laser reacts to button hover ----
+    let __laserHoverBoost = 0; // 0..1
+    (function(){
+      const btns = Array.from(document.querySelectorAll(".btn"));
+      if (!btns.length) return;
+      btns.forEach(b => {
+        b.addEventListener("mouseenter", () => { __laserHoverBoost = 1; });
+        b.addEventListener("mouseleave", () => { __laserHoverBoost = 0; });
+      });
+    })();
+
+    // ---- Cursor laser trail (tight "laser") ----
     (function () {
       const canvas = document.getElementById("trail");
       if (!canvas) return;
@@ -528,6 +573,7 @@
       const prefersReduced = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
       const isCoarse = window.matchMedia && window.matchMedia("(pointer: coarse)").matches;
       const isSmall = window.matchMedia && window.matchMedia("(max-width: 991px)").matches;
+
       if (prefersReduced || isCoarse || isSmall) {
         canvas.style.display = "none";
         return;
@@ -535,28 +581,10 @@
 
       const ctx = canvas.getContext("2d");
       const points = [];
-      const MAX = 18;
+      const MAX = 20;
       const DECAY = 0.86;
 
-      // Intensity control
-      let intensity = 1.0;
-      let targetIntensity = 1.0;
-
-      const hoverTargets = [
-        document.getElementById("portalTitle"),
-        ...Array.from(document.querySelectorAll(".mag"))
-      ].filter(Boolean);
-
-      function setHover(on){
-        targetIntensity = on ? 1.35 : 1.0; // slightly brighter
-      }
-
-      for (const el of hoverTargets){
-        el.addEventListener("mouseenter", () => setHover(true));
-        el.addEventListener("mouseleave", () => setHover(false));
-        el.addEventListener("focus", () => setHover(true));
-        el.addEventListener("blur", () => setHover(false));
-      }
+      let hoverPulse = 0; // smooth boost
 
       function resize(){
         canvas.width = Math.floor(window.innerWidth * devicePixelRatio);
@@ -571,13 +599,13 @@
       window.addEventListener("mousemove", (e) => {
         points.push({ x: e.clientX, y: e.clientY, a: 1 });
         if (points.length > MAX) points.shift();
-      }, { passive:true });
+      }, { passive: true });
 
       function draw(){
-        // smooth intensity
-        intensity += (targetIntensity - intensity) * 0.12;
-
         ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+
+        // smooth the hover boost so it feels “alive”
+        hoverPulse += (__laserHoverBoost - hoverPulse) * 0.18;
 
         for (const p of points) p.a *= DECAY;
         while (points.length && points[0].a < 0.05) points.shift();
@@ -587,13 +615,17 @@
           ctx.lineCap = "round";
           ctx.lineJoin = "round";
 
+          const boostW = 1 + hoverPulse * 0.85;
+          const boostA = 1 + hoverPulse * 0.65;
+
           for (let i = 1; i < points.length; i++) {
             const p0 = points[i - 1];
             const p1 = points[i];
             const t = i / (points.length - 1);
 
-            const width = (1.05 + t * 0.95) * intensity;
-            const alpha = Math.min(0.95, p1.a) * (0.16 + t * 0.66) * intensity;
+            // tight laser, boosted on hover
+            const width = (0.9 + t * 0.8) * boostW;
+            const alpha = Math.min(0.98, p1.a) * (0.18 + t * 0.70) * boostA;
 
             const grad = ctx.createLinearGradient(p0.x, p0.y, p1.x, p1.y);
             grad.addColorStop(0, `rgba(31,156,240,${alpha})`);
@@ -605,19 +637,23 @@
             ctx.moveTo(p0.x, p0.y);
             ctx.lineTo(p1.x, p1.y);
             ctx.stroke();
+
+            // subtle “core” line for crispness
+            const coreA = Math.min(0.55, alpha * 0.55);
+            ctx.strokeStyle = `rgba(255,255,255,${coreA})`;
+            ctx.lineWidth = Math.max(0.6, width * 0.35);
+            ctx.beginPath();
+            ctx.moveTo(p0.x, p0.y);
+            ctx.lineTo(p1.x, p1.y);
+            ctx.stroke();
           }
 
+          // Head sparkle
           const head = points[points.length - 1];
           ctx.globalCompositeOperation = "source-over";
-
           ctx.beginPath();
-          ctx.arc(head.x, head.y, 1.7 * intensity, 0, Math.PI * 2);
-          ctx.fillStyle = `rgba(255,255,255,${0.78 * intensity})`;
-          ctx.fill();
-
-          ctx.beginPath();
-          ctx.arc(head.x, head.y, 7.5 * intensity, 0, Math.PI * 2);
-          ctx.fillStyle = `rgba(31,156,240,${0.10 * intensity})`;
+          ctx.arc(head.x, head.y, 1.6 + hoverPulse*0.6, 0, Math.PI * 2);
+          ctx.fillStyle = "rgba(255,255,255,0.86)";
           ctx.fill();
         }
 
