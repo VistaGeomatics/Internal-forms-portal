@@ -4,9 +4,7 @@
   <meta charset="UTF-8" />
   <title>VISTAGEOMATICS – Internal Forms Portal</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <meta name="description" content="Vista Geomatics internal forms portal for Survey, Safety, and HR." />
 
-  <!-- Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
 
   <style>
@@ -16,12 +14,9 @@
       --stroke2:rgba(255,255,255,0.06);
       --text:rgba(255,255,255,0.96);
       --muted:rgba(255,255,255,0.70);
-
       --vista-blue:#1f9cf0;
       --vista-blue-dark:#005a9c;
-
       --shadow:0 30px 70px rgba(0,0,0,0.80);
-      --introBg:#000;
     }
 
     *{ box-sizing:border-box; }
@@ -29,13 +24,13 @@
 
     body{
       margin:0;
-      font-family:"Inter", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      font-family:"Inter", system-ui, sans-serif;
       color:var(--text);
       background:var(--bg0);
       overflow-x:hidden;
     }
 
-    /* ===== Video background ===== */
+    /* Background video */
     .bg-video{
       position:fixed;
       inset:0;
@@ -47,273 +42,54 @@
       width:100%;
       height:100%;
       object-fit:cover;
-      object-position:center;
-      transform:scale(1.02);
-      filter:saturate(1.05) contrast(1.05) brightness(0.92);
+      filter:contrast(1.05) brightness(0.9);
     }
 
-    /* Soft cinematic overlay on top of video */
     .bg-overlay{
       position:fixed;
       inset:0;
       z-index:-2;
       pointer-events:none;
       background:
-        radial-gradient(1200px 700px at 50% 10%, rgba(31,156,240,0.14), transparent 62%),
-        radial-gradient(900px 600px at 15% 85%, rgba(0,90,156,0.18), transparent 60%),
-        radial-gradient(circle at 50% 0%, rgba(0,0,0,0.20), rgba(0,0,0,0.86)),
-        linear-gradient(to bottom, rgba(0,0,0,0.12), rgba(0,0,0,0.55));
+        radial-gradient(circle at 50% 0%, rgba(0,0,0,0.25), rgba(0,0,0,0.85));
     }
 
-    /* ===== Cursor laser canvas ===== */
-    canvas.cursor-trail{
-      position:fixed;
-      inset:0;
-      pointer-events:none;
-      z-index:50;
-    }
-    @media (pointer: coarse){
-      canvas.cursor-trail{ display:none; }
-    }
-    @media (prefers-reduced-motion: reduce){
-      canvas.cursor-trail{ display:none; }
-    }
-
-    /* ===== Dramatic opener ===== */
+    /* Loading screen (no stripes, no title) */
     .intro{
       position:fixed;
       inset:0;
       z-index:100;
-      background:var(--introBg);
+      background:#000;
       display:flex;
-      align-items:center;
+      align-items:flex-end;
       justify-content:center;
       overflow:hidden;
-      transition:opacity .45s ease, visibility .45s ease;
-      padding: max(16px, env(safe-area-inset-top)) 16px max(16px, env(safe-area-inset-bottom));
+      transition:opacity .5s ease, visibility .5s ease;
     }
     .intro.hide{
       opacity:0;
       visibility:hidden;
     }
 
-    /* Fullscreen loading video inside intro */
-    .intro-video{
+    .intro video{
       position:absolute;
       inset:0;
       width:100%;
       height:100%;
       object-fit:cover;
-      z-index:0;
-      filter:contrast(1.05) brightness(0.90);
-      transform:scale(1.01);
     }
 
-    /* background glow behind bars */
-    .intro::before{
-      content:"";
-      position:absolute;
-      inset:-35%;
-      background:
-        radial-gradient(600px 260px at 50% 50%, rgba(31,156,240,0.22), transparent 66%),
-        radial-gradient(520px 240px at 55% 52%, rgba(0,90,156,0.22), transparent 68%),
-        radial-gradient(circle at 50% 50%, rgba(255,255,255,0.05), rgba(0,0,0,0.94));
-      transform:scale(1.06);
-      z-index:0;
-      mix-blend-mode:screen;
-      opacity:0.55;
-      pointer-events:none;
-    }
-
-    /* Micro glitch pulse overlay (synced near last frame) */
-    .glitch-pulse{
-      position:absolute;
-      inset:-10%;
+    .skip{
+      position:relative;
       z-index:2;
-      pointer-events:none;
-      opacity:0;
-      background:
-        repeating-linear-gradient(
-          90deg,
-          rgba(31,156,240,0.0) 0px,
-          rgba(31,156,240,0.0) 10px,
-          rgba(31,156,240,0.12) 12px,
-          rgba(31,156,240,0.0) 16px
-        ),
-        repeating-linear-gradient(
-          0deg,
-          rgba(255,255,255,0.0) 0px,
-          rgba(255,255,255,0.0) 6px,
-          rgba(255,255,255,0.06) 7px,
-          rgba(255,255,255,0.0) 10px
-        );
-      mix-blend-mode:screen;
-      filter:blur(0.2px);
-      transform:translate3d(0,0,0);
-    }
-    .glitch-pulse.on{
-      animation:glitchPulse 220ms ease-out forwards;
-    }
-    @keyframes glitchPulse{
-      0%{ opacity:0; transform:translate3d(0,0,0) skewX(0deg); }
-      18%{ opacity:0.55; transform:translate3d(0,0,0) skewX(-2deg); }
-      42%{ opacity:0.22; transform:translate3d(0,-2px,0) skewX(1.4deg); }
-      100%{ opacity:0; transform:translate3d(0,0,0) skewX(0deg); }
-    }
-
-    /* Bars */
-    .wipe{
-      position:absolute;
-      inset:0;
-      z-index:1;
-      display:grid;
-      grid-template-columns:repeat(12, 1fr);
-      gap:10px;
-      padding:0 28px;
-      pointer-events:none;
-      opacity:1;
-    }
-    .wipe .bar{
-      height:100%;
-      border-radius:14px;
-      background:rgba(255,255,255,0.06);
-      border:1px solid rgba(255,255,255,0.05);
-      transform:translate3d(0,0,0);
-      will-change:transform, filter;
-      overflow:hidden;
-      position:relative;
-      box-shadow: inset 0 0 0 1px rgba(0,0,0,0.14);
-      backdrop-filter: blur(3px);
-    }
-    .wipe .bar::after{
-      content:"";
-      position:absolute;
-      inset:-12%;
-      background:linear-gradient(180deg,
-        rgba(31,156,240,0.18),
-        rgba(0,90,156,0.14),
-        rgba(0,0,0,0.62)
-      );
-      opacity:0.95;
-      transform:translateY(0);
-    }
-
-    /* Title over bars */
-    .intro-inner{
-      position:relative;
-      z-index:3;
-      text-align:center;
-      padding:24px 18px;
-      opacity:0;
-      transform:translateY(10px) scale(0.995);
-      animation:introIn .55s ease forwards;
-      max-width: 92vw;
-    }
-    @keyframes introIn{
-      to { opacity:1; transform:translateY(0) scale(1); }
-    }
-
-    .brand-word{
-      font-family:"Montserrat", sans-serif;
+      margin-bottom:22px;
+      font-size:.8rem;
+      letter-spacing:.12em;
       text-transform:uppercase;
-      letter-spacing:0.22em;
-      font-size:clamp(2.0rem, 7.2vw, 5.2rem);
-      line-height:1.04;
-      color:#fff;
-      user-select:none;
-      margin:0;
-      display:inline-flex;
-      gap:0;
-      white-space:nowrap;
-      text-shadow:
-        0 2px 18px rgba(0,0,0,0.85),
-        0 0 28px rgba(31,156,240,0.18);
-    }
-    .brand-word .vista{ font-weight:700; }
-    .brand-word .geomatics{ font-weight:400; }
-
-    .intro-sub{
-      margin:16px 0 0;
-      font-size:0.92rem;
-      color:rgba(255,255,255,0.74);
-      letter-spacing:0.12em;
-      text-transform:uppercase;
+      opacity:.6;
     }
 
-    .scanline{
-      position:relative;
-      width:min(760px, 86vw);
-      height:2px;
-      margin:18px auto 0;
-      background:rgba(255,255,255,0.08);
-      border-radius:999px;
-      overflow:hidden;
-    }
-    .scanline::after{
-      content:"";
-      position:absolute;
-      left:-30%;
-      top:0;
-      height:100%;
-      width:30%;
-      background:linear-gradient(90deg, transparent, rgba(31,156,240,0.85), rgba(0,90,156,0.85), transparent);
-      animation:scan 1.0s ease-in-out infinite;
-    }
-    @keyframes scan{
-      0%{ transform:translateX(0); }
-      100%{ transform:translateX(460%); }
-    }
-
-    /* Bars exit */
-    .intro.wiping .intro-inner{
-      animation:none;
-      opacity:1;
-      transform:translateY(0) scale(1);
-      transition:opacity .28s ease, transform .38s ease;
-      opacity:0;
-      transform:translateY(-6px) scale(0.985);
-    }
-
-    .intro.wiping .wipe .bar{
-      animation:barExit var(--dur, 820ms) cubic-bezier(.22,.86,.2,1) forwards;
-      animation-delay: var(--d, 0ms);
-    }
-
-    @keyframes barExit{
-      0%{ transform:translate3d(0,0,0); filter:saturate(1.05) blur(0px); }
-      70%{ filter:saturate(1.12) blur(0.2px); }
-      100%{ transform:translate3d(0, var(--y, 130%), 0); filter:saturate(1.0) blur(0.6px); }
-    }
-
-    @media (max-width: 520px){
-      .wipe{ padding:0 14px; gap:8px; }
-      .wipe .bar{ border-radius:12px; }
-      .brand-word{ letter-spacing:0.18em; }
-    }
-
-    /* "Tap twice to skip" hint */
-    .skip-hint{
-      position:absolute;
-      left:50%;
-      bottom: max(14px, env(safe-area-inset-bottom));
-      transform:translateX(-50%);
-      z-index:4;
-      font-size:0.78rem;
-      letter-spacing:0.10em;
-      text-transform:uppercase;
-      color:rgba(255,255,255,0.60);
-      user-select:none;
-      padding:6px 10px;
-      border-radius:999px;
-      border:1px solid rgba(255,255,255,0.10);
-      background:rgba(0,0,0,0.24);
-      backdrop-filter: blur(8px);
-    }
-    @media (prefers-reduced-motion: reduce){
-      .skip-hint{ display:none; }
-    }
-
-    /* ===== Portal layout ===== */
+    /* Portal */
     .wrap{
       position:relative;
       z-index:1;
@@ -321,515 +97,115 @@
       display:flex;
       align-items:center;
       justify-content:center;
-      padding: max(18px, env(safe-area-inset-top)) 18px max(18px, env(safe-area-inset-bottom));
+      padding:18px;
     }
 
     .card{
       width:min(860px, 100%);
       border-radius:26px;
       border:1px solid var(--stroke);
-      background:rgba(10,16,26,0.50);
+      background:rgba(10,16,26,0.55);
       backdrop-filter: blur(14px);
       box-shadow: var(--shadow);
       overflow:hidden;
     }
 
     .card-head{
-      padding:26px 26px 16px;
+      padding:26px;
       border-bottom:1px solid var(--stroke2);
-      display:flex;
-      align-items:flex-start;
-      justify-content:space-between;
-      gap:18px;
     }
 
     .brand-mini{
       font-family:"Montserrat", sans-serif;
+      letter-spacing:.22em;
       text-transform:uppercase;
-      letter-spacing:0.22em;
       font-size:1.05rem;
-      line-height:1;
-      display:inline-flex;
-      white-space:nowrap;
-      gap:0;
-    }
-    .brand-mini .vista{ font-weight:700; }
-    .brand-mini .geomatics{ font-weight:400; }
-
-    .tagline{
-      margin-top:10px;
-      color:var(--muted);
-      font-size:0.95rem;
-      line-height:1.35;
-      max-width:560px;
     }
 
     .card-body{
-      padding:20px 26px 26px;
-    }
-
-    .btn-grid{
+      padding:26px;
       display:grid;
-      grid-template-columns:repeat(3, minmax(0, 1fr));
+      grid-template-columns:repeat(3,1fr);
       gap:14px;
     }
-    @media (max-width: 760px){
-      .btn-grid{ grid-template-columns:repeat(2, minmax(0, 1fr)); }
-    }
-    @media (max-width: 520px){
-      .btn-grid{ grid-template-columns:1fr; }
-    }
 
-    .mag-wrap{ display:block; }
+    @media(max-width:700px){
+      .card-body{ grid-template-columns:1fr; }
+    }
 
     .btn{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:14px;
-      padding:16px 16px;
+      padding:16px;
       border-radius:18px;
-      border:1px solid rgba(255,255,255,0.10);
-      background:linear-gradient(120deg, rgba(31,156,240,0.92), rgba(0,90,156,0.92), rgba(31,156,240,0.92));
-      background-size:200% 200%;
+      border:1px solid rgba(255,255,255,.12);
+      background:linear-gradient(120deg,var(--vista-blue),var(--vista-blue-dark));
       color:#fff;
       text-decoration:none;
       font-weight:700;
-      letter-spacing:0.12em;
+      letter-spacing:.12em;
       text-transform:uppercase;
-      box-shadow:0 14px 30px rgba(0,0,0,0.70);
-      transition: transform .18s ease, box-shadow .18s ease, background-position .25s ease, border-color .18s ease, filter .18s ease;
-      min-height:62px;
-      will-change: transform;
-    }
-    .btn:hover{
-      transform:translateY(-2px);
-      box-shadow:0 22px 48px rgba(0,0,0,0.88);
-      background-position:100% 0;
-      border-color:rgba(255,255,255,0.16);
-      filter:saturate(1.06) brightness(1.03);
-    }
-    .btn .arrow{
-      opacity:0.95;
-      transform:translateX(0);
-      transition:transform .18s ease;
-      letter-spacing:0;
-    }
-    .btn:hover .arrow{ transform:translateX(2px); }
-
-    .card-foot{
-      padding:14px 26px 18px;
-      border-top:1px solid var(--stroke2);
-      display:flex;
-      gap:12px;
-      align-items:center;
-      justify-content:space-between;
-      flex-wrap:wrap;
-      color:rgba(255,255,255,0.62);
-      font-size:0.86rem;
+      text-align:center;
     }
 
-    /* Hidden game link styling (no visual change) */
-    .hidden-title-link{
-      color:inherit;
-      text-decoration:none;
-      display:inline-flex;
+    /* Glitch pulse */
+    .glitch{
+      animation:glitch .18s linear;
     }
-
-    /* Go top */
-    #goTop{
-      position:fixed;
-      right:16px;
-      bottom:16px;
-      width:46px;
-      height:46px;
-      border-radius:999px;
-      border:1px solid rgba(255,255,255,.10);
-      background:rgba(5,10,18,.60);
-      color:#fff;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      cursor:pointer;
-      z-index:40;
-      opacity:0;
-      transform:translateY(6px);
-      transition:opacity .2s ease, transform .2s ease, background .2s ease;
-      backdrop-filter: blur(10px);
+    @keyframes glitch{
+      0%{ filter:none; }
+      50%{ filter:hue-rotate(20deg) contrast(1.3); }
+      100%{ filter:none; }
     }
-    #goTop.show{ opacity:1; transform:translateY(0); }
-    #goTop:hover{ background:rgba(5,10,18,.78); }
   </style>
 </head>
 
 <body>
-  <!-- Video background -->
-  <div class="bg-video" aria-hidden="true">
-    <video id="bgVid" autoplay muted loop playsinline preload="metadata">
+  <div class="bg-video">
+    <video autoplay muted loop playsinline>
       <source src="Glitch.mov" type="video/mp4">
     </video>
   </div>
-  <div class="bg-overlay" aria-hidden="true"></div>
+  <div class="bg-overlay"></div>
 
-  <!-- Cursor laser -->
-  <canvas class="cursor-trail" id="trail" aria-hidden="true"></canvas>
-
-  <!-- Intro -->
-  <div class="intro" id="intro" aria-label="Intro">
-    <video class="intro-video" id="loadingVid" autoplay muted playsinline preload="auto">
+  <div class="intro" id="intro">
+    <video id="loadingVid" autoplay muted playsinline>
       <source src="Loading.mp4" type="video/mp4">
     </video>
-
-    <div class="glitch-pulse" id="glitchPulse" aria-hidden="true"></div>
-
-    <div class="wipe" id="wipe" aria-hidden="true">
-      <div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div>
-      <div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div>
-      <div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div>
-    </div>
-
-    <div class="intro-inner">
-      <a class="hidden-title-link" href="https://vistageomatics.github.io/Hidden-Game/" aria-label="Hidden Game">
-        <h1 class="brand-word" aria-label="VISTAGEOMATICS">
-          <span class="vista">VISTA</span><span class="geomatics">GEOMATICS</span>
-        </h1>
-      </a>
-      <div class="scanline" aria-hidden="true"></div>
-      <p class="intro-sub">Internal Forms Portal</p>
-    </div>
-
-    <div class="skip-hint" id="skipHint">Tap twice to skip</div>
+    <div class="skip">Tap twice to skip</div>
   </div>
 
-  <!-- Portal -->
   <main class="wrap">
-    <section class="card" aria-label="Forms Portal">
-      <header class="card-head">
-        <div>
-          <a class="hidden-title-link" href="https://vistageomatics.github.io/Hidden-Game/" aria-label="Hidden Game (Title)">
-            <div class="brand-mini" aria-label="VISTAGEOMATICS">
-              <span class="vista">VISTA</span><span class="geomatics">GEOMATICS</span>
-            </div>
-          </a>
-          <div class="tagline">Select a category to continue.</div>
-        </div>
-      </header>
-
-      <div class="card-body">
-        <div class="btn-grid">
-          <div class="mag-wrap">
-            <a class="btn" href="survey.html"><span>Survey</span><span class="arrow">→</span></a>
-          </div>
-          <div class="mag-wrap">
-            <a class="btn" href="safety.html"><span>Safety</span><span class="arrow">→</span></a>
-          </div>
-          <div class="mag-wrap">
-            <a class="btn" href="hr.html"><span>HR</span><span class="arrow">→</span></a>
-          </div>
-        </div>
+    <section class="card">
+      <div class="card-head">
+        <div class="brand-mini">VISTAGEOMATICS</div>
       </div>
-
-      <footer class="card-foot">
-        <div>Internal use only.</div>
-        <div style="opacity:.65; letter-spacing:.10em; text-transform:uppercase; font-size:.82rem;">VISTAGEOMATICS</div>
-      </footer>
+      <div class="card-body">
+        <a class="btn" href="survey.html">Survey</a>
+        <a class="btn" href="safety.html">Safety</a>
+        <a class="btn" href="hr.html">HR</a>
+      </div>
     </section>
   </main>
 
-  <button id="goTop" type="button" aria-label="Back to top">↑</button>
+<script>
+  const intro = document.getElementById("intro");
+  const loadingVid = document.getElementById("loadingVid");
+  let taps = 0;
 
-  <script>
-    // Try to play background video
-    (function(){
-      const v = document.getElementById("bgVid");
-      if (!v) return;
-      const tryPlay = () => v.play().catch(()=>{});
-      document.addEventListener("visibilitychange", () => { if (!document.hidden) tryPlay(); });
-      window.addEventListener("load", tryPlay);
-      tryPlay();
-    })();
+  function endIntro(){
+    intro.classList.add("glitch");
+    setTimeout(()=>intro.classList.add("hide"),120);
+  }
 
-    // ---- Intro: play full Loading.mp4, micro glitch pulse near last frame, double-tap to skip ----
-    (function () {
-      const intro = document.getElementById("intro");
-      const wipe = document.getElementById("wipe");
-      const loadingVid = document.getElementById("loadingVid");
-      const glitchPulse = document.getElementById("glitchPulse");
-      const skipHint = document.getElementById("skipHint");
+  loadingVid.addEventListener("ended", endIntro);
 
-      const prefersReduced = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
-      if (wipe) {
-        const bars = Array.from(wipe.querySelectorAll(".bar"));
-        bars.forEach((bar, i) => {
-          const delay = prefersReduced ? 0 : (i * 75);
-          const dur   = prefersReduced ? 420 : (760 + (i % 4) * 55);
-          const dir   = (i % 2 === 0) ? 118 : 138;
-          bar.style.setProperty("--d", delay + "ms");
-          bar.style.setProperty("--dur", dur + "ms");
-          bar.style.setProperty("--y", dir + "%");
-        });
-      }
-
-      let hasPulsed = false;
-      let hasStarted = false;
-      let hasHidden = false;
-
-      function pulse(){
-        if (!glitchPulse) return;
-        glitchPulse.classList.remove("on");
-        void glitchPulse.offsetWidth;
-        glitchPulse.classList.add("on");
-      }
-
-      function startWipe(){
-        if (!intro || intro.classList.contains("wiping")) return;
-        intro.classList.add("wiping");
-      }
-      function hideIntro(){
-        if (!intro || intro.classList.contains("hide")) return;
-        intro.classList.add("hide");
-        hasHidden = true;
-      }
-
-      function runExitSequence(){
-        if (hasStarted) return;
-        hasStarted = true;
-
-        // tiny pulse as we exit (keeps it feeling synced)
-        pulse();
-
-        const wipeDelay = prefersReduced ? 0 : 90;
-        const hideAfter = prefersReduced ? 420 : 950;
-
-        setTimeout(startWipe, wipeDelay);
-        setTimeout(hideIntro, hideAfter);
-      }
-
-      // Play loading video (full length)
-      (function(){
-        if (!loadingVid) { runExitSequence(); return; }
-
-        loadingVid.loop = false;
-
-        const tryPlay = () => loadingVid.play().catch(()=>{});
-        window.addEventListener("load", tryPlay);
-        tryPlay();
-
-        // Pulse near the last frame window
-        const nearEndWindow = 0.14; // seconds
-        loadingVid.addEventListener("timeupdate", () => {
-          if (prefersReduced) return;
-          if (!loadingVid.duration || !isFinite(loadingVid.duration)) return;
-          const remaining = loadingVid.duration - loadingVid.currentTime;
-          if (!hasPulsed && remaining <= nearEndWindow) {
-            hasPulsed = true;
-            pulse();
-          }
-        });
-
-        // When the video fully ends, transition
-        loadingVid.addEventListener("ended", () => {
-          runExitSequence();
-        });
-
-        // Failsafe
-        const safetyMaxMs = prefersReduced ? 900 : 12000;
-        setTimeout(() => { if (!hasHidden) runExitSequence(); }, safetyMaxMs);
-      })();
-
-      // Double-tap / double-click to skip
-      (function(){
-        if (prefersReduced) { if (skipHint) skipHint.style.display = "none"; return; }
-        if (!intro) return;
-
-        let lastTap = 0;
-        const threshold = 420;
-
-        function requestSkip(){
-          if (hasHidden) return;
-
-          if (loadingVid && loadingVid.duration && isFinite(loadingVid.duration)) {
-            hasPulsed = true;
-            pulse();
-            loadingVid.currentTime = Math.max(0, loadingVid.duration - 0.05);
-          }
-          runExitSequence();
-        }
-
-        function onTap(){
-          const now = performance.now();
-          if (now - lastTap < threshold) {
-            requestSkip();
-            lastTap = 0;
-          } else {
-            lastTap = now;
-          }
-        }
-
-        intro.addEventListener("pointerdown", onTap, { passive:true });
-        intro.addEventListener("dblclick", (e) => { e.preventDefault(); requestSkip(); }, { passive:false });
-      })();
-    })();
-
-    // ---- Go top ----
-    (function () {
-      const btn = document.getElementById("goTop");
-      if (!btn) return;
-      const toggle = () => btn.classList.toggle("show", window.scrollY > 120);
-      window.addEventListener("scroll", toggle, { passive: true });
-      toggle();
-      btn.addEventListener("click", () => window.scrollTo({ top: 0, behavior: "smooth" }));
-    })();
-
-    // ---- Magnetic Buttons (Micro-Physics) ----
-    (function () {
-      const prefersReduced = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-      const isCoarse = window.matchMedia && window.matchMedia("(pointer: coarse)").matches;
-      if (prefersReduced || isCoarse) return;
-
-      const wraps = Array.from(document.querySelectorAll(".mag-wrap"));
-      if (!wraps.length) return;
-
-      const maxMove = 10;
-      const pull = 0.22;
-      const innerScale = 1.02;
-
-      wraps.forEach(wrap => {
-        const btn = wrap.querySelector(".btn");
-        if (!btn) return;
-
-        function onMove(e){
-          const r = wrap.getBoundingClientRect();
-          const cx = r.left + r.width / 2;
-          const cy = r.top + r.height / 2;
-          const dx = e.clientX - cx;
-          const dy = e.clientY - cy;
-
-          const nx = dx / (r.width / 2);
-          const ny = dy / (r.height / 2);
-
-          const tx = Math.max(-1, Math.min(1, nx)) * maxMove;
-          const ty = Math.max(-1, Math.min(1, ny)) * maxMove;
-
-          wrap.style.transform = `translate3d(${tx * pull}px, ${ty * pull}px, 0)`;
-          btn.style.transform = `translate3d(${tx}px, ${ty}px, 0) scale(${innerScale})`;
-        }
-
-        function reset(){
-          wrap.style.transform = "translate3d(0,0,0)";
-          btn.style.transform = "translate3d(0,0,0) scale(1)";
-        }
-
-        wrap.addEventListener("mousemove", onMove);
-        wrap.addEventListener("mouseleave", reset);
-        wrap.addEventListener("mouseenter", reset);
-      });
-    })();
-
-    // ---- Laser reacts to button hover ----
-    let __laserHoverBoost = 0;
-    (function(){
-      const btns = Array.from(document.querySelectorAll(".btn"));
-      if (!btns.length) return;
-      btns.forEach(b => {
-        b.addEventListener("mouseenter", () => { __laserHoverBoost = 1; });
-        b.addEventListener("mouseleave", () => { __laserHoverBoost = 0; });
-      });
-    })();
-
-    // ---- Cursor laser trail ----
-    (function () {
-      const canvas = document.getElementById("trail");
-      if (!canvas) return;
-
-      const prefersReduced = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-      const isCoarse = window.matchMedia && window.matchMedia("(pointer: coarse)").matches;
-      const isSmall = window.matchMedia && window.matchMedia("(max-width: 991px)").matches;
-
-      if (prefersReduced || isCoarse || isSmall) {
-        canvas.style.display = "none";
-        return;
-      }
-
-      const ctx = canvas.getContext("2d");
-      const points = [];
-      const MAX = 20;
-      const DECAY = 0.86;
-
-      let hoverPulse = 0;
-
-      function resize(){
-        canvas.width = Math.floor(window.innerWidth * devicePixelRatio);
-        canvas.height = Math.floor(window.innerHeight * devicePixelRatio);
-        canvas.style.width = window.innerWidth + "px";
-        canvas.style.height = window.innerHeight + "px";
-        ctx.setTransform(devicePixelRatio, 0, 0, devicePixelRatio, 0, 0);
-      }
-      window.addEventListener("resize", resize);
-      resize();
-
-      window.addEventListener("mousemove", (e) => {
-        points.push({ x: e.clientX, y: e.clientY, a: 1 });
-        if (points.length > MAX) points.shift();
-      }, { passive: true });
-
-      function draw(){
-        ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
-
-        hoverPulse += (__laserHoverBoost - hoverPulse) * 0.18;
-
-        for (const p of points) p.a *= DECAY;
-        while (points.length && points[0].a < 0.05) points.shift();
-
-        if (points.length >= 2) {
-          ctx.globalCompositeOperation = "lighter";
-          ctx.lineCap = "round";
-          ctx.lineJoin = "round";
-
-          const boostW = 1 + hoverPulse * 0.85;
-          const boostA = 1 + hoverPulse * 0.65;
-
-          for (let i = 1; i < points.length; i++) {
-            const p0 = points[i - 1];
-            const p1 = points[i];
-            const t = i / (points.length - 1);
-
-            const width = (0.9 + t * 0.8) * boostW;
-            const alpha = Math.min(0.98, p1.a) * (0.18 + t * 0.70) * boostA;
-
-            const grad = ctx.createLinearGradient(p0.x, p0.y, p1.x, p1.y);
-            grad.addColorStop(0, `rgba(31,156,240,${alpha})`);
-            grad.addColorStop(1, `rgba(0,90,156,${alpha})`);
-
-            ctx.strokeStyle = grad;
-            ctx.lineWidth = width;
-            ctx.beginPath();
-            ctx.moveTo(p0.x, p0.y);
-            ctx.lineTo(p1.x, p1.y);
-            ctx.stroke();
-
-            const coreA = Math.min(0.55, alpha * 0.55);
-            ctx.strokeStyle = `rgba(255,255,255,${coreA})`;
-            ctx.lineWidth = Math.max(0.6, width * 0.35);
-            ctx.beginPath();
-            ctx.moveTo(p0.x, p0.y);
-            ctx.lineTo(p1.x, p1.y);
-            ctx.stroke();
-          }
-
-          const head = points[points.length - 1];
-          ctx.globalCompositeOperation = "source-over";
-          ctx.beginPath();
-          ctx.arc(head.x, head.y, 1.6 + hoverPulse*0.6, 0, Math.PI * 2);
-          ctx.fillStyle = "rgba(255,255,255,0.86)";
-          ctx.fill();
-        }
-
-        requestAnimationFrame(draw);
-      }
-      requestAnimationFrame(draw);
-    })();
-  </script>
+  document.addEventListener("click", () => {
+    taps++;
+    setTimeout(()=>taps=0,300);
+    if(taps>=2){
+      loadingVid.pause();
+      endIntro();
+    }
+  });
+</script>
 </body>
 </html>
