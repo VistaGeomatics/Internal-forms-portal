@@ -79,6 +79,35 @@
       canvas.cursor-trail{ display:none; }
     }
 
+    /* ===== Glitch sync flash (subtle) ===== */
+    #syncFlash{
+      position:fixed;
+      inset:0;
+      pointer-events:none;
+      z-index:99; /* under intro (100), above background */
+      opacity:0;
+      mix-blend-mode:screen;
+      background:
+        repeating-linear-gradient(
+          180deg,
+          rgba(255,255,255,0.018) 0px,
+          rgba(255,255,255,0.018) 2px,
+          rgba(0,0,0,0.0) 4px
+        ),
+        radial-gradient(800px 420px at 50% 45%, rgba(31,156,240,0.08), transparent 65%),
+        radial-gradient(780px 380px at 52% 48%, rgba(0,90,156,0.06), transparent 68%);
+      transform:translate3d(0,0,0);
+    }
+    #syncFlash.pulse{
+      animation:syncPulse 420ms ease-out both;
+    }
+    @keyframes syncPulse{
+      0%{ opacity:0; filter:blur(0px) contrast(1.0); transform:translate3d(0,0,0); }
+      18%{ opacity:0.22; filter:blur(0.35px) contrast(1.12); transform:translate3d(0,0,0); }
+      40%{ opacity:0.12; filter:blur(0.25px) contrast(1.06); transform:translate3d(0,0,0); }
+      100%{ opacity:0; filter:blur(0px) contrast(1.0); transform:translate3d(0,0,0); }
+    }
+
     /* ===== Dramatic opener ===== */
     .intro{
       position:fixed;
@@ -97,7 +126,20 @@
       visibility:hidden;
     }
 
-    /* background glow behind bars */
+    /* Loading video behind the bars/title */
+    .intro video.intro-video{
+      position:absolute;
+      inset:0;
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      object-position:center;
+      z-index:0;
+      filter:contrast(1.06) brightness(0.88) saturate(1.02);
+      transform:scale(1.02);
+    }
+
+    /* background glow behind bars (above video) */
     .intro::before{
       content:"";
       position:absolute;
@@ -107,14 +149,15 @@
         radial-gradient(520px 240px at 55% 52%, rgba(0,90,156,0.22), transparent 68%),
         radial-gradient(circle at 50% 50%, rgba(255,255,255,0.05), rgba(0,0,0,0.94));
       transform:scale(1.06);
-      z-index:0;
+      z-index:1;
+      pointer-events:none;
     }
 
     /* Bars */
     .wipe{
       position:absolute;
       inset:0;
-      z-index:1;
+      z-index:2;
       display:grid;
       grid-template-columns:repeat(12, 1fr);
       gap:10px;
@@ -132,6 +175,7 @@
       overflow:hidden;
       position:relative;
       box-shadow: inset 0 0 0 1px rgba(0,0,0,0.14);
+      backdrop-filter: blur(2px);
     }
     .wipe .bar::after{
       content:"";
@@ -149,7 +193,7 @@
     /* Title over bars */
     .intro-inner{
       position:relative;
-      z-index:3; /* IMPORTANT: above bars */
+      z-index:4; /* above bars */
       text-align:center;
       padding:24px 18px;
       opacity:0;
@@ -179,6 +223,20 @@
     }
     .brand-word .vista{ font-weight:700; }
     .brand-word .geomatics{ font-weight:400; }
+
+    /* hidden game link over title (looks identical, clickable) */
+    a.title-link{
+      display:inline-flex;
+      color:inherit;
+      text-decoration:none;
+      -webkit-tap-highlight-color: transparent;
+      cursor:pointer;
+    }
+    a.title-link:focus-visible{
+      outline:2px solid rgba(31,156,240,0.65);
+      outline-offset:10px;
+      border-radius:14px;
+    }
 
     .intro-sub{
       margin:16px 0 0;
@@ -243,7 +301,7 @@
     .wrap{
       position:relative;
       z-index:1;
-      min-height:100svh; /* mobile-safe viewport */
+      min-height:100svh;
       display:flex;
       align-items:center;
       justify-content:center;
@@ -254,7 +312,7 @@
       width:min(860px, 100%);
       border-radius:26px;
       border:1px solid var(--stroke);
-      background:rgba(10,16,26,0.50); /* semi transparent */
+      background:rgba(10,16,26,0.50);
       backdrop-filter: blur(14px);
       box-shadow: var(--shadow);
       overflow:hidden;
@@ -385,16 +443,23 @@
   <!-- Video background -->
   <div class="bg-video" aria-hidden="true">
     <video id="bgVid" autoplay muted loop playsinline preload="metadata">
-      <source src="hr-bg.mp4" type="video/mp4">
+      <source src="Glitch.mov" type="video/mp4">
+      <source src="Glitch.mov" type="video/quicktime">
     </video>
   </div>
   <div class="bg-overlay" aria-hidden="true"></div>
+  <div id="syncFlash" aria-hidden="true"></div>
 
   <!-- Cursor laser -->
   <canvas class="cursor-trail" id="trail" aria-hidden="true"></canvas>
 
   <!-- Intro -->
   <div class="intro" id="intro" aria-label="Intro">
+    <!-- Loading video -->
+    <video class="intro-video" id="loadVid" autoplay muted loop playsinline preload="auto" aria-hidden="true">
+      <source src="Loading.mp4" type="video/mp4">
+    </video>
+
     <div class="wipe" id="wipe" aria-hidden="true">
       <div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div>
       <div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div>
@@ -402,9 +467,12 @@
     </div>
 
     <div class="intro-inner">
-      <h1 class="brand-word" aria-label="VISTAGEOMATICS">
-        <span class="vista">VISTA</span><span class="geomatics">GEOMATICS</span>
-      </h1>
+      <!-- Hidden game link lives on the title (looks identical) -->
+      <a class="title-link" href="https://vistageomatics.github.io/Hidden-Game/" aria-label="Hidden game">
+        <h1 class="brand-word" aria-label="VISTAGEOMATICS">
+          <span class="vista">VISTA</span><span class="geomatics">GEOMATICS</span>
+        </h1>
+      </a>
       <div class="scanline" aria-hidden="true"></div>
       <p class="intro-sub">Internal Forms Portal</p>
     </div>
@@ -446,14 +514,68 @@
   <button id="goTop" type="button" aria-label="Back to top">↑</button>
 
   <script>
-    // Try to play video (some browsers require interaction; muted+playsinline usually works)
+    // Try to play videos (some browsers require interaction; muted+playsinline usually works)
     (function(){
-      const v = document.getElementById("bgVid");
-      if (!v) return;
-      const tryPlay = () => v.play().catch(()=>{});
-      document.addEventListener("visibilitychange", () => { if (!document.hidden) tryPlay(); });
-      window.addEventListener("load", tryPlay);
-      tryPlay();
+      const bg = document.getElementById("bgVid");
+      const lv = document.getElementById("loadVid");
+      const tryPlay = (v) => v && v.play && v.play().catch(()=>{});
+      document.addEventListener("visibilitychange", () => {
+        if (!document.hidden) { tryPlay(bg); tryPlay(lv); }
+      });
+      window.addEventListener("load", () => { tryPlay(bg); tryPlay(lv); });
+      tryPlay(bg); tryPlay(lv);
+    })();
+
+    // ---- Subtle glitch sync: Loading.mp4 → Glitch.mov ----
+    (function(){
+      const bg = document.getElementById("bgVid");
+      const lv = document.getElementById("loadVid");
+      const flash = document.getElementById("syncFlash");
+
+      if (!bg || !lv) return;
+
+      // Keep a recent time sample from the loading video (more stable across browsers)
+      let lastLoadTime = 0;
+      const sample = () => { lastLoadTime = lv.currentTime || lastLoadTime; };
+
+      // Use rVFC when available for smoother sampling
+      if (lv.requestVideoFrameCallback) {
+        const onFrame = () => { sample(); lv.requestVideoFrameCallback(onFrame); };
+        lv.requestVideoFrameCallback(onFrame);
+      } else {
+        lv.addEventListener("timeupdate", sample, { passive:true });
+        setInterval(sample, 120);
+      }
+
+      function pulse(){
+        if (!flash) return;
+        flash.classList.remove("pulse");
+        // reflow to restart animation
+        void flash.offsetWidth;
+        flash.classList.add("pulse");
+      }
+
+      function syncNow(){
+        // tiny jitter makes it feel more "organic" and less like a hard cut
+        const jitter = (Math.random() - 0.5) * 0.06; // ±0.03s
+        let t = (lastLoadTime || lv.currentTime || 0) + jitter;
+
+        // if bg has a known duration, keep the time inside it
+        if (isFinite(bg.duration) && bg.duration > 0) {
+          t = ((t % bg.duration) + bg.duration) % bg.duration;
+        }
+
+        try { bg.currentTime = Math.max(0, t); } catch(e) {}
+
+        // ensure background is playing right at the sync moment
+        bg.play().catch(()=>{});
+
+        // subtle flash + scanline pop during the transition
+        pulse();
+      }
+
+      // expose to the intro controller below
+      window.__syncGlitchVideos = syncNow;
     })();
 
     // ---- Intro: bars exit independently (one-by-one stagger with variation), mobile-safe sizing ----
@@ -465,23 +587,25 @@
       if (wipe) {
         const bars = Array.from(wipe.querySelectorAll(".bar"));
         bars.forEach((bar, i) => {
-          // Independent timing and distance for a more stylish exit
-          const delay = prefersReduced ? 0 : (i * 75);                 // ms between bars
-          const dur   = prefersReduced ? 420 : (760 + (i % 4) * 55);    // ms variation
-          const dir   = (i % 2 === 0) ? 118 : 138;                      // % translateY variation
+          const delay = prefersReduced ? 0 : (i * 75);
+          const dur   = prefersReduced ? 420 : (760 + (i % 4) * 55);
+          const dir   = (i % 2 === 0) ? 118 : 138;
           bar.style.setProperty("--d", delay + "ms");
           bar.style.setProperty("--dur", dur + "ms");
           bar.style.setProperty("--y", dir + "%");
         });
       }
 
-      // Faster overall (but still dramatic)
-      const wipeStartMs = prefersReduced ? 220 : 650;   // when bars start leaving
-      const hideAfterMs = prefersReduced ? 520 : 1450;  // when intro hides
-      const safetyMaxMs = prefersReduced ? 900 : 2300;  // failsafe
+      const wipeStartMs = prefersReduced ? 220 : 650;
+      const hideAfterMs = prefersReduced ? 520 : 1450;
+      const safetyMaxMs = prefersReduced ? 900 : 2300;
 
       function startWipe(){
         if (!intro || intro.classList.contains("wiping")) return;
+
+        // Sync at the moment the wipe begins (subtle glitch continuity)
+        try { window.__syncGlitchVideos && window.__syncGlitchVideos(); } catch(e) {}
+
         intro.classList.add("wiping");
       }
       function hideIntro(){
@@ -518,7 +642,7 @@
       const wraps = Array.from(document.querySelectorAll(".mag-wrap"));
       if (!wraps.length) return;
 
-      const maxMove = 10;      // px
+      const maxMove = 10;
       const pull = 0.22;
       const innerScale = 1.02;
 
@@ -555,7 +679,7 @@
     })();
 
     // ---- Laser reacts to button hover ----
-    let __laserHoverBoost = 0; // 0..1
+    let __laserHoverBoost = 0;
     (function(){
       const btns = Array.from(document.querySelectorAll(".btn"));
       if (!btns.length) return;
@@ -584,7 +708,7 @@
       const MAX = 20;
       const DECAY = 0.86;
 
-      let hoverPulse = 0; // smooth boost
+      let hoverPulse = 0;
 
       function resize(){
         canvas.width = Math.floor(window.innerWidth * devicePixelRatio);
@@ -604,7 +728,6 @@
       function draw(){
         ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
 
-        // smooth the hover boost so it feels “alive”
         hoverPulse += (__laserHoverBoost - hoverPulse) * 0.18;
 
         for (const p of points) p.a *= DECAY;
@@ -623,7 +746,6 @@
             const p1 = points[i];
             const t = i / (points.length - 1);
 
-            // tight laser, boosted on hover
             const width = (0.9 + t * 0.8) * boostW;
             const alpha = Math.min(0.98, p1.a) * (0.18 + t * 0.70) * boostA;
 
@@ -638,7 +760,6 @@
             ctx.lineTo(p1.x, p1.y);
             ctx.stroke();
 
-            // subtle “core” line for crispness
             const coreA = Math.min(0.55, alpha * 0.55);
             ctx.strokeStyle = `rgba(255,255,255,${coreA})`;
             ctx.lineWidth = Math.max(0.6, width * 0.35);
@@ -648,7 +769,6 @@
             ctx.stroke();
           }
 
-          // Head sparkle
           const head = points[points.length - 1];
           ctx.globalCompositeOperation = "source-over";
           ctx.beginPath();
