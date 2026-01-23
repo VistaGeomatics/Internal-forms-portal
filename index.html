@@ -28,7 +28,6 @@
       overflow-x:hidden;
     }
 
-    /* ===== Loader (Loading.mp4) ===== */
     .loader{
       position:fixed;
       inset:0;
@@ -57,7 +56,6 @@
       user-select:none;
     }
 
-    /* Background */
     .bg-video video{
       position:fixed;
       inset:0;
@@ -74,7 +72,6 @@
       background:linear-gradient(to bottom,rgba(0,0,0,.25),rgba(0,0,0,.8));
     }
 
-    /* Laser */
     canvas#trail{
       position:fixed;
       inset:0;
@@ -82,7 +79,6 @@
       z-index:50;
     }
 
-    /* Layout */
     .wrap{
       min-height:100vh;
       display:flex;
@@ -103,12 +99,20 @@
       padding:24px;
       border-bottom:1px solid var(--stroke);
     }
+
     .brand{
       font-family:Montserrat,sans-serif;
       letter-spacing:.22em;
       text-transform:uppercase;
       font-size:1.1rem;
+      text-decoration:none;
+      color:#fff;
+      display:inline-block;
+      cursor:pointer;
     }
+    .brand .vista{ font-weight:700; }
+    .brand .geomatics{ font-weight:400; }
+
     .tagline{
       margin-top:10px;
       color:var(--muted);
@@ -123,7 +127,6 @@
     @media(max-width:760px){ .btn-grid{grid-template-columns:repeat(2,1fr);} }
     @media(max-width:520px){ .btn-grid{grid-template-columns:1fr;} }
 
-    /* Buttons */
     .btn{
       position:relative;
       padding:18px;
@@ -182,7 +185,6 @@
 
 <body>
 
-  <!-- Loader -->
   <div class="loader" id="loader">
     <video id="loaderVid" autoplay muted playsinline preload="auto">
       <source src="Loading.mp4" type="video/mp4">
@@ -190,7 +192,6 @@
     <div class="skip">Tap twice to skip</div>
   </div>
 
-  <!-- Background -->
   <div class="bg-video">
     <video autoplay muted loop playsinline>
       <source src="Glitch.mov" type="video/mp4">
@@ -203,7 +204,9 @@
   <main class="wrap">
     <section class="card">
       <header class="card-head">
-        <div class="brand"><strong>VISTA</strong> GEOMATICS</div>
+        <a class="brand" href="https://vistageomatics.github.io/Hidden-Game/" aria-label="Hidden Game">
+          <span class="vista">VISTA</span><span class="geomatics">GEOMATICS</span>
+        </a>
         <div class="tagline">Select a category to continue.</div>
       </header>
 
@@ -218,7 +221,6 @@
   </main>
 
 <script>
-  // ===== Loader: play once per session, double-tap skip =====
   (function(){
     const loader = document.getElementById("loader");
     const vid = document.getElementById("loaderVid");
@@ -243,11 +245,10 @@
     vid.addEventListener("ended",()=>loader.classList.add("hide"));
   })();
 
-  // ===== Smooth laser =====
   (function(){
     const c=document.getElementById("trail"),ctx=c.getContext("2d");
     if(!c) return;
-    let pts=[],x=null,y=null,vx=0,vy=0;
+    let pts=[],x=null,y=null;
 
     function resize(){c.width=innerWidth;c.height=innerHeight}
     addEventListener("resize",resize);resize();
