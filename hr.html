@@ -395,11 +395,90 @@
       .btn::after, .back::after{ display:none; }
       .btn .glitch-overlay, .btn .slice{ display:none; }
     }
+  
+        .intro.hide{
+      opacity:0;
+      visibility:hidden;
+    }
+    .intro video{
+      width:100%;
+      height:100%;
+      object-fit:cover;
+    }
+
+  
+    /* ===== Employee intro video (session-only) ===== */
+    .intro{
+      position:fixed;
+      inset:0;
+      z-index:120;
+      background:#000;
+      overflow:hidden;
+      opacity:1;
+      visibility:visible;
+      transition:opacity .55s ease, visibility .55s ease;
+    }
+    .intro.hide{
+      opacity:0;
+      visibility:hidden;
+    }
+    .intro video{
+      position:absolute;
+      inset:0;
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      object-position:center;
+      filter:contrast(1.06) brightness(0.92);
+      transform:scale(1.01);
+    }
+    .intro .skip{
+      position:absolute;
+      left:50%;
+      bottom:max(18px, env(safe-area-inset-bottom));
+      transform:translateX(-50%);
+      z-index:3;
+      font-size:0.80rem;
+      letter-spacing:0.14em;
+      text-transform:uppercase;
+      opacity:0.62;
+      user-select:none;
+      text-align:center;
+      padding:8px 12px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,0.14);
+      background:rgba(0,0,0,0.25);
+      backdrop-filter: blur(10px);
+      pointer-events:none;
+    }
+
+    /* 1-frame RGB split overlay for the last-frame hit */
+    canvas.rgb{
+      position:absolute;
+      inset:0;
+      width:100%;
+      height:100%;
+      z-index:2;
+      pointer-events:none;
+      opacity:0;
+    }
+    canvas.rgb.show{ opacity:1; }
+
   </style>
 </head>
 
 <body>
-  <div class="bg-video" aria-hidden="true">
+
+    <!-- Employee intro video (session-only) -->
+  <div class="intro" id="intro" aria-label="Employee Intro">
+    <video id="employeeIntro" autoplay muted playsinline preload="auto">
+      <source src="Employee.mp4" type="video/mp4">
+    </video>
+    <canvas class="rgb" id="rgbIntro" aria-hidden="true"></canvas>
+    <div class="skip" id="skipText">Tap twice to skip</div>
+  </div>
+
+<div class="bg-video" aria-hidden="true">
     <video id="bgVid" autoplay muted loop playsinline preload="metadata">
       <source src="Glitch.mov" type="video/mp4">
     </video>
@@ -622,6 +701,161 @@
       }
       requestAnimationFrame(step);
     })();
+    // ===== Employee intro: play once per tab session, skip on back/forward =====
+    (function(){
+      const intro = document.getElementById("intro");
+      const vid = document.getElementById("employeeIntro");
+      const rgb = document.getElementById("rgbIntro");
+      if (!intro || !vid) return;
+
+      const KEY = "vg_employee_intro_seen_v1";
+      const prefersReduced = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+      // Skip if already seen in this tab session
+      if (sessionStorage.getItem(KEY) === "1") {
+        intro.classList.add("hide");
+        return;
+      }
+      sessionStorage.setItem(KEY, "1");
+
+      // Skip if restored from BFCache (back button)
+      window.addEventListener("pageshow", (e) => {
+        if (e.persisted) intro.classList.add("hide");
+      });
+
+      // --- RGB split flash (exactly 1 frame) ---
+      function resizeRGB(){
+        if (!rgb) return;
+        const dpr = Math.min(2, window.devicePixelRatio || 1);
+        rgb.width  = Math.floor(window.innerWidth * dpr);
+        rgb.height = Math.floor(window.innerHeight * dpr);
+      }
+      resizeRGB();
+      window.addEventListener("resize", resizeRGB, { passive:true });
+
+      function rgbOneFrameHit(){
+        if (!rgb || !vid || prefersReduced) return;
+        const ctx = rgb.getContext("2d", { alpha:true });
+
+        const vw = vid.videoWidth || 0;
+        const vh = vid.videoHeight || 0;
+        if (!vw || !vh) return;
+
+        const cw = rgb.width, ch = rgb.height;
+
+        // cover-fit math to match object-fit: cover
+        const s = Math.max(cw / vw, ch / vh);
+        const dw = vw * s, dh = vh * s;
+        const dx = (cw - dw) / 2;
+        const dy = (ch - dh) / 2;
+
+        ctx.clearRect(0,0,cw,ch);
+
+        // Base
+        ctx.globalCompositeOperation = "source-over";
+        ctx.drawImage(vid, dx, dy, dw, dh);
+
+        // Micro RGB split (small offsets)
+        const dpr = Math.min(2, window.devicePixelRatio || 1);
+        const ox = Math.round(4 * dpr);
+        const oy = Math.round(2 * dpr);
+
+        ctx.globalCompositeOperation = "screen";
+        ctx.save(); ctx.translate(-ox, -oy);
+        ctx.drawImage(vid, dx, dy, dw, dh);
+        ctx.restore();
+        ctx.globalCompositeOperation = "multiply";
+        ctx.fillStyle = "rgba(255,0,70,0.22)";
+        ctx.fillRect(0,0,cw,ch);
+
+        ctx.globalCompositeOperation = "screen";
+        ctx.save(); ctx.translate(ox, 0);
+        ctx.drawImage(vid, dx, dy, dw, dh);
+        ctx.restore();
+        ctx.globalCompositeOperation = "multiply";
+        ctx.fillStyle = "rgba(0,255,160,0.16)";
+        ctx.fillRect(0,0,cw,ch);
+
+        ctx.globalCompositeOperation = "screen";
+        ctx.save(); ctx.translate(0, oy);
+        ctx.drawImage(vid, dx, dy, dw, dh);
+        ctx.restore();
+        ctx.globalCompositeOperation = "multiply";
+        ctx.fillStyle = "rgba(0,140,255,0.18)";
+        ctx.fillRect(0,0,cw,ch);
+
+        // Show for 1 animation frame (single-frame hit)
+        rgb.classList.add("show");
+        requestAnimationFrame(() => {
+          rgb.classList.remove("show");
+          ctx.clearRect(0,0,cw,ch);
+        });
+      }
+
+      // --- Sync fade + hit ---
+      // "Beat/glitch" sync depends on your actual edit; these offsets are easy to tune:
+      // Fade begins slightly before the end, and RGB hit triggers right on the last-frame window.
+      const FADE_LEAD = 0.40;   // seconds before end to start fading (tweak if needed)
+      const HIT_LEAD  = 0.12;   // seconds before end for the 1-frame RGB hit
+
+      let hitDone = false;
+      let fadeDone = false;
+
+      function tickSync(){
+        const d = vid.duration;
+        if (!isFinite(d) || d <= 0) return;
+
+        const remain = d - vid.currentTime;
+
+        if (!fadeDone && remain <= FADE_LEAD){
+          fadeDone = true;
+          // slight delay helps match a last-beat feel while still finishing smoothly
+          setTimeout(() => intro.classList.add("hide"), Math.max(0, (FADE_LEAD - 0.18) * 1000));
+        }
+
+        if (!hitDone && remain <= HIT_LEAD){
+          hitDone = true;
+          rgbOneFrameHit();
+        }
+      }
+
+      vid.loop = false;
+      vid.addEventListener("timeupdate", tickSync, { passive:true });
+      vid.addEventListener("ended", () => {
+        // If the video ends before our fade triggers for any reason, hide immediately
+        if (!intro.classList.contains("hide")) intro.classList.add("hide");
+      });
+
+      // --- Smart skip: double tap/click ---
+      let taps = 0;
+      let armed = true;
+
+      function trySkip(){
+        if (intro.classList.contains("hide")) return;
+        if (!armed) return;
+        taps++;
+        clearTimeout(trySkip._t);
+        trySkip._t = setTimeout(() => taps = 0, 320);
+
+        if (taps >= 2){
+          armed = false;
+          try { vid.pause(); } catch(e){}
+          // Skip should still feel punchy: do the RGB hit then fade
+          rgbOneFrameHit();
+          setTimeout(() => intro.classList.add("hide"), 120);
+          taps = 0;
+        }
+      }
+
+      document.addEventListener("click", trySkip, { passive:true });
+      document.addEventListener("touchend", trySkip, { passive:true });
+
+      // Failsafe: if autoplay blocks/stalls, hide after 12s
+      setTimeout(() => {
+        if (!intro.classList.contains("hide")) intro.classList.add("hide");
+      }, 12000);
+    })();
+
   </script>
 </body>
 </html>
