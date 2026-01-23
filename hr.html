@@ -2,9 +2,9 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>VISTAGEOMATICS – HR</title>
+  <title>VISTAGEOMATICS – Employee</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <meta name="description" content="Vista Geomatics HR forms and internal resources." />
+  <meta name="description" content="Vista Geomatics Employee forms and internal resources." />
 
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
 
@@ -61,7 +61,7 @@
         linear-gradient(to bottom, rgba(0,0,0,0.10), rgba(0,0,0,0.58));
     }
 
-    /* Laser canvas: keep enabled on desktop sizes. Only disable on coarse pointer + reduced motion */
+    /* Laser canvas */
     canvas.cursor-trail{
       position:fixed;
       inset:0;
@@ -95,7 +95,6 @@
       overflow:hidden;
       position:relative;
     }
-
     .card::before{
       content:"";
       position:absolute;
@@ -200,7 +199,7 @@
       .btn-grid{ grid-template-columns:1fr; }
     }
 
-    /* Buttons + glitch */
+    /* Buttons */
     .btn{
       position:relative;
       display:flex;
@@ -266,55 +265,79 @@
       z-index:0;
     }
 
-    /* Stronger RGB split overlay for visibility */
-    .btn .glitch-layer{
+    /* --- VERY visible hover glitch: scanlines + slices + rgb shadows --- */
+    .btn .glitch-overlay{
       position:absolute;
-      inset:-2px;
+      inset:0;
       z-index:0;
       pointer-events:none;
       opacity:0;
-      mix-blend-mode:screen;
-    }
-    .btn .glitch-layer::before,
-    .btn .glitch-layer::after{
-      content:"";
-      position:absolute;
-      inset:0;
       border-radius:18px;
       background:
-        linear-gradient(120deg, rgba(31,156,240,0.30), rgba(0,90,156,0.26)),
-        rgba(0,0,0,0.12);
-    }
-    .btn .glitch-layer::before{
-      transform:translate3d(-6px, -1px, 0);
-      filter:hue-rotate(26deg) contrast(1.35) saturate(1.35);
-      opacity:0.95;
-    }
-    .btn .glitch-layer::after{
-      transform:translate3d(6px, 1px, 0);
-      filter:hue-rotate(-26deg) contrast(1.35) saturate(1.35);
-      opacity:0.85;
+        repeating-linear-gradient(
+          0deg,
+          rgba(255,255,255,0.10) 0px,
+          rgba(255,255,255,0.10) 1px,
+          transparent 1px,
+          transparent 5px
+        );
+      mix-blend-mode:overlay;
+      filter:contrast(1.25);
     }
 
-    .btn span{ position:relative; z-index:1; }
+    .btn .slice{
+      position:absolute;
+      inset:0;
+      z-index:0;
+      pointer-events:none;
+      opacity:0;
+      border-radius:18px;
+      background:
+        linear-gradient(120deg, rgba(31,156,240,0.35), rgba(0,90,156,0.28)),
+        rgba(0,0,0,0.12);
+      mix-blend-mode:screen;
+    }
+    .btn .slice.s1{ clip-path: inset(12% 0 72% 0); transform:translateX(-8px); }
+    .btn .slice.s2{ clip-path: inset(42% 0 42% 0); transform:translateX(10px); opacity:0.75; }
+    .btn .slice.s3{ clip-path: inset(72% 0 12% 0); transform:translateX(-6px); opacity:0.6; }
+
+    .btn .label{
+      position:relative;
+      z-index:2;
+      text-shadow:
+        1px 0 rgba(0,180,255,0.35),
+       -1px 0 rgba(255,0,90,0.28);
+    }
+
     .btn .arrow{
+      position:relative;
+      z-index:2;
       letter-spacing:0;
       opacity:0.95;
       transform:translateX(0);
       transition:transform .18s ease;
+      text-shadow:
+        1px 0 rgba(0,180,255,0.35),
+       -1px 0 rgba(255,0,90,0.28);
     }
 
     @keyframes sweep{
       0%{ transform:translateX(-40%) rotate(8deg); }
       100%{ transform:translateX(38%) rotate(8deg); }
     }
-    @keyframes glitchJitter{
-      0%   { transform:translate3d(0,0,0); }
-      20%  { transform:translate3d(1px,-1px,0); }
-      40%  { transform:translate3d(-1px,1px,0); }
-      60%  { transform:translate3d(1px,0.5px,0); }
-      80%  { transform:translate3d(-0.5px,-1px,0); }
-      100% { transform:translate3d(0,0,0); }
+    @keyframes sliceJitter{
+      0%   { transform:translateX(0); }
+      20%  { transform:translateX(-6px); }
+      40%  { transform:translateX(8px); }
+      60%  { transform:translateX(-4px); }
+      80%  { transform:translateX(10px); }
+      100% { transform:translateX(0); }
+    }
+    @keyframes overlayFlicker{
+      0%, 100% { opacity:0.0; }
+      35% { opacity:0.75; }
+      55% { opacity:0.35; }
+      72% { opacity:0.85; }
     }
 
     @media (hover:hover){
@@ -322,24 +345,35 @@
         transform:translateY(-2px);
         box-shadow:0 26px 60px rgba(0,0,0,0.88);
         border-color:rgba(255,255,255,0.18);
-        filter:saturate(1.10) brightness(1.06);
+        filter:saturate(1.12) brightness(1.07);
       }
       .btn:hover::before{ opacity:1; }
       .btn:hover::after{
-        opacity:0.80;
+        opacity:0.85;
         animation:sweep .55s ease forwards;
       }
       .btn:hover .arrow{ transform:translateX(3px); }
-      .btn:hover .glitch-layer{
+
+      /* GLITCH ON HOVER */
+      .btn:hover .glitch-overlay{
         opacity:1;
-        animation:glitchJitter 0.16s steps(2, end) infinite;
+        animation:overlayFlicker 0.26s steps(2, end) infinite;
+      }
+      .btn:hover .slice{
+        opacity:1;
+        animation:sliceJitter 0.18s steps(2, end) infinite;
       }
     }
 
-    /* Mobile / touch: trigger glitch on tap via .glitching class */
-    .btn.glitching .glitch-layer{ opacity:1; animation:glitchJitter 0.14s steps(2, end) infinite; }
-    .btn.glitching::before{ opacity:1; }
-    .btn.glitching::after{ opacity:0.80; animation:sweep .55s ease forwards; }
+    /* Touch: add .glitching class briefly */
+    .btn.glitching .glitch-overlay{
+      opacity:1;
+      animation:overlayFlicker 0.26s steps(2, end) infinite;
+    }
+    .btn.glitching .slice{
+      opacity:1;
+      animation:sliceJitter 0.18s steps(2, end) infinite;
+    }
 
     .btn:active{ transform:translateY(0); filter:brightness(1.08); }
 
@@ -359,7 +393,7 @@
     @media (prefers-reduced-motion: reduce){
       .btn, .back{ transition:none !important; }
       .btn::after, .back::after{ display:none; }
-      .btn .glitch-layer{ display:none; }
+      .btn .glitch-overlay, .btn .slice{ display:none; }
     }
   </style>
 </head>
@@ -375,13 +409,13 @@
   <canvas class="cursor-trail" id="trail" aria-hidden="true"></canvas>
 
   <main class="wrap">
-    <section class="card" aria-label="HR Links">
+    <section class="card" aria-label="Employee Links">
       <header class="card-head">
         <div>
           <div class="brand" aria-label="VISTAGEOMATICS">
             <span class="vista">VISTA</span><span class="geomatics">GEOMATICS</span>
           </div>
-          <div class="tagline">HR forms and internal resources.</div>
+          <div class="tagline">Employee forms and internal resources.</div>
         </div>
         <a class="back" href="./" aria-label="Back to portal">Back</a>
       </header>
@@ -389,35 +423,50 @@
       <div class="card-body">
         <div class="btn-grid">
           <a class="btn" href="https://efederation.wip.ceridian.com/adfs/ls/?wtrealm=https%3A%2F%2Fiam.dayforce.com%2F&wa=wsignin1.0" target="_blank" rel="noopener">
-            <i class="glitch-layer" aria-hidden="true"></i>
-            <span>Dayforce Login</span><span class="arrow">→</span>
+            <span class="glitch-overlay" aria-hidden="true"></span>
+            <span class="slice s1" aria-hidden="true"></span>
+            <span class="slice s2" aria-hidden="true"></span>
+            <span class="slice s3" aria-hidden="true"></span>
+            <span class="label">Dayforce Login</span><span class="arrow">→</span>
           </a>
 
           <a class="btn" href="https://clients.powerpay.ca/selfservice/login" target="_blank" rel="noopener">
-            <i class="glitch-layer" aria-hidden="true"></i>
-            <span>PowerPay Employee</span><span class="arrow">→</span>
+            <span class="glitch-overlay" aria-hidden="true"></span>
+            <span class="slice s1" aria-hidden="true"></span>
+            <span class="slice s2" aria-hidden="true"></span>
+            <span class="slice s3" aria-hidden="true"></span>
+            <span class="label">PowerPay Employee</span><span class="arrow">→</span>
           </a>
 
           <a class="btn" href="https://calendar.google.com/calendar/u/0?cid=MHE3YXB1cjBlamczcm9xdDF1amY2ODBsZmtAZ3JvdXAuY2FsZW5kYXIuZ29vZ2xlLmNvbQ" target="_blank" rel="noopener">
-            <i class="glitch-layer" aria-hidden="true"></i>
-            <span>Time Off Calendar</span><span class="arrow">→</span>
+            <span class="glitch-overlay" aria-hidden="true"></span>
+            <span class="slice s1" aria-hidden="true"></span>
+            <span class="slice s2" aria-hidden="true"></span>
+            <span class="slice s3" aria-hidden="true"></span>
+            <span class="label">Time Off Calendar</span><span class="arrow">→</span>
           </a>
 
           <a class="btn" href="https://vistageomatics.github.io/Mileage-Log/" target="_blank" rel="noopener">
-            <i class="glitch-layer" aria-hidden="true"></i>
-            <span>Mileage Report</span><span class="arrow">→</span>
+            <span class="glitch-overlay" aria-hidden="true"></span>
+            <span class="slice s1" aria-hidden="true"></span>
+            <span class="slice s2" aria-hidden="true"></span>
+            <span class="slice s3" aria-hidden="true"></span>
+            <span class="label">Mileage Report</span><span class="arrow">→</span>
           </a>
 
           <a class="btn" href="https://vistageomatics.github.io/Expense-Report/" target="_blank" rel="noopener">
-            <i class="glitch-layer" aria-hidden="true"></i>
-            <span>Expense Report</span><span class="arrow">→</span>
+            <span class="glitch-overlay" aria-hidden="true"></span>
+            <span class="slice s1" aria-hidden="true"></span>
+            <span class="slice s2" aria-hidden="true"></span>
+            <span class="slice s3" aria-hidden="true"></span>
+            <span class="label">Expense Report</span><span class="arrow">→</span>
           </a>
         </div>
       </div>
 
       <footer class="card-foot">
         <div>Internal use only.</div>
-        <div style="opacity:.65; letter-spacing:.10em; text-transform:uppercase; font-size:.82rem;">HR</div>
+        <div style="opacity:.65; letter-spacing:.10em; text-transform:uppercase; font-size:.82rem;">Employee</div>
       </footer>
     </section>
   </main>
@@ -440,7 +489,7 @@
         const fire = () => {
           b.classList.add("glitching");
           clearTimeout(b.__gt);
-          b.__gt = setTimeout(() => b.classList.remove("glitching"), 220);
+          b.__gt = setTimeout(() => b.classList.remove("glitching"), 260);
         };
         b.addEventListener("pointerdown", fire, { passive:true });
       });
@@ -456,7 +505,7 @@
       });
     })();
 
-    // Cursor laser trail (enabled on desktop; disabled on touch/reduced motion)
+    // Smoother laser: follow the pointer with easing + spline-like curve.
     (function () {
       const canvas = document.getElementById("trail");
       if (!canvas) return;
@@ -469,11 +518,13 @@
       }
 
       const ctx = canvas.getContext("2d");
-      const points = [];
-      const MAX = 26;           // slightly longer trail so it's noticeable
-      const DECAY = 0.84;       // a bit slower fade
+      const path = []; // smoothed points
+      const MAX = 34;
+      const DECAY = 0.88;
 
-      let hoverPulse = 0;
+      let targetX = null, targetY = null;
+      let x = null, y = null;
+      let vx = 0, vy = 0;
 
       function resize(){
         const dpr = Math.min(2, window.devicePixelRatio || 1);
@@ -486,37 +537,58 @@
       window.addEventListener("resize", resize);
       resize();
 
-      window.addEventListener("mousemove", (e) => {
-        points.push({ x: e.clientX, y: e.clientY, a: 1 });
-        if (points.length > MAX) points.shift();
-      }, { passive: true });
+      const onMove = (e) => {
+        targetX = e.clientX;
+        targetY = e.clientY;
+        if (x === null){ x = targetX; y = targetY; }
+      };
+      window.addEventListener("pointermove", onMove, { passive:true });
 
-      function draw(){
-        ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+      function step(){
+        ctx.clearRect(0,0,window.innerWidth, window.innerHeight);
 
-        hoverPulse += (__laserHoverBoost - hoverPulse) * 0.18;
+        // ease pointer
+        if (targetX !== null){
+          // critically-damped spring-ish smoothing
+          const k = 0.18;   // stiffness
+          const d = 0.72;   // damping
+          vx = (vx + (targetX - x) * k) * d;
+          vy = (vy + (targetY - y) * k) * d;
+          x += vx;
+          y += vy;
 
-        for (const p of points) p.a *= DECAY;
-        while (points.length && points[0].a < 0.04) points.shift();
+          path.push({ x, y, a: 1 });
+          if (path.length > MAX) path.shift();
+        }
 
-        if (points.length >= 2) {
+        // fade
+        for (const p of path) p.a *= DECAY;
+        while (path.length && path[0].a < 0.04) path.shift();
+
+        // draw
+        if (path.length >= 3){
+          const hoverPulse = __laserHoverBoost;
           ctx.globalCompositeOperation = "lighter";
           ctx.lineCap = "round";
           ctx.lineJoin = "round";
 
-          const boostW = 1 + hoverPulse * 1.0;
-          const boostA = 1 + hoverPulse * 0.75;
+          const boostW = 1 + hoverPulse * 0.85;
+          const boostA = 1 + hoverPulse * 0.65;
 
-          for (let i = 1; i < points.length; i++) {
-            const p0 = points[i - 1];
-            const p1 = points[i];
-            const t = i / (points.length - 1);
+          // draw as quadratic segments for smoothness
+          for (let i = 1; i < path.length - 1; i++){
+            const p0 = path[i - 1];
+            const p1 = path[i];
+            const p2 = path[i + 1];
+            const t = i / (path.length - 1);
 
-            // slightly thicker + brighter so it's visible
-            const width = (1.2 + t * 1.15) * boostW;
-            const alpha = Math.min(0.98, p1.a) * (0.22 + t * 0.76) * boostA;
+            const cx = (p1.x + p2.x) / 2;
+            const cy = (p1.y + p2.y) / 2;
 
-            const grad = ctx.createLinearGradient(p0.x, p0.y, p1.x, p1.y);
+            const width = (1.1 + t * 1.2) * boostW;
+            const alpha = Math.min(0.95, p1.a) * (0.18 + t * 0.78) * boostA;
+
+            const grad = ctx.createLinearGradient(p0.x, p0.y, cx, cy);
             grad.addColorStop(0, `rgba(31,156,240,${alpha})`);
             grad.addColorStop(1, `rgba(0,90,156,${alpha})`);
 
@@ -524,31 +596,31 @@
             ctx.lineWidth = width;
             ctx.beginPath();
             ctx.moveTo(p0.x, p0.y);
-            ctx.lineTo(p1.x, p1.y);
+            ctx.quadraticCurveTo(p1.x, p1.y, cx, cy);
             ctx.stroke();
 
-            // brighter “core” line
-            const coreA = Math.min(0.70, alpha * 0.62);
+            // core line
+            const coreA = Math.min(0.62, alpha * 0.60);
             ctx.strokeStyle = `rgba(255,255,255,${coreA})`;
-            ctx.lineWidth = Math.max(0.8, width * 0.34);
+            ctx.lineWidth = Math.max(0.8, width * 0.33);
             ctx.beginPath();
             ctx.moveTo(p0.x, p0.y);
-            ctx.lineTo(p1.x, p1.y);
+            ctx.quadraticCurveTo(p1.x, p1.y, cx, cy);
             ctx.stroke();
           }
 
-          // Head sparkle
-          const head = points[points.length - 1];
+          // head sparkle
+          const head = path[path.length - 1];
           ctx.globalCompositeOperation = "source-over";
           ctx.beginPath();
-          ctx.arc(head.x, head.y, 2.0 + hoverPulse*0.8, 0, Math.PI * 2);
+          ctx.arc(head.x, head.y, 2.0 + hoverPulse*0.7, 0, Math.PI*2);
           ctx.fillStyle = "rgba(255,255,255,0.92)";
           ctx.fill();
         }
 
-        requestAnimationFrame(draw);
+        requestAnimationFrame(step);
       }
-      requestAnimationFrame(draw);
+      requestAnimationFrame(step);
     })();
   </script>
 </body>
