@@ -24,7 +24,7 @@
 
     body{
       margin:0;
-      font-family:"Inter", system-ui, sans-serif;
+      font-family:"Inter", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
       color:var(--text);
       background:var(--bg0);
       overflow-x:hidden;
@@ -42,7 +42,9 @@
       width:100%;
       height:100%;
       object-fit:cover;
+      object-position:center;
       filter:contrast(1.05) brightness(0.9);
+      transform:scale(1.02);
     }
 
     .bg-overlay{
@@ -51,7 +53,9 @@
       z-index:-2;
       pointer-events:none;
       background:
-        radial-gradient(circle at 50% 0%, rgba(0,0,0,0.25), rgba(0,0,0,0.85));
+        radial-gradient(1200px 700px at 50% 10%, rgba(31,156,240,0.10), transparent 62%),
+        radial-gradient(900px 600px at 15% 85%, rgba(0,90,156,0.12), transparent 60%),
+        radial-gradient(circle at 50% 0%, rgba(0,0,0,0.22), rgba(0,0,0,0.86));
     }
 
     /* Loading screen (no stripes, no title) */
@@ -65,6 +69,7 @@
       justify-content:center;
       overflow:hidden;
       transition:opacity .5s ease, visibility .5s ease;
+      padding: max(16px, env(safe-area-inset-top)) 16px max(18px, env(safe-area-inset-bottom));
     }
     .intro.hide{
       opacity:0;
@@ -77,7 +82,22 @@
       width:100%;
       height:100%;
       object-fit:cover;
+      object-position:center;
+      filter:contrast(1.05) brightness(0.9);
+      transform:scale(1.01);
     }
+
+    /* 1–2 frame RGB split canvas overlay */
+    canvas.rgb{
+      position:absolute;
+      inset:0;
+      width:100%;
+      height:100%;
+      z-index:1;
+      pointer-events:none;
+      opacity:0;
+    }
+    canvas.rgb.show{ opacity:1; }
 
     .skip{
       position:relative;
@@ -87,6 +107,8 @@
       letter-spacing:.12em;
       text-transform:uppercase;
       opacity:.6;
+      user-select:none;
+      text-align:center;
     }
 
     /* Portal */
@@ -97,7 +119,7 @@
       display:flex;
       align-items:center;
       justify-content:center;
-      padding:18px;
+      padding: max(18px, env(safe-area-inset-top)) 18px max(18px, env(safe-area-inset-bottom));
     }
 
     .card{
@@ -119,93 +141,276 @@
       font-family:"Montserrat", sans-serif;
       letter-spacing:.22em;
       text-transform:uppercase;
-      font-size:1.05rem;
+      font-size:clamp(0.95rem, 2.6vw, 1.05rem);
+      line-height:1.15;
+    }
+
+    .tagline{
+      margin-top:10px;
+      color:var(--muted);
+      font-size:0.95rem;
+      line-height:1.35;
     }
 
     .card-body{
       padding:26px;
       display:grid;
-      grid-template-columns:repeat(3,1fr);
+      grid-template-columns:repeat(3, minmax(0, 1fr));
       gap:14px;
     }
 
-    @media(max-width:700px){
+    @media(max-width:760px){
+      .card-body{ grid-template-columns:repeat(2, minmax(0, 1fr)); }
+    }
+    @media(max-width:520px){
       .card-body{ grid-template-columns:1fr; }
     }
 
     .btn{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:14px;
       padding:16px;
       border-radius:18px;
       border:1px solid rgba(255,255,255,.12);
-      background:linear-gradient(120deg,var(--vista-blue),var(--vista-blue-dark));
+      background:linear-gradient(120deg,var(--vista-blue),var(--vista-blue-dark),var(--vista-blue));
+      background-size:200% 200%;
       color:#fff;
       text-decoration:none;
       font-weight:700;
       letter-spacing:.12em;
       text-transform:uppercase;
-      text-align:center;
+      box-shadow:0 14px 30px rgba(0,0,0,0.70);
+      transition:transform .18s ease, box-shadow .18s ease, background-position .25s ease, border-color .18s ease, filter .18s ease;
+      min-height:62px;
+      will-change:transform;
     }
+    .btn:hover{
+      transform:translateY(-2px);
+      box-shadow:0 22px 48px rgba(0,0,0,0.88);
+      background-position:100% 0;
+      border-color:rgba(255,255,255,0.16);
+      filter:saturate(1.06) brightness(1.03);
+    }
+    .btn .arrow{ opacity:.95; }
 
-    /* Glitch pulse */
-    .glitch{
-      animation:glitch .18s linear;
+    /* Simple Go Top */
+    #goTop{
+      position:fixed;
+      right:16px;
+      bottom:16px;
+      width:46px;
+      height:46px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,.10);
+      background:rgba(5,10,18,.60);
+      color:#fff;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      cursor:pointer;
+      z-index:40;
+      opacity:0;
+      transform:translateY(6px);
+      transition:opacity .2s ease, transform .2s ease, background .2s ease;
+      backdrop-filter: blur(10px);
     }
-    @keyframes glitch{
-      0%{ filter:none; }
-      50%{ filter:hue-rotate(20deg) contrast(1.3); }
-      100%{ filter:none; }
-    }
+    #goTop.show{ opacity:1; transform:translateY(0); }
+    #goTop:hover{ background:rgba(5,10,18,.78); }
   </style>
 </head>
 
 <body>
-  <div class="bg-video">
-    <video autoplay muted loop playsinline>
+  <div class="bg-video" aria-hidden="true">
+    <video id="bgVid" autoplay muted loop playsinline preload="metadata">
       <source src="Glitch.mov" type="video/mp4">
     </video>
   </div>
-  <div class="bg-overlay"></div>
+  <div class="bg-overlay" aria-hidden="true"></div>
 
-  <div class="intro" id="intro">
-    <video id="loadingVid" autoplay muted playsinline>
+  <div class="intro" id="intro" aria-label="Loading">
+    <video id="loadingVid" autoplay muted playsinline preload="auto">
       <source src="Loading.mp4" type="video/mp4">
     </video>
-    <div class="skip">Tap twice to skip</div>
+
+    <!-- RGB split flash overlay (1–2 frames) -->
+    <canvas class="rgb" id="rgb" aria-hidden="true"></canvas>
+
+    <div class="skip" id="skipText">Tap twice to skip</div>
   </div>
 
   <main class="wrap">
-    <section class="card">
-      <div class="card-head">
+    <section class="card" aria-label="Forms Portal">
+      <header class="card-head">
         <div class="brand-mini">VISTAGEOMATICS</div>
-      </div>
+        <div class="tagline">Select a category to continue.</div>
+      </header>
+
       <div class="card-body">
-        <a class="btn" href="survey.html">Survey</a>
-        <a class="btn" href="safety.html">Safety</a>
-        <a class="btn" href="hr.html">HR</a>
+        <a class="btn" href="survey.html"><span>Survey</span><span class="arrow">→</span></a>
+        <a class="btn" href="safety.html"><span>Safety</span><span class="arrow">→</span></a>
+        <a class="btn" href="hr.html"><span>HR</span><span class="arrow">→</span></a>
       </div>
     </section>
   </main>
 
+  <button id="goTop" type="button" aria-label="Back to top">↑</button>
+
 <script>
+  // Ensure background keeps trying to play (mobile-safe; muted+playsinline usually OK)
+  (function(){
+    const v = document.getElementById("bgVid");
+    if (!v) return;
+    const tryPlay = () => v.play().catch(()=>{});
+    document.addEventListener("visibilitychange", () => { if (!document.hidden) tryPlay(); });
+    window.addEventListener("load", tryPlay);
+    tryPlay();
+  })();
+
   const intro = document.getElementById("intro");
   const loadingVid = document.getElementById("loadingVid");
-  let taps = 0;
+  const rgb = document.getElementById("rgb");
 
-  function endIntro(){
-    intro.classList.add("glitch");
-    setTimeout(()=>intro.classList.add("hide"),120);
+  let tapCount = 0;
+  let skipArmed = true;
+  let lastFrameTriggered = false;
+
+  // --- RGB split (1–2 frames) captured from the *actual* last-frame area ---
+  function resizeRGB(){
+    if (!rgb) return;
+    const dpr = Math.min(2, window.devicePixelRatio || 1); // cap for mobile perf
+    rgb.width  = Math.floor(window.innerWidth * dpr);
+    rgb.height = Math.floor(window.innerHeight * dpr);
+  }
+  window.addEventListener("resize", resizeRGB, { passive:true });
+  resizeRGB();
+
+  function rgbSplitFlash(){
+    if (!rgb || !loadingVid) return;
+    const ctx = rgb.getContext("2d", { alpha:true });
+
+    const vw = loadingVid.videoWidth || 0;
+    const vh = loadingVid.videoHeight || 0;
+    if (!vw || !vh) return;
+
+    const cw = rgb.width, ch = rgb.height;
+
+    // cover-fit math
+    const s = Math.max(cw / vw, ch / vh);
+    const dw = vw * s, dh = vh * s;
+    const dx = (cw - dw) / 2;
+    const dy = (ch - dh) / 2;
+
+    ctx.clearRect(0,0,cw,ch);
+
+    // Base frame
+    ctx.globalCompositeOperation = "source-over";
+    ctx.drawImage(loadingVid, dx, dy, dw, dh);
+
+    // RGB split (very small offsets = "micro" glitch)
+    const dpr = Math.min(2, window.devicePixelRatio || 1);
+    const ox = Math.round(4 * dpr);
+    const oy = Math.round(2 * dpr);
+
+    // Additive shifted draws (screen), then tiny tints (multiply) to separate channels
+    ctx.globalCompositeOperation = "screen";
+
+    // Red-ish
+    ctx.save();
+    ctx.translate(-ox, -oy);
+    ctx.drawImage(loadingVid, dx, dy, dw, dh);
+    ctx.restore();
+    ctx.globalCompositeOperation = "multiply";
+    ctx.fillStyle = "rgba(255,0,60,0.18)";
+    ctx.fillRect(0,0,cw,ch);
+
+    // Green-ish
+    ctx.globalCompositeOperation = "screen";
+    ctx.save();
+    ctx.translate(ox, 0);
+    ctx.drawImage(loadingVid, dx, dy, dw, dh);
+    ctx.restore();
+    ctx.globalCompositeOperation = "multiply";
+    ctx.fillStyle = "rgba(0,255,150,0.14)";
+    ctx.fillRect(0,0,cw,ch);
+
+    // Blue-ish
+    ctx.globalCompositeOperation = "screen";
+    ctx.save();
+    ctx.translate(0, oy);
+    ctx.drawImage(loadingVid, dx, dy, dw, dh);
+    ctx.restore();
+    ctx.globalCompositeOperation = "multiply";
+    ctx.fillStyle = "rgba(0,140,255,0.16)";
+    ctx.fillRect(0,0,cw,ch);
+
+    // Show for exactly 1–2 frames
+    rgb.classList.add("show");
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        rgb.classList.remove("show");
+        ctx.clearRect(0,0,cw,ch);
+      });
+    });
   }
 
+  function endIntro(){
+    if (!intro || intro.classList.contains("hide")) return;
+    // final pulse exactly at transition
+    rgbSplitFlash();
+    setTimeout(() => intro.classList.add("hide"), 80);
+  }
+
+  // Trigger a "last-frame" pulse slightly before end, then transition on ended.
+  function checkNearEnd(){
+    if (lastFrameTriggered) return;
+    const d = loadingVid.duration;
+    if (!isFinite(d) || d <= 0) return;
+
+    // ~0.14s before the end (close enough to feel like "last frame" across devices)
+    if ((d - loadingVid.currentTime) <= 0.14){
+      lastFrameTriggered = true;
+      rgbSplitFlash();
+    }
+  }
+
+  // Make sure Loading.mp4 plays once fully
+  loadingVid.loop = false;
+
+  loadingVid.addEventListener("timeupdate", checkNearEnd, { passive:true });
   loadingVid.addEventListener("ended", endIntro);
 
-  document.addEventListener("click", () => {
-    taps++;
-    setTimeout(()=>taps=0,300);
-    if(taps>=2){
-      loadingVid.pause();
+  // Double-tap/click to skip
+  function registerTap(){
+    if (!skipArmed) return;
+    tapCount++;
+    clearTimeout(registerTap._t);
+    registerTap._t = setTimeout(()=>tapCount=0, 320);
+    if (tapCount >= 2){
+      skipArmed = false;
+      try { loadingVid.pause(); } catch(e){}
       endIntro();
+      setTimeout(()=>{ tapCount = 0; }, 0);
     }
-  });
+  }
+  document.addEventListener("click", registerTap, { passive:true });
+  document.addEventListener("touchend", registerTap, { passive:true });
+
+  // Failsafe: if autoplay blocks or stalls, exit after 10s
+  setTimeout(() => {
+    if (!intro.classList.contains("hide")) endIntro();
+  }, 10000);
+
+  // Go top
+  (function () {
+    const btn = document.getElementById("goTop");
+    if (!btn) return;
+    const toggle = () => btn.classList.toggle("show", window.scrollY > 120);
+    window.addEventListener("scroll", toggle, { passive: true });
+    toggle();
+    btn.addEventListener("click", () => window.scrollTo({ top: 0, behavior: "smooth" }));
+  })();
 </script>
 </body>
 </html>
