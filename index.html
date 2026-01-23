@@ -4,7 +4,6 @@
   <meta charset="UTF-8" />
   <title>VISTAGEOMATICS – Internal Forms Portal</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <meta name="description" content="Vista Geomatics internal forms portal for Survey, Safety, and Employee resources." />
 
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
 
@@ -14,7 +13,6 @@
       --text:rgba(255,255,255,0.96);
       --muted:rgba(255,255,255,0.72);
       --vista-blue:#1f9cf0;
-      --vista-blue-dark:#005a9c;
       --glass:rgba(10,16,26,0.55);
       --stroke:rgba(255,255,255,0.12);
       --shadow:0 30px 70px rgba(0,0,0,0.80);
@@ -28,6 +26,35 @@
       background:var(--bg);
       color:var(--text);
       overflow-x:hidden;
+    }
+
+    /* ===== Loader (Loading.mp4) ===== */
+    .loader{
+      position:fixed;
+      inset:0;
+      z-index:120;
+      background:#000;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      transition:opacity .6s ease, visibility .6s ease;
+    }
+    .loader.hide{ opacity:0; visibility:hidden; }
+    .loader video{
+      width:100%;
+      height:100%;
+      object-fit:cover;
+    }
+    .loader .skip{
+      position:absolute;
+      bottom:22px;
+      left:50%;
+      transform:translateX(-50%);
+      font-size:.75rem;
+      letter-spacing:.15em;
+      opacity:.65;
+      text-transform:uppercase;
+      user-select:none;
     }
 
     /* Background */
@@ -96,7 +123,7 @@
     @media(max-width:760px){ .btn-grid{grid-template-columns:repeat(2,1fr);} }
     @media(max-width:520px){ .btn-grid{grid-template-columns:1fr;} }
 
-    /* Buttons – same style as Employee page */
+    /* Buttons */
     .btn{
       position:relative;
       padding:18px;
@@ -115,7 +142,6 @@
       overflow:hidden;
       backdrop-filter:blur(10px);
       transition:transform .2s ease,border-color .2s ease,box-shadow .2s ease;
-      will-change:transform;
     }
 
     .btn::before{
@@ -151,11 +177,19 @@
     }
 
     .arrow{ opacity:.9; }
-
   </style>
 </head>
 
 <body>
+
+  <!-- Loader -->
+  <div class="loader" id="loader">
+    <video id="loaderVid" autoplay muted playsinline preload="auto">
+      <source src="Loading.mp4" type="video/mp4">
+    </video>
+    <div class="skip">Tap twice to skip</div>
+  </div>
+
   <!-- Background -->
   <div class="bg-video">
     <video autoplay muted loop playsinline>
@@ -184,7 +218,32 @@
   </main>
 
 <script>
-  // Smooth laser (same as Employee page)
+  // ===== Loader: play once per session, double-tap skip =====
+  (function(){
+    const loader = document.getElementById("loader");
+    const vid = document.getElementById("loaderVid");
+    const KEY = "vg_index_loader_seen";
+
+    if(sessionStorage.getItem(KEY)){
+      loader.classList.add("hide");
+      return;
+    }
+    sessionStorage.setItem(KEY,"1");
+
+    let taps = 0;
+    document.addEventListener("click",()=>{
+      taps++;
+      setTimeout(()=>taps=0,300);
+      if(taps>=2){
+        loader.classList.add("hide");
+        vid.pause();
+      }
+    });
+
+    vid.addEventListener("ended",()=>loader.classList.add("hide"));
+  })();
+
+  // ===== Smooth laser =====
   (function(){
     const c=document.getElementById("trail"),ctx=c.getContext("2d");
     if(!c) return;
