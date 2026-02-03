@@ -28,175 +28,57 @@
       overflow-x:hidden;
     }
 
-    /* Intro */
-    .intro{
-      position:fixed; inset:0; z-index:120;
-      background:#000;
-      transition:opacity .55s ease, visibility .55s ease;
-    }
+    .intro{position:fixed; inset:0; z-index:120; background:#000; transition:opacity .55s ease, visibility .55s ease;}
     .intro.hide{ opacity:0; visibility:hidden; }
     .intro video{ width:100%; height:100%; object-fit:cover; }
-    .intro .skip{
-      position:absolute; bottom:22px; left:50%;
-      transform:translateX(-50%);
-      font-size:.75rem; letter-spacing:.15em;
-      opacity:.65; text-transform:uppercase;
-    }
+    .intro .skip{ position:absolute; bottom:22px; left:50%; transform:translateX(-50%); font-size:.75rem; letter-spacing:.15em; opacity:.65; text-transform:uppercase; }
 
-    /* Background */
-    .bg-video video{
-      position:fixed; inset:0;
-      width:100%; height:100%;
-      object-fit:cover;
-      filter:brightness(.85) contrast(1.05);
-      z-index:-3;
-    }
-    .bg-overlay{
-      position:fixed; inset:0; z-index:-2;
-      background:linear-gradient(to bottom,rgba(0,0,0,.25),rgba(0,0,0,.8));
-    }
+    .bg-video video{ position:fixed; inset:0; width:100%; height:100%; object-fit:cover; filter:brightness(.85) contrast(1.05); z-index:-3; }
+    .bg-overlay{ position:fixed; inset:0; z-index:-2; background:linear-gradient(to bottom,rgba(0,0,0,.25),rgba(0,0,0,.8)); }
 
     canvas#trail{ position:fixed; inset:0; pointer-events:none; z-index:50; }
 
-    .wrap{
-      min-height:100vh;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      padding:20px;
-    }
-    .card{
-      width:min(920px,100%);
-      background:var(--glass);
-      backdrop-filter:blur(14px);
-      border-radius:var(--radius);
-      border:1px solid var(--stroke);
-      box-shadow:var(--shadow);
-      overflow:hidden;
-    }
-    .card-head{
-      padding:24px;
-      border-bottom:1px solid var(--stroke);
-      display:flex;
-      justify-content:space-between;
-      align-items:flex-start;
-    }
+    .wrap{ min-height:100vh; display:flex; align-items:center; justify-content:center; padding:20px; }
+    .card{ width:min(920px,100%); background:var(--glass); backdrop-filter:blur(14px); border-radius:var(--radius); border:1px solid var(--stroke); box-shadow:var(--shadow); overflow:hidden; }
+    .card-head{ padding:24px; border-bottom:1px solid var(--stroke); display:flex; justify-content:space-between; align-items:flex-start; }
 
-    .brand{
-      font-family:Montserrat,sans-serif;
-      letter-spacing:.22em;
-      text-transform:uppercase;
-      font-size:1.1rem;
-    }
+    .brand{ font-family:Montserrat,sans-serif; letter-spacing:.22em; text-transform:uppercase; font-size:1.1rem; }
     .brand .vista{ font-weight:700; }
     .brand .geomatics{ font-weight:400; }
 
-    .back{
-      color:#fff; text-decoration:none;
-      font-size:.75rem; letter-spacing:.15em;
-      text-transform:uppercase; opacity:.8;
-    }
+    .back{ color:#fff; text-decoration:none; font-size:.75rem; letter-spacing:.15em; text-transform:uppercase; opacity:.8; }
 
     .card-body{ padding:22px; }
 
-    .btn-grid{
-      display:grid;
-      grid-template-columns:repeat(3,1fr);
-      gap:16px;
-    }
+    .btn-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:16px; }
     @media(max-width:760px){ .btn-grid{grid-template-columns:repeat(2,1fr);} }
     @media(max-width:520px){ .btn-grid{grid-template-columns:1fr;} }
 
-    .btn{
-      position:relative;
-      padding:18px;
-      border-radius:18px;
-      border:1px solid rgba(255,255,255,.14);
-      background:rgba(0,0,0,.25);
-      color:#fff;
-      text-decoration:none;
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      font-weight:800;
-      letter-spacing:.14em;
-      text-transform:uppercase;
-      min-height:66px;
-      overflow:hidden;
-      backdrop-filter:blur(10px);
-      transition:transform .2s ease,border-color .2s ease,box-shadow .2s ease;
-    }
-
-    .btn:hover{
-      transform:translateY(-2px);
-      border-color:var(--vista-blue);
-      box-shadow:0 22px 50px rgba(0,0,0,0.8);
-    }
+    .btn{ position:relative; padding:18px; border-radius:18px; border:1px solid rgba(255,255,255,.14); background:rgba(0,0,0,.25); color:#fff; text-decoration:none; display:flex; justify-content:space-between; align-items:center; font-weight:800; letter-spacing:.14em; text-transform:uppercase; min-height:66px; overflow:hidden; backdrop-filter:blur(10px); transition:transform .2s ease,border-color .2s ease,box-shadow .2s ease; }
+    .btn:hover{ transform:translateY(-2px); border-color:var(--vista-blue); box-shadow:0 22px 50px rgba(0,0,0,0.8); }
   </style>
 </head>
-
 <body>
-
-  <!-- Intro -->
-  <div class="intro" id="intro">
-    <video id="surveyIntro" autoplay muted playsinline>
-      <source src="survey.mp4" type="video/mp4">
-    </video>
-    <div class="skip">Tap twice to skip</div>
-  </div>
-
-  <!-- Background -->
-  <div class="bg-video">
-    <video autoplay muted loop playsinline>
-      <source src="Glitch.mov" type="video/mp4">
-    </video>
-  </div>
+  <div class="intro" id="intro"><video id="surveyIntro" autoplay muted playsinline><source src="survey.mp4" type="video/mp4"></video><div class="skip">Tap twice to skip</div></div>
+  <div class="bg-video"><video autoplay muted loop playsinline><source src="Glitch.mov" type="video/mp4"></video></div>
   <div class="bg-overlay"></div>
-
   <canvas id="trail"></canvas>
-
   <main class="wrap">
     <section class="card">
       <header class="card-head">
-        <div class="brand">
-          <span class="vista">VISTA</span><span class="geomatics">GEOMATICS</span>
-        </div>
+        <div class="brand"><span class="vista">VISTA</span><span class="geomatics">GEOMATICS</span></div>
         <a class="back" href="index.html">Back</a>
       </header>
-
       <div class="card-body">
         <div class="btn-grid">
           <a class="btn" href="https://vistageomatics.github.io/evidence-report/" target="_blank">Evidence Report →</a>
           <a class="btn" href="https://drive.google.com/file/d/17YKBb5GKTefKanFOsrPcbMUyrr8i9znI/view" target="_blank">Calibration →</a>
           <a class="btn" href="https://drive.google.com/file/d/18eJBzR0rHdzwa35nDwQtXxl1Z24zhb67/view?pli=1" target="_blank">Utility Code →</a>
+          <a class="btn" href="drone.html">Drone →</a>
         </div>
       </div>
     </section>
   </main>
-
-<script>
-  // intro once per session
-  (function(){
-    const intro=document.getElementById("intro");
-    const vid=document.getElementById("surveyIntro");
-    const KEY="vg_survey_intro_seen_final";
-
-    if(sessionStorage.getItem(KEY)){
-      intro.classList.add("hide");
-      return;
-    }
-    sessionStorage.setItem(KEY,"1");
-
-    let taps=0;
-    document.addEventListener("click",()=>{
-      taps++;
-      setTimeout(()=>taps=0,300);
-      if(taps>=2){ intro.classList.add("hide"); vid.pause(); }
-    });
-
-    setTimeout(()=>intro.classList.add("hide"),5000);
-  })();
-</script>
-
+<script>(function(){const intro=document.getElementById("intro");const vid=document.getElementById("surveyIntro");const KEY="vg_survey_intro_seen_final";if(sessionStorage.getItem(KEY)){intro.classList.add("hide");return;}sessionStorage.setItem(KEY,"1");let taps=0;document.addEventListener("click",()=>{taps++;setTimeout(()=>taps=0,300);if(taps>=2){intro.classList.add("hide");vid.pause();}});setTimeout(()=>intro.classList.add("hide"),5000);})();</script>
 </body>
 </html>
