@@ -292,7 +292,15 @@
       stroke-linejoin:round;
       filter:drop-shadow(0 0 10px rgba(31,156,240,0.10));
     }
-    .label{ white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .label{
+      white-space:normal;
+      overflow:visible;
+      text-overflow:clip;
+      line-height:1.25;
+      overflow-wrap:anywhere;
+    }
+    .btn .left{ flex:1 1 auto; }
+    .arrow{ flex:0 0 auto; }
     .arrow{
       position:relative;
       z-index:1;
@@ -407,14 +415,35 @@
                 <span class="label">Site Inspections</span>
               </span>
               <span class="arrow">→</span>
+            </a>
+
+            <a class="btn" data-magnet href="https://vistageomatics.github.io/Work-From-Home-Hazard-Assessment/" target="_blank" rel="noopener">
+              <span class="left">
+                <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/><path d="M9 20v-6h6v6"/>
+                </svg>
+                <span class="label">Work From Home Hazard Assessment</span>
+              </span>
               <span class="arrow">→</span>
             </a>
+
+
           </div>
         </div>
 
         <div class="section">
           <div class="section-title">Manuals and Legislation</div>
           <div class="btn-grid">
+            <a class="btn" data-magnet href="https://vistageomatics.github.io/WHMIS-SDS/" target="_blank" rel="noopener">
+              <span class="left">
+                <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M7 3h10v18H7z"/><path d="M9 7h6M9 11h6M9 15h6"/><path d="M17 5l3 3"/>
+                </svg>
+                <span class="label">WHMIS SDS Sheets</span>
+              </span>
+              <span class="arrow">→</span>
+            </a>
+
             <a class="btn" data-magnet href="https://drive.google.com/file/d/1AC54aUZOQ1Ez2J0-Hq-NuF7xZTbrGhE5/view?usp=sharing?usp=sharing" target="_blank" rel="noopener">
               <span class="left">
                 <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
